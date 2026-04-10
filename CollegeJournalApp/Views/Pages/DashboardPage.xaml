@@ -1,0 +1,117 @@
+<Page x:Class="CollegeJournalApp.Views.Pages.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="#FAF9F8"
+      FontFamily="Segoe UI"
+      Title="Главная">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,20,24,24">
+
+            <!-- Заголовок страницы -->
+            <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Margin="0,0,0,20">
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Главная"
+                               FontSize="18" FontWeight="SemiBold"
+                               Foreground="#1F1F1F"/>
+                    <TextBlock Grid.Column="1"
+                               x:Name="TxtDate"
+                               FontSize="12" Foreground="#605E5C"
+                               VerticalAlignment="Bottom"/>
+                </Grid>
+            </Border>
+
+            <!-- Карточки статистики -->
+            <UniformGrid Columns="4" Margin="0,0,0,24">
+                <Border Margin="0,0,8,0" Background="White"
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel Margin="16,14">
+                        <TextBlock x:Name="TxtStudentCount" Text="—"
+                                   FontSize="28" Foreground="#1F1F1F"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Студентов в группе"
+                                   FontSize="11" Foreground="#605E5C"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Margin="4,0" Background="White"
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel Margin="16,14">
+                        <TextBlock x:Name="TxtAttendanceToday" Text="—"
+                                   FontSize="28" Foreground="#1F1F1F"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Посещаемость сегодня"
+                                   FontSize="11" Foreground="#605E5C"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Margin="4,0" Background="White"
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel Margin="16,14">
+                        <TextBlock x:Name="TxtAvgGrade" Text="—"
+                                   FontSize="28" Foreground="#1F1F1F"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Средний балл"
+                                   FontSize="11" Foreground="#605E5C"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Margin="8,0,0,0" Background="White"
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel Margin="16,14">
+                        <TextBlock x:Name="TxtAbsentCount" Text="—"
+                                   FontSize="28" Foreground="#1F1F1F"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Пропусков без причины"
+                                   FontSize="11" Foreground="#605E5C"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Последние события -->
+            <TextBlock Text="Последние действия"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="#323130"
+                       Margin="0,0,0,10"/>
+
+            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                <ItemsControl x:Name="EventsList" Margin="0,4,0,4">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#F3F3F3" BorderThickness="0,0,0,1"
+                                    Padding="16,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="6"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Grid.Column="0" Width="3" Height="16"
+                                               Fill="{Binding DotColor}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Text}"
+                                               FontSize="12" Foreground="#323130"
+                                               TextWrapping="Wrap" Margin="6,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Time}"
+                                               FontSize="11" Foreground="#A19F9D"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
