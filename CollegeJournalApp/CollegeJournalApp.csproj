@@ -345,6 +345,9 @@
     <Compile Include="Helpers\SessionHelper.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="Database\Scripts\sp_ImportScheduleItem.sql">
+      <SubType>Code</SubType>
+    </None>
   </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('..\packages\Microsoft.Data.SqlClient.SNI.6.0.2\build\net462\Microsoft.Data.SqlClient.SNI.targets')" />
