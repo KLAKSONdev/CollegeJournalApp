@@ -50,8 +50,7 @@ namespace CollegeJournalApp.Views.Pages
                         Time      = $"{st} – {et}",
                         Subject   = r["SubjectName"]?.ToString()  ?? "—",
                         Classroom = r["Classroom"]?.ToString()    ?? "—",
-                        Teacher   = r["TeacherName"]?.ToString()  ?? "—",
-                        WeekType  = r["WeekType"]?.ToString()     ?? "Обе"
+                        Teacher   = r["TeacherName"]?.ToString()  ?? "—"
                     });
                 }
 
@@ -65,6 +64,7 @@ namespace CollegeJournalApp.Views.Pages
 
         private void ApplyFilter()
         {
+            if (SchedGrid == null) return;
             var filtered = _all.AsEnumerable();
             if (CmbDay?.SelectedIndex > 0)
                 filtered = filtered.Where(r => r.DayNum == CmbDay.SelectedIndex);
@@ -113,7 +113,7 @@ namespace CollegeJournalApp.Views.Pages
                     var subject = worksheet.Cell(row, 4).GetValue<string>();
                     var classroom = worksheet.Cell(row, 5).GetValue<string>();
                     var teacher = worksheet.Cell(row, 6).GetValue<string>();
-                    var weekType = worksheet.Cell(row, 7).GetValue<string>();
+
 
                     // Определяем день недели по названию
                     int dayNum = Array.IndexOf(Days, dayName);
@@ -141,7 +141,6 @@ namespace CollegeJournalApp.Views.Pages
                         new SqlParameter("@SubjectName", string.IsNullOrEmpty(subject) || subject == "—" ? DBNull.Value : (object)subject),
                         new SqlParameter("@Classroom", string.IsNullOrEmpty(classroom) || classroom == "—" ? DBNull.Value : (object)classroom),
                         new SqlParameter("@TeacherName", string.IsNullOrEmpty(teacher) || teacher == "—" ? DBNull.Value : (object)teacher),
-                        new SqlParameter("@WeekType", string.IsNullOrEmpty(weekType) ? DBNull.Value : (object)weekType),
                         new SqlParameter("@UserId", SessionHelper.UserId),
                         new SqlParameter("@RoleName", SessionHelper.RoleName)
                     };
@@ -162,6 +161,6 @@ namespace CollegeJournalApp.Views.Pages
         public string Subject   { get; set; }
         public string Classroom { get; set; }
         public string Teacher   { get; set; }
-        public string WeekType  { get; set; }
+
     }
 }
