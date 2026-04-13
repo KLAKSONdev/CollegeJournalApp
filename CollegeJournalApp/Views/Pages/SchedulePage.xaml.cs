@@ -65,6 +65,8 @@ namespace CollegeJournalApp.Views.Pages
 
         private void ApplyFilter()
         {
+            if (SchedGrid == null) return;
+
             var filtered = _all.AsEnumerable();
             if (CmbDay?.SelectedIndex > 0)
                 filtered = filtered.Where(r => r.DayNum == CmbDay.SelectedIndex);
