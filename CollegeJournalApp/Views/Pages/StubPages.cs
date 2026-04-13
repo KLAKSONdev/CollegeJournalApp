@@ -19,15 +19,12 @@ namespace CollegeJournalApp.Views.Pages
         }
     }
 
-    public class AttendancePage    : Page { public AttendancePage()    { Content = PageHelper.MakePage("Посещаемость");  } }
-    public class GradesPage        : Page { public GradesPage()        { Content = PageHelper.MakePage("Успеваемость");  } }
-    public class SchedulePage      : Page { public SchedulePage()      { Content = PageHelper.MakePage("Расписание");    } }
-    public class EventsPage        : Page { public EventsPage()        { Content = PageHelper.MakePage("События");       } }
-    public class AnnouncementsPage : Page { public AnnouncementsPage() { Content = PageHelper.MakePage("Объявления");    } }
-    public class AssignmentsPage   : Page { public AssignmentsPage()   { Content = PageHelper.MakePage("Поручения");     } }
-    public class DocumentsPage     : Page { public DocumentsPage()     { Content = PageHelper.MakePage("Документы");     } }
-    public class SocialPage        : Page { public SocialPage()        { Content = PageHelper.MakePage("Соц. карточки"); } }
-    public class AchievementsPage  : Page { public AchievementsPage()  { Content = PageHelper.MakePage("Достижения");    } }
-    public class AuditPage         : Page { public AuditPage()         { Content = PageHelper.MakePage("Журнал аудита"); } }
-    public class UsersPage         : Page { public UsersPage()         { Content = PageHelper.MakePage("Пользователи");  } }
+    // AttendancePage, GradesPage, SchedulePage — перенесены в отдельные XAML файлы
+    public class EventsPage        : Page { public EventsPage()        { Content = PageHelper.MakePage("События");       KeepAlive = false; } }
+    public class AnnouncementsPage : Page { public AnnouncementsPage() { Content = PageHelper.MakePage("Объявления");    KeepAlive = false; } }
+    public class AssignmentsPage   : Page { public AssignmentsPage()   { Content = PageHelper.MakePage("Поручения");     KeepAlive = false; } }
+    public class DocumentsPage     : Page { public DocumentsPage()     { Content = PageHelper.MakePage("Документы");     KeepAlive = false; } }
+    public class SocialPage        : Page { public SocialPage()        { Content = PageHelper.MakePage("Соц. карточки"); KeepAlive = false; } }
+    public class AchievementsPage  : Page { public AchievementsPage()  { Content = PageHelper.MakePage("Достижения");    KeepAlive = false; } }
+    public class UsersPage         : Page { public UsersPage()         { Content = PageHelper.MakePage("Пользователи");  KeepAlive = false; } }
 }

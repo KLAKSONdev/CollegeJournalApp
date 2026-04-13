@@ -21,8 +21,9 @@ namespace CollegeJournalApp
 
             if (SessionHelper.IsAdmin)
             {
-                TabAudit.Visibility = Visibility.Visible;
-                TabUsers.Visibility = Visibility.Visible;
+                TabAudit.Visibility  = Visibility.Visible;
+                TabUsers.Visibility  = Visibility.Visible;
+                TabAdmin.Visibility  = Visibility.Visible;
             }
 
             if (SessionHelper.IsStudent)
@@ -38,10 +39,8 @@ namespace CollegeJournalApp
             {
                 if (_activeTab != null)
                     _activeTab.Style = (Style)FindResource("TabStyle");
-
-                btn.Style = (Style)FindResource("TabActiveStyle");
+                btn.Style  = (Style)FindResource("TabActiveStyle");
                 _activeTab = btn;
-
                 NavigateTo(btn.Tag?.ToString());
             }
         }
@@ -63,6 +62,7 @@ namespace CollegeJournalApp
                 case "Achievements":  MainFrame.Navigate(new AchievementsPage());  break;
                 case "Audit":         MainFrame.Navigate(new AuditPage());         break;
                 case "Users":         MainFrame.Navigate(new UsersPage());         break;
+                case "Admin":         MainFrame.Navigate(new AdminPage());         break;
             }
         }
 
@@ -70,10 +70,7 @@ namespace CollegeJournalApp
         {
             var result = MessageBox.Show(
                 "Вы уверены, что хотите выйти из системы?",
-                "Выход",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
+                "Выход", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
                 SessionHelper.Clear();

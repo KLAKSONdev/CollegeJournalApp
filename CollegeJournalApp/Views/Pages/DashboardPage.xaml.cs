@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
+using CollegeJournalApp.Views;
 using Microsoft.Data.SqlClient;
 
 namespace CollegeJournalApp.Views.Pages
@@ -13,94 +17,131 @@ namespace CollegeJournalApp.Views.Pages
         public DashboardPage()
         {
             InitializeComponent();
-            LoadData();
+            Loaded += (s, e) => LoadData();
         }
 
         private void LoadData()
         {
             TxtDate.Text = DateTime.Now.ToString("dd MMMM yyyy", new CultureInfo("ru-RU"));
             LoadStats();
-            LoadRecentEvents();
+            LoadEvents();
         }
 
         private void LoadStats()
         {
-            // Заглушка — заменишь на реальные запросы к БД
-            TxtStudentCount.Text    = "24";
-            TxtAttendanceToday.Text = "78%";
-            TxtAvgGrade.Text        = "4.1";
-            TxtAbsentCount.Text     = "3";
-        }
-
-        private void LoadRecentEvents()
-        {
-            var events = new List<DashboardEvent>();
-
             try
             {
-                // Получаем последние записи из журнала аудита
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetRecentAudit",
-                    new[] { new SqlParameter("@Limit", 6) });
-
-                foreach (System.Data.DataRow row in dt.Rows)
+                var dt = DatabaseHelper.ExecuteProcedure("sp_GetDashboard", new[]
                 {
-                    events.Add(new DashboardEvent
-                    {
-                        Text     = row["ReadableAction"]?.ToString() ?? "",
-                        Time     = Convert.ToDateTime(row["ActionAt"]).ToString("HH:mm"),
-                        DotColor = GetDotColor(row["Action"]?.ToString())
-                    });
-                }
+                    new SqlParameter("@UserId",   SessionHelper.UserId),
+                    new SqlParameter("@RoleName", SessionHelper.RoleName)
+                });
+                if (dt == null || dt.Rows.Count == 0) return;
+                var row = dt.Rows[0];
+
+                TxtStudentCount.Text    = row["StudentCount"]?.ToString() ?? "—";
+                var attPct              = row["AttendancePercent"];
+                TxtAttendanceToday.Text = attPct != DBNull.Value ? attPct + "%" : "нет данных";
+                var avg                 = Convert.ToDecimal(row["AvgGrade"]);
+                TxtAvgGrade.Text        = avg > 0 ? avg.ToString("F1") : "—";
+                TxtAbsentCount.Text     = row["AbsentCount"]?.ToString() ?? "—";
+
+                var groupName  = row["GroupName"]?.ToString() ?? "—";
+                var mainWindow = Application.Current.MainWindow as MainWindow;
+                if (mainWindow != null)
+                    mainWindow.TxtGroupName.Text = groupName;
             }
             catch
             {
-                // Заглушка пока процедура не создана
-                events.Add(new DashboardEvent
+                TxtStudentCount.Text = TxtAttendanceToday.Text =
+                TxtAvgGrade.Text     = TxtAbsentCount.Text = "—";
+            }
+        }
+
+        private void LoadEvents()
+        {
+            var events = new List<DashboardEvent>();
+            try
+            {
+                var dt = DatabaseHelper.ExecuteProcedure("sp_GetDashboardEvents", new[]
                 {
-                    Text     = "Добро пожаловать в систему «Классный журнал»",
-                    Time     = DateTime.Now.ToString("HH:mm"),
-                    DotColor = "#c9a84c"
+                    new SqlParameter("@UserId",   SessionHelper.UserId),
+                    new SqlParameter("@RoleName", SessionHelper.RoleName),
+                    new SqlParameter("@Limit",    8)
                 });
+
+                bool isAdmin = SessionHelper.IsAdmin;
+                TxtEventsTitle.Text     = isAdmin ? "Последние действия в системе" : "Объявления и события группы";
+                TxtClickHint.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    var eventType = row["EventType"]?.ToString() ?? "";
+                    int? logId = null;
+                    if (row.Table.Columns.Contains("LogId") && row["LogId"] != DBNull.Value)
+                        logId = Convert.ToInt32(row["LogId"]);
+
+                    events.Add(new DashboardEvent
+                    {
+                        LogId    = logId,
+                        Text     = row["EventText"]?.ToString() ?? "",
+                        Time     = Convert.ToDateTime(row["EventTime"]).ToString("HH:mm dd.MM"),
+                        DotColor = GetDotColor(eventType),
+                        CanOpen  = isAdmin && logId.HasValue
+                    });
+                }
+
+                if (events.Count == 0)
+                    events.Add(new DashboardEvent
+                    {
+                        Text = "Нет актуальных событий", Time = "", DotColor = "#A19F9D"
+                    });
+            }
+            catch
+            {
+                TxtEventsTitle.Text = "События";
                 events.Add(new DashboardEvent
                 {
-                    Text     = $"Вход выполнен: {SessionHelper.FullName} ({GetRoleRu(SessionHelper.RoleName)})",
-                    Time     = DateTime.Now.ToString("HH:mm"),
-                    DotColor = "#1a6b3c"
+                    Text = $"Добро пожаловать, {SessionHelper.FullName}",
+                    Time = DateTime.Now.ToString("HH:mm"), DotColor = "#107C10"
                 });
             }
 
             EventsList.ItemsSource = events;
         }
 
-        private string GetDotColor(string action)
+        private void EventsList_DoubleClick(object sender, MouseButtonEventArgs e)
         {
-            switch (action)
-            {
-                case "LOGIN":       return "#1a6b3c";
-                case "CREATE":      return "#1a6b3c";
-                case "SOFT_DELETE": return "#c0392b";
-                case "VIEW":        return "#c9a84c";
-                default:            return "#6b7a99";
-            }
+            if (!(EventsList.SelectedItem is DashboardEvent ev)) return;
+            if (!ev.CanOpen || !ev.LogId.HasValue) return;
+
+            var win = new AuditDetailWindow(ev.LogId.Value);
+            win.Owner = Window.GetWindow(this);
+            win.ShowDialog();
         }
 
-        private string GetRoleRu(string role)
+        private string GetDotColor(string eventType)
         {
-            switch (role)
+            switch (eventType)
             {
-                case "Admin":   return "Администратор";
-                case "Curator": return "Куратор";
-                case "Headman": return "Староста";
-                case "Student": return "Студент";
-                default:        return role ?? "";
+                case "LOGIN":        return "#107C10";
+                case "CREATE":       return "#0078D4";
+                case "SOFT_DELETE":  return "#D13438";
+                case "UPDATE":       return "#CA5010";
+                case "VIEW":         return "#CA5010";
+                case "ANNOUNCEMENT": return "#0078D4";
+                case "EVENT":        return "#107C10";
+                default:             return "#A19F9D";
             }
         }
     }
 
     public class DashboardEvent
     {
+        public int?   LogId    { get; set; }
         public string Text     { get; set; }
         public string Time     { get; set; }
         public string DotColor { get; set; }
+        public bool   CanOpen  { get; set; }
     }
 }

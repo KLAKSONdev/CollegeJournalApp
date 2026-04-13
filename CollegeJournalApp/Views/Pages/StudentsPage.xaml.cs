@@ -1,12 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ClosedXML.Excel;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 
 namespace CollegeJournalApp.Views.Pages
 {
@@ -15,15 +21,16 @@ namespace CollegeJournalApp.Views.Pages
         private List<StudentRow> _allStudents = new List<StudentRow>();
         private bool _loaded = false;
 
+        private static readonly string[] _avatarColors = {
+            "#0078D4","#107C10","#CA5010","#8764B8","#038387","#C43E1C","#004578","#486860"
+        };
+
         public StudentsPage()
         {
             InitializeComponent();
             Loaded += (s, e) => LoadStudents();
         }
 
-        // ═══════════════════════════════════════════
-        // ЗАГРУЗКА СПИСКА СТУДЕНТОВ
-        // ═══════════════════════════════════════════
         private void LoadStudents()
         {
             try
@@ -39,31 +46,77 @@ namespace CollegeJournalApp.Views.Pages
                 foreach (DataRow row in dt.Rows)
                 {
                     var dorm = row["DormitoryName"] != DBNull.Value
-                        ? row["DormitoryName"].ToString() +
-                          (row["RoomNumber"] != DBNull.Value ? ", к." + row["RoomNumber"] : "")
+                        ? row["DormitoryName"] + (row["RoomNumber"] != DBNull.Value ? ", к." + row["RoomNumber"] : "")
                         : "—";
+                    bool isHead  = row["IsHeadman"] != DBNull.Value && Convert.ToBoolean(row["IsHeadman"]);
+                    var fullName = row["FullName"]?.ToString() ?? "";
 
-                    bool isHead = row["IsHeadman"] != DBNull.Value && Convert.ToBoolean(row["IsHeadman"]);
+                    // Фото
+                    ImageSource photo = null;
+                    try
+                    {
+                        if (row.Table.Columns.Contains("PhotoData") &&
+                            row["PhotoData"] != DBNull.Value &&
+                            row["PhotoData"] is byte[] bytes && bytes.Length > 0)
+                        {
+                            // НЕ закрываем MemoryStream — BitmapImage его держит
+                            var ms = new MemoryStream(bytes);
+                            var bmp = new BitmapImage();
+                            bmp.BeginInit();
+                            bmp.StreamSource     = ms;
+                            bmp.CacheOption      = BitmapCacheOption.OnLoad;
+                            bmp.DecodePixelWidth = 72;
+                            bmp.EndInit();
+                            bmp.Freeze();
+                            photo = bmp;
+                        }
+                    }
+                    catch { }
+
+                    var initials    = GetInitials(fullName);
+                    var avatarColor = _avatarColors[Math.Abs(fullName.GetHashCode()) % _avatarColors.Length];
 
                     _allStudents.Add(new StudentRow
                     {
-                        RowNum      = i++,
-                        StudentId   = Convert.ToInt32(row["StudentId"]),
-                        FullName    = row["FullName"]?.ToString(),
-                        StudentCode = row["StudentCode"]?.ToString() ?? "—",
-                        BirthDate   = row["BirthDate"] != DBNull.Value
-                                      ? Convert.ToDateTime(row["BirthDate"]).ToString("dd.MM.yyyy") : "—",
-                        Gender      = row["Gender"]?.ToString() ?? "—",
-                        StudyBasis  = row["StudyBasis"]?.ToString() ?? "—",
-                        Dormitory   = dorm,
-                        Phone       = row["Phone"]?.ToString() ?? "—",
-                        IsHeadman   = isHead,
-                        Status      = isHead ? "Староста" : "Студент",
-                        StatusColor = isHead ? "#0078D4" : "#605E5C"
+                        RowNum          = i++,
+                        StudentId       = Convert.ToInt32(row["StudentId"]),
+                        FullName        = fullName,
+                        GroupName       = row["GroupName"]?.ToString()   ?? "—",
+                        StudentCode     = row["StudentCode"]?.ToString() ?? "—",
+                        BirthDate       = row["BirthDate"] != DBNull.Value ? Convert.ToDateTime(row["BirthDate"]).ToString("dd.MM.yyyy") : "—",
+                        Gender          = row["Gender"]?.ToString()      ?? "—",
+                        StudyBasis      = row["StudyBasis"]?.ToString()  ?? "—",
+                        Dormitory       = dorm.ToString(),
+                        Phone           = row["Phone"]?.ToString()       ?? "—",
+                        IsHeadman       = isHead,
+                        Status          = isHead ? "Староста" : "Студент",
+                        Photo           = photo,
+                        Initials        = initials,
+                        AvatarColor     = avatarColor,
+                        HasPhoto        = photo != null
                     });
                 }
 
                 TxtStudentCount.Text = $"— {_allStudents.Count} чел.";
+
+                if (SessionHelper.IsStudent)
+                {
+                    TxtHint.Visibility = Visibility.Collapsed;
+                    CmbDorm.Visibility = Visibility.Collapsed;
+                    StudentsGrid.Columns[7].Visibility = Visibility.Collapsed;
+                    StudentsGrid.Columns[8].Visibility = Visibility.Collapsed;
+                }
+
+                if (SessionHelper.IsAdmin)
+                {
+                    CmbGroup.Visibility = Visibility.Visible;
+                    CmbGroup.Items.Clear();
+                    CmbGroup.Items.Add(new ComboBoxItem { Content = "Все группы" });
+                    foreach (var g in _allStudents.Select(s => s.GroupName).Distinct().OrderBy(g => g))
+                        CmbGroup.Items.Add(new ComboBoxItem { Content = g });
+                    CmbGroup.SelectedIndex = 0;
+                }
+
                 _loaded = true;
                 ApplyFilters();
             }
@@ -74,290 +127,181 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
+        private static string GetInitials(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName)) return "?";
+            var parts = fullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length >= 2
+                ? $"{parts[0][0]}{parts[1][0]}".ToUpper()
+                : fullName.Substring(0, 1).ToUpper();
+        }
+
         private void ApplyFilters()
         {
             if (!_loaded) return;
-
             var filtered = _allStudents.AsEnumerable();
 
             var search = TxtSearch?.Text?.Trim().ToLower() ?? "";
             if (!string.IsNullOrEmpty(search))
-                filtered = filtered.Where(s => s.FullName != null &&
-                                               s.FullName.ToLower().Contains(search));
+                filtered = filtered.Where(s => s.FullName?.ToLower().Contains(search) == true);
 
-            StudentsList.ItemsSource = filtered.ToList();
-        }
-
-        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilters();
-
-        // ═══════════════════════════════════════════
-        // ВЫБОР СТУДЕНТА — ЗАГРУЗКА КАРТОЧКИ
-        // ═══════════════════════════════════════════
-        private void StudentsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (StudentsList.SelectedItem is StudentRow row)
-                LoadStudentCard(row.StudentId, row);
-        }
-
-        private void LoadStudentCard(int studentId, StudentRow row)
-        {
-            PanelEmpty.Visibility = Visibility.Collapsed;
-            PanelCard.Visibility  = Visibility.Visible;
-
-            // Шапка
-            TxtAvatar.Text          = row.FullName?.Substring(0, 1).ToUpper() ?? "?";
-            TxtCardName.Text        = row.FullName;
-            TxtCardStatus.Text      = row.Status;
-            TxtCardCode.Text        = "Группа: ИС-23-1";
-            TxtCardStudentCode.Text = row.StudentCode;
-            BdrStatus.Background    = new System.Windows.Media.SolidColorBrush(
-                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(row.StatusColor));
-
-            // Загружаем все данные
-            LoadPersonalData(studentId, row);
-            LoadSocialData(studentId);
-            LoadParents(studentId);
-            LoadGrades(studentId);
-            LoadAttendance(studentId);
-            LoadAchievements(studentId);
-        }
-
-        // ── Личные данные ──
-        private void LoadPersonalData(int studentId, StudentRow row)
-        {
-            try
+            if (CmbGroup?.Visibility == Visibility.Visible && CmbGroup.SelectedIndex > 0)
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentDetails",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                if (dt.Rows.Count == 0) return;
-                var r = dt.Rows[0];
-
-                TxtBirthDate.Text    = r["BirthDate"]         != DBNull.Value ? Convert.ToDateTime(r["BirthDate"]).ToString("dd.MM.yyyy") : "—";
-                TxtGender.Text       = r["Gender"]?.ToString() ?? "—";
-                TxtBirthPlace.Text   = r["BirthPlace"]?.ToString() ?? "—";
-                TxtCitizenship.Text  = r["Citizenship"]?.ToString() ?? "—";
-                TxtAddress.Text      = r["Address"]?.ToString() ?? "—";
-                TxtPhone.Text        = r["Phone"]?.ToString() ?? "—";
-                TxtEmail.Text        = r["Email"]?.ToString() ?? "—";
-                TxtDorm.Text         = row.Dormitory;
-                TxtStudyBasis.Text   = r["StudyBasis"]?.ToString() ?? "—";
-
-                // Паспорт
-                var series = r["PassportSeries"]?.ToString() ?? "";
-                var number = r["PassportNumber"]?.ToString() ?? "";
-                TxtPassport.Text     = (series + " " + number).Trim().Length > 0 ? series + " " + number : "—";
-                TxtPassportDate.Text = r["PassportIssuedDate"] != DBNull.Value ? Convert.ToDateTime(r["PassportIssuedDate"]).ToString("dd.MM.yyyy") : "—";
-                TxtPassportBy.Text   = r["PassportIssuedBy"]?.ToString() ?? "—";
-                TxtSnils.Text        = r["SNILSNumber"]?.ToString() ?? "—";
-
-                var prev = r["PreviousSchool"]?.ToString() ?? "";
-                var prevType = r["PreviousSchoolType"]?.ToString() ?? "";
-                TxtPrevSchool.Text   = string.IsNullOrEmpty(prev) ? "—" : $"{prev} ({prevType})";
+                var grp = (CmbGroup.SelectedItem as ComboBoxItem)?.Content?.ToString();
+                if (!string.IsNullOrEmpty(grp)) filtered = filtered.Where(s => s.GroupName == grp);
             }
-            catch { }
-        }
 
-        // ── Социальная карточка ──
-        private void LoadSocialData(int studentId)
-        {
-            try
+            if (CmbBasis?.SelectedIndex == 1) filtered = filtered.Where(s => s.StudyBasis == "Бюджет");
+            else if (CmbBasis?.SelectedIndex == 2) filtered = filtered.Where(s => s.StudyBasis == "Контракт");
+
+            if (CmbGender?.SelectedIndex == 1) filtered = filtered.Where(s => s.Gender == "Мужской");
+            else if (CmbGender?.SelectedIndex == 2) filtered = filtered.Where(s => s.Gender == "Женский");
+
+            if (CmbDorm?.Visibility == Visibility.Visible)
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentSocial",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                if (dt.Rows.Count == 0) return;
-                var r = dt.Rows[0];
-
-                TxtHealthGroup.Text    = r["HealthGroup"]?.ToString() ?? "—";
-                TxtDisability.Text     = r["DisabilityGroup"] != DBNull.Value
-                    ? $"{r["Disability"]} (гр. {r["DisabilityGroup"]})" : "Нет";
-                TxtChronic.Text        = r["ChronicDiseases"]?.ToString() ?? "—";
-                TxtFamilyStructure.Text= r["FamilyStructure"]?.ToString() ?? "—";
-                TxtHousing.Text        = r["HousingCondition"]?.ToString() ?? "—";
-                TxtSocialNotes.Text    = r["AdditionalNotes"]?.ToString() ?? "—";
-
-                // Статусы
-                var statuses = new List<string>();
-                if (r["IsOrphan"]           != DBNull.Value && Convert.ToBoolean(r["IsOrphan"]))           statuses.Add("Сирота");
-                if (r["IsHalfOrphan"]       != DBNull.Value && Convert.ToBoolean(r["IsHalfOrphan"]))       statuses.Add("Полусирота");
-                if (r["IsFromLargeFamily"]  != DBNull.Value && Convert.ToBoolean(r["IsFromLargeFamily"]))  statuses.Add("Многодетная семья");
-                if (r["IsLowIncome"]        != DBNull.Value && Convert.ToBoolean(r["IsLowIncome"]))        statuses.Add("Малоимущий");
-                if (r["IsSociallyVulnerable"]!=DBNull.Value && Convert.ToBoolean(r["IsSociallyVulnerable"])) statuses.Add("Соц. незащищённый");
-                if (r["IsOnGuardianship"]   != DBNull.Value && Convert.ToBoolean(r["IsOnGuardianship"]))   statuses.Add("Опека/попечительство");
-
-                SocialStatusList.ItemsSource = statuses.Count > 0 ? statuses : new List<string> { "Нет особых статусов" };
+                if (CmbDorm.SelectedIndex == 1) filtered = filtered.Where(s => s.Dormitory != "—");
+                else if (CmbDorm.SelectedIndex == 2) filtered = filtered.Where(s => s.Dormitory == "—");
             }
-            catch { }
+
+            var result = filtered.ToList();
+            for (int i = 0; i < result.Count; i++) result[i].RowNum = i + 1;
+            StudentsGrid.ItemsSource = result;
+            TxtStudentCount.Text = $"— {result.Count} чел.";
         }
 
-        // ── Родители ──
-        private void LoadParents(int studentId)
+        private void Filter_Changed(object sender, RoutedEventArgs e) => ApplyFilters();
+
+        private void BtnReset_Click(object sender, RoutedEventArgs e)
         {
+            TxtSearch.Text = "";
+            if (CmbGroup.Visibility == Visibility.Visible) CmbGroup.SelectedIndex = 0;
+            CmbBasis.SelectedIndex  = 0;
+            CmbGender.SelectedIndex = 0;
+            if (CmbDorm.Visibility == Visibility.Visible) CmbDorm.SelectedIndex = 0;
+        }
+
+        private void StudentsGrid_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (SessionHelper.IsStudent) return;
+            if (StudentsGrid.SelectedItem is StudentRow row)
+            {
+                var card = new StudentCardWindow(row.StudentId, row.FullName);
+                card.Owner = Application.Current.MainWindow;
+                card.ShowDialog();
+                LoadStudents(); // обновляем фото если изменилось
+            }
+        }
+
+        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        {
+            var source = StudentsGrid.ItemsSource as List<StudentRow>;
+            if (source == null || source.Count == 0)
+            { MessageBox.Show("Нет данных для экспорта.", "Экспорт", MessageBoxButton.OK, MessageBoxImage.Information); return; }
+
+            var dlg = new SaveFileDialog { Title="Сохранить список студентов", Filter="Excel файл|*.xlsx",
+                FileName=$"Студенты_{DateTime.Now:yyyy-MM-dd_HH-mm}" };
+            if (dlg.ShowDialog() != true) return;
+
             try
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentParents",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                var parents = new List<ParentRow>();
-                foreach (DataRow r in dt.Rows)
+                using (var wb = new XLWorkbook())
                 {
-                    parents.Add(new ParentRow
+                    var ws = wb.Worksheets.Add("Студенты");
+                    ws.Style.Font.FontName = "Arial"; ws.Style.Font.FontSize = 10;
+                    ws.Cell(1,1).Value = "Список студентов";
+                    ws.Cell(1,1).Style.Font.Bold = true; ws.Cell(1,1).Style.Font.FontSize = 14;
+                    ws.Cell(2,1).Value = $"Дата выгрузки: {DateTime.Now:dd.MM.yyyy HH:mm}";
+                    ws.Cell(2,1).Style.Font.FontColor = XLColor.Gray;
+
+                    var filterDesc = BuildFilterDescription();
+                    int headerRow = 4;
+                    if (!string.IsNullOrEmpty(filterDesc))
                     {
-                        Relation  = r["Relation"]?.ToString() ?? "—",
-                        FullName  = r["LastName"] + " " + r["FirstName"] + " " + r["MiddleName"],
-                        Phone     = r["Phone"]?.ToString() ?? "—",
-                        WorkPhone = r["WorkPhone"]?.ToString() ?? "—",
-                        Workplace = r["Workplace"]?.ToString() ?? "—",
-                        Position  = r["Position"]?.ToString() ?? "—",
-                        Education = r["Education"]?.ToString() ?? "—"
-                    });
+                        ws.Cell(3,1).Value = $"Фильтры: {filterDesc}";
+                        ws.Cell(3,1).Style.Font.FontColor = XLColor.FromArgb(0,120,212);
+                        ws.Cell(3,1).Style.Font.Italic = true;
+                        headerRow = 5;
+                    }
+
+                    string[] headers = { "№","ФИО","Группа","Зач. книжка","Дата рожд.","Пол","Основание","Общежитие","Телефон","Статус" };
+                    for (int c = 0; c < headers.Length; c++)
+                    {
+                        var cell = ws.Cell(headerRow, c+1);
+                        cell.Value = headers[c]; cell.Style.Font.Bold = true;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromArgb(0,120,212);
+                        cell.Style.Font.FontColor = XLColor.White;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    }
+
+                    for (int i = 0; i < source.Count; i++)
+                    {
+                        var row = source[i]; int dr = headerRow + 1 + i;
+                        ws.Cell(dr,1).Value  = i+1;            ws.Cell(dr,2).Value  = row.FullName    ?? "";
+                        ws.Cell(dr,3).Value  = row.GroupName   ?? ""; ws.Cell(dr,4).Value  = row.StudentCode ?? "";
+                        ws.Cell(dr,5).Value  = row.BirthDate   ?? ""; ws.Cell(dr,6).Value  = row.Gender      ?? "";
+                        ws.Cell(dr,7).Value  = row.StudyBasis  ?? ""; ws.Cell(dr,8).Value  = row.Dormitory   ?? "";
+                        ws.Cell(dr,9).Value  = row.Phone       ?? ""; ws.Cell(dr,10).Value = row.Status      ?? "";
+                        if (i%2==1) ws.Range(dr,1,dr,10).Style.Fill.BackgroundColor = XLColor.FromArgb(245,245,245);
+                        if (row.IsHeadman) ws.Cell(dr,10).Style.Font.FontColor = XLColor.FromArgb(0,120,212);
+                    }
+
+                    ws.Column(1).Width=5; ws.Column(2).Width=30; ws.Column(3).Width=12; ws.Column(4).Width=14;
+                    ws.Column(5).Width=13; ws.Column(6).Width=10; ws.Column(7).Width=12; ws.Column(8).Width=22;
+                    ws.Column(9).Width=16; ws.Column(10).Width=12;
+                    ws.SheetView.FreezeRows(headerRow);
+                    wb.SaveAs(dlg.FileName);
                 }
 
-                ParentsList.ItemsSource = parents.Count > 0 ? parents : null;
+                if (MessageBox.Show($"Файл сохранён.\n\nОткрыть файл?", "Экспорт завершён",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    System.Diagnostics.Process.Start(dlg.FileName);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при экспорте:\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        // ── Оценки ──
-        private void LoadGrades(int studentId)
+        private string BuildFilterDescription()
         {
-            try
+            var parts = new List<string>();
+            var search = TxtSearch?.Text?.Trim();
+            if (!string.IsNullOrEmpty(search)) parts.Add("Поиск: '" + search + "'");
+            if (CmbGroup?.Visibility == Visibility.Visible && CmbGroup.SelectedIndex > 0)
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentGrades",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                var grades = new List<GradeRow>();
-                foreach (DataRow r in dt.Rows)
-                {
-                    grades.Add(new GradeRow
-                    {
-                        SubjectName = r["SubjectName"]?.ToString() ?? "—",
-                        GradeType   = r["GradeType"]?.ToString()   ?? "—",
-                        GradeValue  = r["GradeValue"]?.ToString()   ?? "—",
-                        GradeDate   = r["GradeDate"] != DBNull.Value ? Convert.ToDateTime(r["GradeDate"]).ToString("dd.MM.yyyy") : "—"
-                    });
-                }
-                GradesGrid.ItemsSource = grades;
+                var grp = (CmbGroup.SelectedItem as ComboBoxItem)?.Content?.ToString();
+                if (!string.IsNullOrEmpty(grp)) parts.Add($"Группа: {grp}");
             }
-            catch { }
-        }
-
-        // ── Посещаемость ──
-        private void LoadAttendance(int studentId)
-        {
-            try
+            if (CmbBasis?.SelectedIndex == 1) parts.Add("Бюджет");
+            else if (CmbBasis?.SelectedIndex == 2) parts.Add("Контракт");
+            if (CmbGender?.SelectedIndex == 1) parts.Add("Мужской");
+            else if (CmbGender?.SelectedIndex == 2) parts.Add("Женский");
+            if (CmbDorm?.Visibility == Visibility.Visible)
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentAttendance",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                int present = 0, absent = 0, late = 0, excused = 0;
-                var rows = new List<AttRow>();
-
-                foreach (DataRow r in dt.Rows)
-                {
-                    var status = r["Status"]?.ToString() ?? "";
-                    if (status == "Присутствовал")       present++;
-                    else if (status == "Отсутствовал")   absent++;
-                    else if (status == "Опоздал")        late++;
-                    else if (status == "Уважительная причина") excused++;
-
-                    rows.Add(new AttRow
-                    {
-                        LessonDate = r["LessonDate"] != DBNull.Value ? Convert.ToDateTime(r["LessonDate"]).ToString("dd.MM.yyyy") : "—",
-                        Subject    = r["SubjectName"]?.ToString() ?? "—",
-                        Status     = status,
-                        Reason     = r["Reason"]?.ToString() ?? "—"
-                    });
-                }
-
-                int total = present + absent + late + excused;
-                TxtPresent.Text    = present.ToString();
-                TxtAbsent.Text     = absent.ToString();
-                TxtLate.Text       = late.ToString();
-                TxtAttPercent.Text = total > 0 ? $"{Math.Round(100.0 * present / total, 1)}%" : "—";
-
-                AttendanceGrid.ItemsSource = rows;
+                if (CmbDorm.SelectedIndex == 1) parts.Add("В общежитии");
+                else if (CmbDorm.SelectedIndex == 2) parts.Add("Без общежития");
             }
-            catch { }
-        }
-
-        // ── Достижения ──
-        private void LoadAchievements(int studentId)
-        {
-            try
-            {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentAchievements",
-                    new[] { new SqlParameter("@StudentId", studentId) });
-
-                var list = new List<AchRow>();
-                foreach (DataRow r in dt.Rows)
-                {
-                    list.Add(new AchRow
-                    {
-                        Title       = r["Title"]?.ToString()       ?? "—",
-                        Category    = r["Category"]?.ToString()    ?? "—",
-                        Level       = r["Level"]?.ToString()       ?? "—",
-                        Description = r["Description"]?.ToString() ?? "",
-                        AchieveDate = r["AchieveDate"] != DBNull.Value ? Convert.ToDateTime(r["AchieveDate"]).ToString("dd.MM.yyyy") : "—"
-                    });
-                }
-                AchievementsList.ItemsSource = list;
-            }
-            catch { }
+            return string.Join(", ", parts);
         }
     }
 
-    // ─── Модели ───
     public class StudentRow
     {
-        public int    RowNum      { get; set; }
-        public int    StudentId   { get; set; }
-        public string FullName    { get; set; }
-        public string StudentCode { get; set; }
-        public string BirthDate   { get; set; }
-        public string Gender      { get; set; }
-        public string StudyBasis  { get; set; }
-        public string Dormitory   { get; set; }
-        public string Phone       { get; set; }
-        public bool   IsHeadman   { get; set; }
-        public string Status      { get; set; }
-        public string StatusColor { get; set; }
-    }
-
-    public class ParentRow
-    {
-        public string Relation  { get; set; }
-        public string FullName  { get; set; }
-        public string Phone     { get; set; }
-        public string WorkPhone { get; set; }
-        public string Workplace { get; set; }
-        public string Position  { get; set; }
-        public string Education { get; set; }
-    }
-
-    public class GradeRow
-    {
-        public string SubjectName { get; set; }
-        public string GradeType   { get; set; }
-        public string GradeValue  { get; set; }
-        public string GradeDate   { get; set; }
-    }
-
-    public class AttRow
-    {
-        public string LessonDate { get; set; }
-        public string Subject    { get; set; }
-        public string Status     { get; set; }
-        public string Reason     { get; set; }
-    }
-
-    public class AchRow
-    {
-        public string Title       { get; set; }
-        public string Category    { get; set; }
-        public string Level       { get; set; }
-        public string Description { get; set; }
-        public string AchieveDate { get; set; }
+        public int         RowNum      { get; set; }
+        public int         StudentId   { get; set; }
+        public string      FullName    { get; set; }
+        public string      GroupName   { get; set; }
+        public string      StudentCode { get; set; }
+        public string      BirthDate   { get; set; }
+        public string      Gender      { get; set; }
+        public string      StudyBasis  { get; set; }
+        public string      Dormitory   { get; set; }
+        public string      Phone       { get; set; }
+        public bool        IsHeadman   { get; set; }
+        public string      Status      { get; set; }
+        public ImageSource Photo       { get; set; }
+        public string      Initials    { get; set; }
+        public string      AvatarColor { get; set; }
+        public bool        HasPhoto    { get; set; }
     }
 }

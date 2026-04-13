@@ -1,0 +1,206 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.StudentEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Студент"
+        Height="580" Width="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI"
+        Background="#FAF9F8"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Cmb" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1" Padding="20,14">
+            <TextBlock x:Name="TxtTitle" Text="Добавить студента"
+                       FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+        </Border>
+
+        <!-- Форма -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,0">
+            <StackPanel>
+
+                <!-- Секция: Учётная запись (только при добавлении) -->
+                <StackPanel x:Name="PanelAccount">
+                    <TextBlock Text="УЧЁТНАЯ ЗАПИСЬ" FontSize="10" FontWeight="SemiBold"
+                               Foreground="#0078D4" Margin="0,0,0,10"/>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Логин *" Style="{StaticResource Lbl}"/>
+                            <TextBox x:Name="TxtLogin" Style="{StaticResource Inp}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Пароль *" Style="{StaticResource Lbl}"/>
+                            <PasswordBox x:Name="PwdPassword" Height="30" Padding="8,0"
+                                         FontSize="12" BorderBrush="#D0D0D0" BorderThickness="1"/>
+                        </StackPanel>
+                    </Grid>
+                    <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                </StackPanel>
+
+                <!-- Секция: ФИО -->
+                <TextBlock Text="ЛИЧНЫЕ ДАННЫЕ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Фамилия *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLastName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Имя *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtFirstName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Отчество" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtMiddleName" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Дата рождения *" Style="{StaticResource Lbl}"/>
+                        <DatePicker x:Name="DpBirthDate" Height="30" FontSize="12"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Пол" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbGender" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="Мужской"/>
+                            <ComboBoxItem Content="Женский"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Телефон" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtPhone" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Email" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtEmail" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,14">
+                    <TextBlock Text="Адрес проживания" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtAddress" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+
+                <!-- Секция: Обучение -->
+                <TextBlock Text="ОБУЧЕНИЕ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Группа *" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbGroup" Style="{StaticResource Cmb}"
+                                  DisplayMemberPath="GroupName"
+                                  SelectedValuePath="GroupId"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Основание обучения" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbBasis" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="Бюджет" IsSelected="True"/>
+                            <ComboBoxItem Content="Контракт"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Зачётная книжка" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtStudentCode" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Дата зачисления" Style="{StaticResource Lbl}"/>
+                        <DatePicker x:Name="DpEnrollment" Height="30" FontSize="12"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,14" Orientation="Horizontal">
+                    <CheckBox x:Name="ChkHeadman" Content="Является старостой группы"
+                              FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопки -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Click="BtnCancel_Click"
+                        Width="90" Height="32" Margin="0,0,8,0"
+                        Background="White" Foreground="#323130"
+                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+                <Button x:Name="BtnSave" Content="Сохранить" Click="BtnSave_Click"
+                        Width="100" Height="32"
+                        Background="#0078D4" Foreground="White"
+                        BorderThickness="0"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

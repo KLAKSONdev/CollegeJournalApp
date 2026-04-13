@@ -1,0 +1,504 @@
+<Window x:Class="CollegeJournalApp.Views.StudentCardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Карточка студента"
+        Height="620" Width="800"
+        WindowStartupLocation="CenterOwner"
+        Background="#FAF9F8"
+        FontFamily="Segoe UI"
+        Loaded="Window_Loaded">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Border Grid.Row="0" Background="White"
+                BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="20,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Фото студента + кнопки -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <!-- Круглое фото -->
+                    <Grid Width="64" Height="64" Margin="0,0,0,8">
+                        <!-- Аватар-заглушка с инициалами -->
+                        <Border Width="64" Height="64" CornerRadius="32" Background="#0078D4">
+                            <TextBlock x:Name="TxtAvatar" Foreground="White" FontSize="22"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <!-- Реальное фото поверх заглушки -->
+                        <Border Width="64" Height="64" CornerRadius="32">
+                            <Border.Clip>
+                                <EllipseGeometry Center="32,32" RadiusX="32" RadiusY="32"/>
+                            </Border.Clip>
+                            <Image x:Name="ImgPhoto" Stretch="UniformToFill"/>
+                        </Border>
+                    </Grid>
+                    <!-- Кнопки фото — только куратор/админ -->
+                    <Button x:Name="BtnUploadPhoto" Content="📷 Фото"
+                            Height="22" Padding="6,0" Margin="0,0,0,4"
+                            Background="#0078D4" Foreground="White"
+                            BorderThickness="0" FontFamily="Segoe UI"
+                            FontSize="10" Cursor="Hand" Visibility="Collapsed"
+                            Click="BtnUploadPhoto_Click"/>
+                    <Button x:Name="BtnDeletePhoto" Content="Удалить"
+                            Height="22" Padding="6,0"
+                            Background="White" Foreground="#D13438"
+                            BorderBrush="#D13438" BorderThickness="1"
+                            FontFamily="Segoe UI" FontSize="10"
+                            Cursor="Hand" IsEnabled="False" Visibility="Collapsed"
+                            Click="BtnDeletePhoto_Click"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <TextBlock x:Name="TxtName" FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <Border x:Name="BdrStatus" Background="#0078D4" Padding="6,2" Margin="0,0,8,0">
+                            <TextBlock x:Name="TxtStatus" Foreground="White" FontSize="10"/>
+                        </Border>
+                        <TextBlock x:Name="TxtGroup" Foreground="#605E5C" FontSize="11"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                    <TextBlock Text="Зачётная книжка" FontSize="10"
+                               Foreground="#A19F9D" HorizontalAlignment="Right"/>
+                    <TextBlock x:Name="TxtCode" FontSize="13" FontWeight="SemiBold"
+                               Foreground="#323130" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Вкладки -->
+        <TabControl x:Name="Tabs" Grid.Row="1"
+                    Background="White" BorderThickness="0"
+                    Margin="16,12,16,0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="Padding" Value="14,8"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="#605E5C"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="#0078D4"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- ВК1: ЛИЧНЫЕ ДАННЫЕ (Куратор + Админ) -->
+            <TabItem x:Name="TabPersonal" Header="Личные данные">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,14">
+                        <TextBlock Text="ОСНОВНАЯ ИНФОРМАЦИЯ" FontSize="10"
+                                   FontWeight="SemiBold" Foreground="#605E5C" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Дата рождения" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtBirthDate" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Пол" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtGender" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Место рождения" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtBirthPlace" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Гражданство" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtCitizenship" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,12">
+                                <TextBlock Text="Адрес" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtAddress" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Телефон" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtPhone" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Email" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtEmail" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Общежитие / Комната" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtDorm" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4" Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Основание обучения" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtBasis" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Паспорт — только Куратор и Админ -->
+                        <StackPanel x:Name="PanelPassport">
+                            <Rectangle Height="1" Fill="#E0E0E0" Margin="0,4,0,14"/>
+                            <TextBlock Text="ПАСПОРТНЫЕ ДАННЫЕ" FontSize="10"
+                                       FontWeight="SemiBold" Foreground="#605E5C" Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,12">
+                                    <TextBlock Text="Серия и номер" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                    <TextBlock x:Name="TxtPassport" FontSize="12" Foreground="#1F1F1F"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,12">
+                                    <TextBlock Text="Дата выдачи" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                    <TextBlock x:Name="TxtPassportDate" FontSize="12" Foreground="#1F1F1F"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,12">
+                                    <TextBlock Text="Кем выдан" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                    <TextBlock x:Name="TxtPassportBy" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,12,12">
+                                    <TextBlock Text="СНИЛС" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                    <TextBlock x:Name="TxtSnils" FontSize="12" Foreground="#1F1F1F"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,12">
+                                    <TextBlock Text="Предыдущее учеб. заведение" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                    <TextBlock x:Name="TxtPrevSchool" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ВК2: СОЦ. КАРТОЧКА (Куратор + Админ) -->
+            <TabItem x:Name="TabSocial" Header="Соц. карточка">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="16,14">
+                        <TextBlock Text="ЗДОРОВЬЕ" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="#605E5C" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Группа здоровья" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtHealthGroup" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Инвалидность" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtDisability" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="0,0,0,14">
+                            <TextBlock Text="Хронические заболевания" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                            <TextBlock x:Name="TxtChronic" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                        <TextBlock Text="СОЦИАЛЬНЫЙ СТАТУС" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="#605E5C" Margin="0,0,0,10"/>
+                        <ItemsControl x:Name="SocialStatusList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FFF4CE" Padding="8,4" Margin="0,0,6,6" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding}" FontSize="11" Foreground="#7A4F00"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,8,0,14"/>
+                        <TextBlock Text="СЕМЬЯ" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="#605E5C" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,12,12">
+                                <TextBlock Text="Состав семьи" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtFamilyStructure" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,0,12">
+                                <TextBlock Text="Жилищные условия" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                                <TextBlock x:Name="TxtHousing" FontSize="12" Foreground="#1F1F1F"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="Доп. сведения" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,3"/>
+                            <TextBlock x:Name="TxtSocialNotes" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ВК3: РОДИТЕЛИ (Куратор + Админ) -->
+            <TabItem x:Name="TabParents" Header="Родители">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="ParentsList" Margin="16,14">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#F8F8F8" BorderBrush="#E0E0E0"
+                                        BorderThickness="1" Padding="14,12" Margin="0,0,0,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="{Binding Relation}" FontSize="12" FontWeight="SemiBold" Foreground="#0078D4" Margin="0,0,10,0"/>
+                                            <TextBlock Text="{Binding FullName}" FontSize="12" Foreground="#1F1F1F"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,8">
+                                            <TextBlock Text="Телефон" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding Phone}" FontSize="12" Foreground="#1F1F1F"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,8">
+                                            <TextBlock Text="Раб. телефон" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding WorkPhone}" FontSize="12" Foreground="#1F1F1F"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,12,8">
+                                            <TextBlock Text="Место работы" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding Workplace}" FontSize="12" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,8">
+                                            <TextBlock Text="Должность" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding Position}" FontSize="12" Foreground="#1F1F1F"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                                            <TextBlock Text="Образование" FontSize="10" Foreground="#A19F9D" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{Binding Education}" FontSize="12" Foreground="#1F1F1F"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- ВК4: УСПЕВАЕМОСТЬ (Куратор + Староста + Админ) -->
+            <TabItem x:Name="TabGrades" Header="Успеваемость">
+                <Border Padding="16,14">
+                    <DataGrid x:Name="GradesGrid" AutoGenerateColumns="False"
+                              IsReadOnly="True" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#F3F2F1"
+                              BorderThickness="1" BorderBrush="#E0E0E0"
+                              Background="White" RowBackground="White"
+                              AlternatingRowBackground="#FAFAFA"
+                              HeadersVisibility="Column" CanUserResizeRows="False"
+                              FontFamily="Segoe UI" FontSize="12" RowHeight="32">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F3F2F1"/>
+                                <Setter Property="Foreground" Value="#605E5C"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="10,6"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="10,0"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дисциплина" Binding="{Binding SubjectName}" Width="*"/>
+                            <DataGridTextColumn Header="Тип"        Binding="{Binding GradeType}"   Width="110"/>
+                            <DataGridTextColumn Header="Оценка"     Binding="{Binding GradeValue}"  Width="70"/>
+                            <DataGridTextColumn Header="Дата"       Binding="{Binding GradeDate}"   Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </TabItem>
+
+            <!-- ВК5: ПОСЕЩАЕМОСТЬ (Куратор + Староста + Админ) -->
+            <TabItem x:Name="TabAttendance" Header="Посещаемость">
+                <StackPanel Margin="16,14">
+                    <UniformGrid Columns="4" Margin="0,0,0,16">
+                        <Border Background="#F3F2F1" Padding="12,10" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock x:Name="TxtPresent" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#107C10"/>
+                                <TextBlock Text="Присутствовал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#F3F2F1" Padding="12,10" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock x:Name="TxtAbsent" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#D13438"/>
+                                <TextBlock Text="Отсутствовал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#F3F2F1" Padding="12,10" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock x:Name="TxtLate" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#CA5010"/>
+                                <TextBlock Text="Опоздал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="#F3F2F1" Padding="12,10">
+                            <StackPanel>
+                                <TextBlock x:Name="TxtPercent" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#0078D4"/>
+                                <TextBlock Text="% посещ." FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                    <DataGrid x:Name="AttGrid" AutoGenerateColumns="False"
+                              IsReadOnly="True" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#F3F2F1"
+                              BorderThickness="1" BorderBrush="#E0E0E0"
+                              Background="White" RowBackground="White"
+                              AlternatingRowBackground="#FAFAFA"
+                              HeadersVisibility="Column" CanUserResizeRows="False"
+                              FontFamily="Segoe UI" FontSize="12" RowHeight="32" MaxHeight="320">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F3F2F1"/>
+                                <Setter Property="Foreground" Value="#605E5C"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="10,6"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="10,0"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата"       Binding="{Binding LessonDate}" Width="100"/>
+                            <DataGridTextColumn Header="Дисциплина" Binding="{Binding Subject}"    Width="*"/>
+                            <DataGridTextColumn Header="Статус"     Binding="{Binding Status}"     Width="130"/>
+                            <DataGridTextColumn Header="Причина"    Binding="{Binding Reason}"     Width="150"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ВК6: ДОСТИЖЕНИЯ (Куратор + Староста + Админ) -->
+            <TabItem x:Name="TabAchievements" Header="Достижения">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="AchievementsList" Margin="16,14">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
+                                        Padding="0,0,0,12" Margin="0,0,0,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Title}" FontSize="12"
+                                                       FontWeight="SemiBold" Foreground="#1F1F1F" TextWrapping="Wrap"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <Border Background="#EFF6FC" Padding="6,2" Margin="0,0,6,0">
+                                                    <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#0078D4"/>
+                                                </Border>
+                                                <Border Background="#F3F2F1" Padding="6,2">
+                                                    <TextBlock Text="{Binding Level}" FontSize="10" Foreground="#605E5C"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Description}" FontSize="11"
+                                                       Foreground="#605E5C" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding AchieveDate}"
+                                                   FontSize="11" Foreground="#A19F9D"
+                                                   VerticalAlignment="Top" Margin="12,0,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+
+
+            <!-- ВК7: ДОКУМЕНТЫ (Куратор + Админ) -->
+            <TabItem x:Name="TabDocuments" Header="Документы">
+                <StackPanel Margin="16,14">
+                    <TextBlock x:Name="TxtNoDocuments"
+                               Text="Документы группы не найдены"
+                               FontSize="12" Foreground="#A19F9D"
+                               Visibility="Collapsed" Margin="0,0,0,10"/>
+                    <DataGrid x:Name="DocumentsGrid" AutoGenerateColumns="False"
+                              IsReadOnly="True" GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="#F3F2F1"
+                              BorderThickness="1" BorderBrush="#E0E0E0"
+                              Background="White" RowBackground="White"
+                              AlternatingRowBackground="#FAFAFA"
+                              HeadersVisibility="Column" CanUserResizeRows="False"
+                              FontFamily="Segoe UI" FontSize="12" RowHeight="32">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F3F2F1"/>
+                                <Setter Property="Foreground" Value="#605E5C"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="10,6"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="10,0"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название"   Binding="{Binding Title}"        Width="*"/>
+                            <DataGridTextColumn Header="Тип"        Binding="{Binding DocumentType}" Width="110"/>
+                            <DataGridTextColumn Header="Размер"     Binding="{Binding FileSize}"     Width="80"/>
+                            <DataGridTextColumn Header="Добавлен"   Binding="{Binding UploadedAt}"   Width="90"/>
+                            <DataGridTextColumn Header="Добавил"    Binding="{Binding UploadedBy}"   Width="130"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="* Факт просмотра документов фиксируется в журнале аудита"
+                               FontSize="10" Foreground="#A19F9D" Margin="0,8,0,0"/>
+                </StackPanel>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- Кнопка закрыть -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="16,10">
+            <Button Content="Закрыть" HorizontalAlignment="Right"
+                    Width="90" Height="32"
+                    Background="#F3F2F1" Foreground="#323130"
+                    BorderBrush="#D0D0D0" BorderThickness="1"
+                    FontFamily="Segoe UI" FontSize="12"
+                    Cursor="Hand" Click="BtnClose_Click"/>
+        </Border>
+    </Grid>
+</Window>

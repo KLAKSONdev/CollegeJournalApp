@@ -1,0 +1,136 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.GroupEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Группа" Height="460" Width="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        FontFamily="Segoe UI" Background="#FAF9F8"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Cmb" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1" Padding="20,14">
+            <TextBlock x:Name="TxtTitle" Text="Группа" FontSize="15"
+                       FontWeight="SemiBold" Foreground="#1F1F1F"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Padding="20,16,20,0">
+            <StackPanel>
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Название группы *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtGroupName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Код специальности" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtSpecCode" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Специальность *" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtSpecialty" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Курс *" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbCourse" Style="{StaticResource Cmb}"
+                                  SelectionChanged="CmbCourse_SelectionChanged">
+                            <ComboBoxItem Content="1" Tag="1"/>
+                            <ComboBoxItem Content="2" Tag="2"/>
+                            <ComboBoxItem Content="3" Tag="3"/>
+                            <ComboBoxItem Content="4" Tag="4"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Семестр *" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbSemester" Style="{StaticResource Cmb}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Подсказка -->
+                <TextBlock Text="Семестры заполняются автоматически в зависимости от курса"
+                           FontSize="10" Foreground="#A19F9D" Margin="0,-6,0,12"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Форма обучения" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbEduForm" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="Очная" IsSelected="True"/>
+                            <ComboBoxItem Content="Заочная"/>
+                            <ComboBoxItem Content="Очно-заочная"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Основание" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbEduBasis" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="Бюджет" IsSelected="True"/>
+                            <ComboBoxItem Content="Контракт"/>
+                            <ComboBoxItem Content="Смешанная"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Куратор" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbCurator" Style="{StaticResource Cmb}"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Click="BtnCancel_Click"
+                        Width="90" Height="32" Margin="0,0,8,0"
+                        Background="White" Foreground="#323130"
+                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+                <Button Content="Сохранить" Click="BtnSave_Click"
+                        Width="100" Height="32"
+                        Background="#0078D4" Foreground="White"
+                        BorderThickness="0" FontFamily="Segoe UI"
+                        FontSize="12" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -126,6 +126,7 @@
                 <Button x:Name="TabAchievements" Content="Достижения"     Style="{StaticResource TabStyle}"       Tag="Achievements"  Click="NavButton_Click"/>
                 <Button x:Name="TabAudit"        Content="Журнал аудита"  Style="{StaticResource TabStyle}"       Tag="Audit"         Visibility="Collapsed" Click="NavButton_Click"/>
                 <Button x:Name="TabUsers"        Content="Пользователи"   Style="{StaticResource TabStyle}"       Tag="Users"         Visibility="Collapsed" Click="NavButton_Click"/>
+                    <Button x:Name="TabAdmin"        Content="&#9881; Управление"  Style="{StaticResource TabStyle}"       Tag="Admin"         Visibility="Collapsed" Click="NavButton_Click"/>
             </DockPanel>
         </Border>
 

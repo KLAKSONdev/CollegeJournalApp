@@ -1,0 +1,120 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.UserEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Пользователь" Height="420" Width="520"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        FontFamily="Segoe UI" Background="#FAF9F8"
+        Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1" Padding="20,14">
+            <TextBlock x:Name="TxtTitle" Text="Пользователь" FontSize="15"
+                       FontWeight="SemiBold" Foreground="#1F1F1F"/>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Padding="20,16,20,0">
+            <StackPanel>
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Логин *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLogin" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Роль *" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbRole" Height="30" FontSize="12">
+                            <ComboBoxItem Content="Admin"/>
+                            <ComboBoxItem Content="Curator"/>
+                            <ComboBoxItem Content="Headman"/>
+                            <ComboBoxItem Content="Student"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel x:Name="PanelPassword" Margin="0,0,0,12">
+                    <TextBlock Text="Пароль (мин. 32 символа) *" Style="{StaticResource Lbl}"/>
+                    <PasswordBox x:Name="PwdPassword" Height="30" Padding="8,0"
+                                 FontSize="12" BorderBrush="#D0D0D0" BorderThickness="1"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Фамилия *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLastName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Имя *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtFirstName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Отчество" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtMiddleName" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Телефон" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtPhone" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Email" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtEmail" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Click="BtnCancel_Click"
+                        Width="90" Height="32" Margin="0,0,8,0"
+                        Background="White" Foreground="#323130"
+                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+                <Button Content="Сохранить" Click="BtnSave_Click"
+                        Width="100" Height="32"
+                        Background="#0078D4" Foreground="White"
+                        BorderThickness="0" FontFamily="Segoe UI"
+                        FontSize="12" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -8,108 +8,124 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,20,24,24">
 
-            <!-- Заголовок страницы -->
+            <!-- Заголовок -->
             <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Margin="0,0,0,20">
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="Главная"
-                               FontSize="18" FontWeight="SemiBold"
-                               Foreground="#1F1F1F"/>
-                    <TextBlock Grid.Column="1"
-                               x:Name="TxtDate"
-                               FontSize="12" Foreground="#605E5C"
-                               VerticalAlignment="Bottom"/>
+                    <TextBlock Grid.Column="0" Text="Главная"
+                               FontSize="18" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                    <TextBlock Grid.Column="1" x:Name="TxtDate"
+                               FontSize="12" Foreground="#605E5C" VerticalAlignment="Bottom"/>
                 </Grid>
             </Border>
 
             <!-- Карточки статистики -->
             <UniformGrid Columns="4" Margin="0,0,0,24">
-                <Border Margin="0,0,8,0" Background="White"
-                        BorderBrush="#E0E0E0" BorderThickness="1">
+                <Border Margin="0,0,8,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
                     <StackPanel Margin="16,14">
                         <TextBlock x:Name="TxtStudentCount" Text="—"
-                                   FontSize="28" Foreground="#1F1F1F"
-                                   FontWeight="SemiBold"/>
+                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
                         <TextBlock Text="Студентов в группе"
-                                   FontSize="11" Foreground="#605E5C"
-                                   Margin="0,4,0,0"/>
+                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Margin="4,0" Background="White"
-                        BorderBrush="#E0E0E0" BorderThickness="1">
+                <Border Margin="4,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
                     <StackPanel Margin="16,14">
                         <TextBlock x:Name="TxtAttendanceToday" Text="—"
-                                   FontSize="28" Foreground="#1F1F1F"
-                                   FontWeight="SemiBold"/>
+                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
                         <TextBlock Text="Посещаемость сегодня"
-                                   FontSize="11" Foreground="#605E5C"
-                                   Margin="0,4,0,0"/>
+                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Margin="4,0" Background="White"
-                        BorderBrush="#E0E0E0" BorderThickness="1">
+                <Border Margin="4,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
                     <StackPanel Margin="16,14">
                         <TextBlock x:Name="TxtAvgGrade" Text="—"
-                                   FontSize="28" Foreground="#1F1F1F"
-                                   FontWeight="SemiBold"/>
+                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
                         <TextBlock Text="Средний балл"
-                                   FontSize="11" Foreground="#605E5C"
-                                   Margin="0,4,0,0"/>
+                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Margin="8,0,0,0" Background="White"
-                        BorderBrush="#E0E0E0" BorderThickness="1">
+                <Border Margin="8,0,0,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
                     <StackPanel Margin="16,14">
                         <TextBlock x:Name="TxtAbsentCount" Text="—"
-                                   FontSize="28" Foreground="#1F1F1F"
-                                   FontWeight="SemiBold"/>
-                        <TextBlock Text="Пропусков без причины"
-                                   FontSize="11" Foreground="#605E5C"
-                                   Margin="0,4,0,0"/>
+                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                        <TextBlock Text="Пропусков за 30 дней"
+                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>
 
-            <!-- Последние события -->
-            <TextBlock Text="Последние действия"
-                       FontSize="13" FontWeight="SemiBold"
-                       Foreground="#323130"
-                       Margin="0,0,0,10"/>
+            <!-- Секция событий -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TxtEventsTitle" Grid.Column="0"
+                           Text="Последние действия"
+                           FontSize="13" FontWeight="SemiBold" Foreground="#323130"/>
+                <TextBlock x:Name="TxtClickHint" Grid.Column="1"
+                           Text="Двойной клик — подробности"
+                           FontSize="10" Foreground="#A19F9D"
+                           VerticalAlignment="Center" Visibility="Collapsed"/>
+            </Grid>
 
             <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                <ItemsControl x:Name="EventsList" Margin="0,4,0,4">
-                    <ItemsControl.ItemTemplate>
+                <ListBox x:Name="EventsList"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         MouseDoubleClick="EventsList_DoubleClick">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd" Background="Transparent"
+                                                BorderBrush="#F3F2F1" BorderThickness="0,0,0,1"
+                                                Padding="16,10">
+                                            <ContentPresenter/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="#F8F8F8"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="#EFF6FC"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="#F3F3F3" BorderThickness="0,0,0,1"
-                                    Padding="16,10">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="6"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Rectangle Grid.Column="0" Width="3" Height="16"
-                                               Fill="{Binding DotColor}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,12,0"/>
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding Text}"
-                                               FontSize="12" Foreground="#323130"
-                                               TextWrapping="Wrap" Margin="6,0,0,0"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2"
-                                               Text="{Binding Time}"
-                                               FontSize="11" Foreground="#A19F9D"
-                                               VerticalAlignment="Center"/>
-                                </Grid>
-                            </Border>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Rectangle Grid.Column="0" Width="3" Height="16"
+                                           Fill="{Binding DotColor}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Text}"
+                                           FontSize="12" Foreground="#323130"
+                                           TextWrapping="Wrap" Margin="10,0,0,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Time}"
+                                           FontSize="11" Foreground="#A19F9D"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
                         </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Border>
 
         </StackPanel>
