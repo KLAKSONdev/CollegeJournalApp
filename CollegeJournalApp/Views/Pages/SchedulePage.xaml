@@ -37,48 +37,11 @@
             </StackPanel>
         </Border>
 
-        <!-- Таблица -->
-        <Border Grid.Row="2" Margin="24,16,24,16"
-                Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-            <DataGrid x:Name="SchedGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F3F2F1"
-                      BorderThickness="0" Background="White" RowBackground="White"
-                      AlternatingRowBackground="#FAFAFA" HeadersVisibility="Column"
-                      CanUserResizeRows="False" FontFamily="Segoe UI" FontSize="12" RowHeight="40">
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F3F2F1"/>
-                        <Setter Property="Foreground" Value="#605E5C"/>
-                        <Setter Property="FontSize" Value="11"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="12,8"/>
-                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
-                <DataGrid.CellStyle>
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#EFF6FC"/>
-                                <Setter Property="Foreground" Value="#1F1F1F"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.CellStyle>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="День"          Binding="{Binding DayName}"    Width="120"/>
-                    <DataGridTextColumn Header="№"             Binding="{Binding LessonNum}"  Width="44"/>
-                    <DataGridTextColumn Header="Время"          Binding="{Binding Time}"        Width="110"/>
-                    <DataGridTextColumn Header="Дисциплина"    Binding="{Binding Subject}"     Width="*"/>
-                    <DataGridTextColumn Header="Аудитория"      Binding="{Binding Classroom}"   Width="100"/>
-                    <DataGridTextColumn Header="Преподаватель"  Binding="{Binding Teacher}"     Width="180"/>
-                    <DataGridTextColumn Header="Тип нед."       Binding="{Binding WeekType}"    Width="90"/>
-                </DataGrid.Columns>
-            </DataGrid>
+        <!-- Контейнер для карточек дней -->
+        <Border Grid.Row="2" Margin="24,16,24,16">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="DaysPanel" Orientation="Vertical"/>
+            </ScrollViewer>
         </Border>
     </Grid>
 </Page>

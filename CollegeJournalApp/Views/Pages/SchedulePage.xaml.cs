@@ -55,7 +55,7 @@ namespace CollegeJournalApp.Views.Pages
                     });
                 }
 
-                ApplyFilter();
+                RenderScheduleAsDiary();
             }
             catch (Exception ex)
             {
@@ -63,20 +63,120 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        private void ApplyFilter()
+        private void RenderScheduleAsDiary()
         {
-            if (SchedGrid == null) return;
+            if (DaysPanel == null) return;
+
+            DaysPanel.Children.Clear();
 
             var filtered = _all.AsEnumerable();
             if (CmbDay?.SelectedIndex > 0)
                 filtered = filtered.Where(r => r.DayNum == CmbDay.SelectedIndex);
 
-            var result = filtered.OrderBy(r => r.DayNum).ThenBy(r => r.LessonNum).ToList();
-            SchedGrid.ItemsSource = result;
-            TxtTotal.Text = $"— {result.Count} занятий";
+            var grouped = filtered.GroupBy(r => r.DayNum).OrderBy(g => g.Key);
+
+            foreach (var dayGroup in grouped)
+            {
+                int dayNum = dayGroup.Key;
+                if (dayNum <= 0 || dayNum >= Days.Length) continue;
+
+                string dayName = Days[dayNum];
+
+                // Карточка дня
+                var dayCard = new Border
+                {
+                    Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255)),
+                    BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(224, 224, 224)),
+                    BorderThickness = new System.Windows.Thickness(1),
+                    CornerRadius = new System.Windows.CornerRadius(8),
+                    Margin = new System.Windows.Thickness(0, 0, 0, 16),
+                    Padding = new System.Windows.Thickness(16)
+                };
+
+                var stack = new StackPanel { Orientation = Orientation.Vertical };
+
+                // Заголовок дня
+                var header = new TextBlock
+                {
+                    Text = dayName,
+                    FontSize = 16,
+                    FontWeight = System.Windows.FontWeights.SemiBold,
+                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(31, 31, 31)),
+                    Margin = new System.Windows.Thickness(0, 0, 0, 12)
+                };
+                stack.Children.Add(header);
+
+                // Таблица пар
+                var grid = new System.Windows.Controls.DataGrid
+                {
+                    AutoGenerateColumns = false,
+                    IsReadOnly = true,
+                    GridLinesVisibility = System.Windows.Controls.DataGridGridLinesVisibility.Horizontal,
+                    HorizontalGridLinesBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(243, 242, 241)),
+                    BorderThickness = new System.Windows.Thickness(0),
+                    Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255)),
+                    RowBackground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255)),
+                    AlternatingRowBackground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(250, 250, 250)),
+                    HeadersVisibility = System.Windows.Controls.DataGridHeadersVisibility.Column,
+                    CanUserResizeRows = false,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+                    FontSize = 12,
+                    RowHeight = 40,
+                    ItemsSource = dayGroup.OrderBy(r => r.LessonNum).ToList()
+                };
+
+                // Стили заголовков
+                var columnHeaderStyle = new System.Windows.Style(typeof(System.Windows.Controls.DataGridColumnHeader));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.BackgroundProperty, new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(243, 242, 241))));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.ForegroundProperty, new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(96, 94, 92))));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.FontSizeProperty, 11.0));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.FontWeightProperty, System.Windows.FontWeights.SemiBold));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.PaddingProperty, new System.Windows.Thickness(12, 8)));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.BorderBrushProperty, new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(224, 224, 224))));
+                columnHeaderStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.BorderThicknessProperty, new System.Windows.Thickness(0, 0, 0, 1)));
+                grid.ColumnHeaderStyle = columnHeaderStyle;
+
+                // Стили ячеек
+                var cellStyle = new System.Windows.Style(typeof(System.Windows.Controls.DataGridCell));
+                cellStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.BorderThicknessProperty, new System.Windows.Thickness(0)));
+                cellStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.PaddingProperty, new System.Windows.Thickness(12, 0)));
+                cellStyle.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.VerticalContentAlignmentProperty, System.Windows.VerticalAlignment.Center));
+                var trigger = new System.Windows.Trigger(typeof(System.Windows.Controls.DataGridCell), System.Windows.Controls.DataGridCell.IsSelectedProperty, true);
+                trigger.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.BackgroundProperty, new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(239, 246, 252))));
+                trigger.Setters.Add(new System.Windows.Setter(System.Windows.Controls.Control.ForegroundProperty, new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(31, 31, 31))));
+                cellStyle.Triggers.Add(trigger);
+                grid.CellStyle = cellStyle;
+
+                // Колонки: № пары, Предмет, Аудитория
+                grid.Columns.Add(new System.Windows.Controls.DataGridTextColumn
+                {
+                    Header = "№",
+                    Binding = new System.Windows.Data.Binding(nameof(SchedRow.LessonNum)),
+                    Width = 60
+                });
+                grid.Columns.Add(new System.Windows.Controls.DataGridTextColumn
+                {
+                    Header = "Предмет",
+                    Binding = new System.Windows.Data.Binding(nameof(SchedRow.Subject)),
+                    Width = new System.Windows.Data.DataGridLength(1, System.Windows.Data.DataGridLengthUnitType.Star)
+                });
+                grid.Columns.Add(new System.Windows.Controls.DataGridTextColumn
+                {
+                    Header = "Аудитория",
+                    Binding = new System.Windows.Data.Binding(nameof(SchedRow.Classroom)),
+                    Width = 100
+                });
+
+                stack.Children.Add(grid);
+                dayCard.Child = stack;
+                DaysPanel.Children.Add(dayCard);
+            }
+
+            int totalCount = filtered.Count();
+            TxtTotal.Text = $"— {totalCount} занятий";
         }
 
-        private void CmbDay_Changed(object sender, SelectionChangedEventArgs e) => ApplyFilter();
+        private void CmbDay_Changed(object sender, SelectionChangedEventArgs e) => RenderScheduleAsDiary();
 
         private void BtnImport_Click(object sender, RoutedEventArgs e)
         {
