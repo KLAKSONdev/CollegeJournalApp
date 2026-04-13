@@ -29,8 +29,11 @@
                     <ComboBoxItem Content="Пятница"/>
                     <ComboBoxItem Content="Суббота"/>
                 </ComboBox>
+                <Button x:Name="BtnImport" Content="📥 Загрузить из Excel" Width="150" Height="30"
+                        Margin="8,0,0,0" FontSize="12" Background="#0078D4" Foreground="White"
+                        BorderThickness="0" Cursor="Hand" Click="BtnImport_Click"/>
                 <TextBlock x:Name="TxtTotal" FontSize="12" Foreground="#605E5C"
-                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+                           VerticalAlignment="Center" Margin="16,0,0,0"/>
             </StackPanel>
         </Border>
 
