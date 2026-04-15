@@ -1,160 +1,136 @@
--- =============================================
--- Хранимая процедура для импорта записи расписания из Excel
--- =============================================
-CREATE OR ALTER PROCEDURE sp_ImportScheduleItem
-    @DayOfWeek INT,
-    @LessonNumber NVARCHAR(10) = NULL,
-    @StartTime NVARCHAR(20) = NULL,
-    @EndTime NVARCHAR(20) = NULL,
-    @SubjectName NVARCHAR(255) = NULL,
-    @Classroom NVARCHAR(50) = NULL,
-    @TeacherName NVARCHAR(255) = NULL,
-    @WeekType NVARCHAR(20) = NULL,
-    @UserId INT,
-    @RoleName NVARCHAR(50)
+USE CollegeJournal;
+GO
+
+IF OBJECT_ID('dbo.sp_ImportScheduleItem', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_ImportScheduleItem;
+GO
+
+CREATE PROCEDURE [dbo].[sp_ImportScheduleItem]
+    @GroupName    NVARCHAR(100),
+    @DayOfWeek    TINYINT,
+    @LessonNumber TINYINT,
+    @SubjectName  NVARCHAR(255),
+    @Classroom    NVARCHAR(50)  = NULL,
+    @WeekType     NVARCHAR(20)  = N'Обе',
+    @TeacherName  NVARCHAR(300) = NULL   -- Фамилия И.О. или «Фамилия Имя», необязательно
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    BEGIN TRY
-        -- Получаем GroupId текущего пользователя
-        DECLARE @GroupId INT;
-        
-        IF @RoleName = 'Староста' OR @RoleName = 'Студент'
-        BEGIN
-            SELECT @GroupId = GroupId 
-            FROM Students 
-            WHERE UserId = @UserId;
-        END
-        ELSE IF @RoleName = 'Куратор'
-        BEGIN
-            SELECT @GroupId = Id 
-            FROM Groups 
-            WHERE CuratorId = (SELECT Id FROM Users WHERE Id = @UserId);
-        END
-        ELSE IF @RoleName IN ('Администратор', 'Преподаватель')
-        BEGIN
-            -- Для администратора и преподавателя берём первую группу или NULL
-            SELECT TOP 1 @GroupId = Id FROM Groups;
-        END
+    -- ── 1. Найти группу ───────────────────────────────────────────────────────
+    DECLARE @GroupId INT;
+    SELECT @GroupId = GroupId FROM Groups
+    WHERE GroupName = @GroupName AND IsDeleted = 0;
 
-        -- Если группа не найдена, создаём запись без привязки к группе (общее расписание)
-        IF @GroupId IS NULL
+    IF @GroupId IS NULL
+    BEGIN
+        DECLARE @E1 NVARCHAR(300);
+        SET @E1 = N'Группа "' + @GroupName + N'" не найдена в базе данных.';
+        RAISERROR(@E1, 16, 1);
+        RETURN;
+    END
+
+    -- ── 2. Найти или создать предмет ─────────────────────────────────────────
+    DECLARE @SubjectId INT;
+    SELECT TOP 1 @SubjectId = SubjectId FROM Subjects
+    WHERE SubjectName = @SubjectName AND GroupId = @GroupId AND IsDeleted = 0;
+
+    IF @SubjectId IS NULL
+    BEGIN
+        -- Найти преподавателя по имени (если указан)
+        DECLARE @TeacherId INT = NULL;
+        IF @TeacherName IS NOT NULL AND LEN(LTRIM(RTRIM(@TeacherName))) > 0
         BEGIN
-            -- Проверяем, существует ли уже такая запись
-            IF NOT EXISTS (
-                SELECT 1 FROM Schedule
-                WHERE DayOfWeek = @DayOfWeek
-                  AND LessonNumber = @LessonNumber
-                  AND ISNULL(StartTime, '') = ISNULL(@StartTime, '')
-                  AND SubjectId IS NULL
-                  AND Classroom = @Classroom
-            )
+            -- Пробуем точное совпадение «Фамилия Имя» или «Фамилия Имя Отчество»
+            SELECT TOP 1 @TeacherId = TeacherId
+            FROM Teachers
+            WHERE IsDeleted = 0
+              AND (
+                    LastName + ' ' + FirstName = @TeacherName
+                 OR LastName + ' ' + FirstName + ' ' + ISNULL(MiddleName,'') = @TeacherName
+                 OR LastName = @TeacherName  -- только фамилия
+              )
+            ORDER BY TeacherId;
+
+            -- Если не нашли точно — ищем по фамилии (первое слово)
+            IF @TeacherId IS NULL
             BEGIN
-                -- Находим или создаём предмет
-                DECLARE @SubjectId INT;
-                IF @SubjectName IS NOT NULL AND @SubjectName <> ''
-                BEGIN
-                    SELECT @SubjectId = Id FROM Subjects WHERE Name = @SubjectName;
-                    
-                    IF @SubjectId IS NULL
-                    BEGIN
-                        INSERT INTO Subjects (Name) VALUES (@SubjectName);
-                        SET @SubjectId = SCOPE_IDENTITY();
-                    END
-                END
-
-                -- Находим или создаём преподавателя
-                DECLARE @TeacherId INT;
-                IF @TeacherName IS NOT NULL AND @TeacherName <> ''
-                BEGIN
-                    SELECT @TeacherId = Id FROM Teachers WHERE FullName = @TeacherName;
-                    
-                    IF @TeacherId IS NULL
-                    BEGIN
-                        INSERT INTO Teachers (FullName) VALUES (@TeacherName);
-                        SET @TeacherId = SCOPE_IDENTITY();
-                    END
-                END
-
-                -- Вставляем запись в расписание
-                INSERT INTO Schedule (
-                    DayOfWeek, LessonNumber, StartTime, EndTime,
-                    SubjectId, Classroom, TeacherId, WeekType,
-                    CreatedAt, UpdatedAt
-                ) VALUES (
-                    @DayOfWeek, @LessonNumber, @StartTime, @EndTime,
-                    @SubjectId, @Classroom, @TeacherId, @WeekType,
-                    GETDATE(), GETDATE()
-                );
+                DECLARE @LastNamePart NVARCHAR(100);
+                SET @LastNamePart = LEFT(@TeacherName, CHARINDEX(' ', @TeacherName + ' ') - 1);
+                SELECT TOP 1 @TeacherId = TeacherId
+                FROM Teachers
+                WHERE IsDeleted = 0 AND LastName = @LastNamePart
+                ORDER BY TeacherId;
             END
         END
-        ELSE
+
+        -- Создаём предмет
+        INSERT INTO Subjects (SubjectName, GroupId, TeacherId, IsDeleted)
+        VALUES (@SubjectName, @GroupId, @TeacherId, 0);
+
+        SET @SubjectId = SCOPE_IDENTITY();
+    END
+
+    -- ── 3. Проверка занятости преподавателя ──────────────────────────────────
+    DECLARE @TeacherIdCheck INT;
+    SELECT @TeacherIdCheck = TeacherId FROM Subjects WHERE SubjectId = @SubjectId;
+
+    IF @TeacherIdCheck IS NOT NULL
+    BEGIN
+        DECLARE @BusyGroup NVARCHAR(100);
+        SELECT TOP 1 @BusyGroup = g.GroupName
+        FROM Schedule s
+        INNER JOIN Subjects sub ON sub.SubjectId = s.SubjectId
+        INNER JOIN Groups   g   ON g.GroupId     = s.GroupId
+        WHERE sub.TeacherId  = @TeacherIdCheck
+          AND s.DayOfWeek    = @DayOfWeek
+          AND s.LessonNumber = @LessonNumber
+          AND s.IsDeleted    = 0
+          AND s.GroupId     <> @GroupId;
+
+        IF @BusyGroup IS NOT NULL
         BEGIN
-            -- Для группы проверяем существование записи
-            IF NOT EXISTS (
-                SELECT 1 FROM Schedule
-                WHERE GroupId = @GroupId
-                  AND DayOfWeek = @DayOfWeek
-                  AND LessonNumber = @LessonNumber
-            )
-            BEGIN
-                -- Находим или создаём предмет
-                DECLARE @SubjId INT;
-                IF @SubjectName IS NOT NULL AND @SubjectName <> ''
-                BEGIN
-                    SELECT @SubjId = Id FROM Subjects WHERE Name = @SubjectName;
-                    
-                    IF @SubjId IS NULL
-                    BEGIN
-                        INSERT INTO Subjects (Name) VALUES (@SubjectName);
-                        SET @SubjId = SCOPE_IDENTITY();
-                    END
-                END
-
-                -- Находим или создаём преподавателя
-                DECLARE @TeachId INT;
-                IF @TeacherName IS NOT NULL AND @TeacherName <> ''
-                BEGIN
-                    SELECT @TeachId = Id FROM Teachers WHERE FullName = @TeacherName;
-                    
-                    IF @TeachId IS NULL
-                    BEGIN
-                        INSERT INTO Teachers (FullName) VALUES (@TeacherName);
-                        SET @TeachId = SCOPE_IDENTITY();
-                    END
-                END
-
-                -- Вставляем запись в расписание для группы
-                INSERT INTO Schedule (
-                    GroupId, DayOfWeek, LessonNumber, StartTime, EndTime,
-                    SubjectId, Classroom, TeacherId, WeekType,
-                    CreatedAt, UpdatedAt
-                ) VALUES (
-                    @GroupId, @DayOfWeek, @LessonNumber, @StartTime, @EndTime,
-                    @SubjId, @Classroom, @TeachId, @WeekType,
-                    GETDATE(), GETDATE()
-                );
-            END
+            DECLARE @TName NVARCHAR(300);
+            SELECT @TName = LastName + ' ' + FirstName FROM Teachers WHERE TeacherId = @TeacherIdCheck;
+            DECLARE @E3 NVARCHAR(400);
+            SET @E3 = N'Преподаватель ' + @TName + N' уже занят в это время (группа ' + @BusyGroup + N').';
+            RAISERROR(@E3, 16, 1);
+            RETURN;
         END
-    END TRY
-    BEGIN CATCH
-        THROW;
-    END CATCH
+    END
+
+    -- ── 4. Время пары ─────────────────────────────────────────────────────────
+    DECLARE @StartTime TIME, @EndTime TIME;
+    SELECT
+        @StartTime = CASE @LessonNumber
+            WHEN 1 THEN '08:30' WHEN 2 THEN '10:15' WHEN 3 THEN '12:30'
+            WHEN 4 THEN '14:15' WHEN 5 THEN '16:00' WHEN 6 THEN '17:45' ELSE NULL END,
+        @EndTime = CASE @LessonNumber
+            WHEN 1 THEN '10:05' WHEN 2 THEN '11:50' WHEN 3 THEN '14:05'
+            WHEN 4 THEN '15:50' WHEN 5 THEN '17:35' WHEN 6 THEN '19:20' ELSE NULL END;
+
+    -- ── 5. Обновить или вставить ──────────────────────────────────────────────
+    IF EXISTS (
+        SELECT 1 FROM Schedule
+        WHERE GroupId = @GroupId AND DayOfWeek = @DayOfWeek
+          AND LessonNumber = @LessonNumber AND IsDeleted = 0
+    )
+    BEGIN
+        UPDATE Schedule
+        SET SubjectId  = @SubjectId,
+            Classroom  = @Classroom,
+            WeekType   = @WeekType,
+            StartTime  = @StartTime,
+            EndTime    = @EndTime
+        WHERE GroupId = @GroupId AND DayOfWeek = @DayOfWeek
+          AND LessonNumber = @LessonNumber AND IsDeleted = 0;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO Schedule
+            (GroupId, DayOfWeek, LessonNumber, SubjectId, Classroom, WeekType, StartTime, EndTime, IsDeleted)
+        VALUES
+            (@GroupId, @DayOfWeek, @LessonNumber, @SubjectId, @Classroom, @WeekType, @StartTime, @EndTime, 0);
+    END
 END
 GO
-
--- =============================================
--- Пример использования:
--- EXEC sp_ImportScheduleItem 
---     @DayOfWeek = 1,
---     @LessonNumber = '1',
---     @StartTime = '08:30',
---     @EndTime = '10:00',
---     @SubjectName = 'Математика',
---     @Classroom = '101',
---     @TeacherName = 'Петров П.П.',
---     @WeekType = 'Обе',
---     @UserId = 1,
---     @RoleName = 'Староста';
--- =============================================
