@@ -1,0 +1,164 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.SubjectEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Дисциплина"
+        Height="520" Width="480"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Cmb" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" Padding="16,12">
+            <TextBlock x:Name="TxtTitle"
+                       FontSize="14"
+                       FontWeight="SemiBold"/>
+        </Border>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" Padding="16,8">
+            <StackPanel>
+
+                <!-- Группа -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Группа *" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbGroup" Style="{StaticResource Cmb}"/>
+                </StackPanel>
+
+                <!-- Преподаватель -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Преподаватель" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbTeacher" Style="{StaticResource Cmb}"/>
+                </StackPanel>
+
+                <!-- Название дисциплины -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Название дисциплины *" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtName" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <!-- Семестр -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Семестр *" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbSemester" Style="{StaticResource Cmb}"/>
+                </StackPanel>
+
+                <!-- Форма контроля -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Форма контроля *" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbControl" Style="{StaticResource Cmb}">
+                        <ComboBoxItem Content="Экзамен"/>
+                        <ComboBoxItem Content="Зачёт"/>
+                        <ComboBoxItem Content="Зачёт с оценкой"/>
+                        <ComboBoxItem Content="Дифференцированный зачёт"/>
+                        <ComboBoxItem Content="Курсовая работа"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Учебные часы -->
+                <TextBlock Text="Учебные часы"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Margin="0,4,0,8"/>
+
+                <UniformGrid Columns="2">
+                    <!-- Лекций -->
+                    <StackPanel Margin="0,0,8,12">
+                        <TextBlock Text="Лекций" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLecture" Style="{StaticResource Inp}" Text="0"/>
+                    </StackPanel>
+
+                    <!-- Практика -->
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Практика" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtPractice" Style="{StaticResource Inp}" Text="0"/>
+                    </StackPanel>
+
+                    <!-- Лаб. работы -->
+                    <StackPanel Margin="0,0,8,12">
+                        <TextBlock Text="Лаб. работы" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLab" Style="{StaticResource Inp}" Text="0"/>
+                    </StackPanel>
+
+                    <!-- Самостоятельно -->
+                    <StackPanel Margin="0,0,0,12">
+                        <TextBlock Text="Самостоятельно" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtSelf" Style="{StaticResource Inp}" Text="0"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <!-- Итого -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                    <TextBlock Text="Итого часов:"
+                               FontSize="11"
+                               Foreground="#605E5C"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TxtTotalCalc"
+                               Text="0"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Foreground="#0078D4"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock Text="Итого = сумма часов выше (или 0 для свободного задания)"
+                           FontSize="10"
+                           Foreground="#A19F9D"/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="White" Padding="16,10">
+            <DockPanel>
+                <Button DockPanel.Dock="Right"
+                        Content="Сохранить"
+                        Background="#0078D4"
+                        Foreground="White"
+                        Height="32"
+                        Padding="20,0"
+                        BorderThickness="0"
+                        Click="BtnSave_Click"/>
+                <Button DockPanel.Dock="Right"
+                        Content="Отмена"
+                        Background="White"
+                        Foreground="#323130"
+                        BorderBrush="#D0D0D0"
+                        BorderThickness="1"
+                        Height="32"
+                        Padding="16,0"
+                        Margin="0,0,8,0"
+                        Click="BtnCancel_Click"/>
+            </DockPanel>
+        </Border>
+
+    </Grid>
+</Window>
