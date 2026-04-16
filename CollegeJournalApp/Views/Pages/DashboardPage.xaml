@@ -8,125 +8,335 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="24,20,24,24">
 
-            <!-- Заголовок -->
+            <!-- ═══════════════════════════════════════
+                 ЗАГОЛОВОК
+            ═══════════════════════════════════════ -->
             <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Margin="0,0,0,20">
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Главная"
-                               FontSize="18" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock x:Name="TxtGreeting"
+                                   FontSize="18" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                        <TextBlock x:Name="TxtSubtitle"
+                                   FontSize="12" Foreground="#605E5C" Margin="0,3,0,0"/>
+                    </StackPanel>
                     <TextBlock Grid.Column="1" x:Name="TxtDate"
                                FontSize="12" Foreground="#605E5C" VerticalAlignment="Bottom"/>
                 </Grid>
             </Border>
 
-            <!-- Карточки статистики -->
-            <UniformGrid Columns="4" Margin="0,0,0,24">
-                <Border Margin="0,0,8,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                    <StackPanel Margin="16,14">
-                        <TextBlock x:Name="TxtStudentCount" Text="—"
-                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
-                        <TextBlock Text="Студентов в группе"
-                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+            <!-- ═══════════════════════════════════════
+                 ADMIN: 2 ряда по 3 карточки
+            ═══════════════════════════════════════ -->
+            <StackPanel x:Name="AdminStatsPanel" Visibility="Collapsed" Margin="0,0,0,24">
+                <!-- Ряд 1: Пользователи, Студенты, Группы -->
+                <UniformGrid Columns="3" Margin="0,0,0,8">
+                    <Border Margin="0,0,6,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#0078D4"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminUsers" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Пользователей в системе"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="3,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#0078D4"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminStudents" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Студентов всего"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="6,0,0,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#0078D4"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminGroups" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Активных групп"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+                <!-- Ряд 2: Средний балл, Входов сегодня, Действий сегодня -->
+                <UniformGrid Columns="3">
+                    <Border Margin="0,0,6,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#107C10"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminAvg" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Средний балл по системе"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="3,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#CA5010"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminLogins" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Входов сегодня"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Margin="6,0,0,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <StackPanel>
+                            <Border Height="4" Background="#CA5010"/>
+                            <StackPanel Margin="16,12,16,14">
+                                <TextBlock x:Name="TxtAdminActions" Text="—"
+                                           FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                                <TextBlock Text="Действий сегодня"
+                                           FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </StackPanel>
+
+            <!-- ═══════════════════════════════════════
+                 КУРАТОР / СТАРОСТА / СТУДЕНТ: 4 карточки
+                 Подписи задаются из кода
+            ═══════════════════════════════════════ -->
+            <UniformGrid x:Name="GroupStatsPanel" Columns="4" Visibility="Collapsed" Margin="0,0,0,24">
+                <Border Margin="0,0,6,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <Border x:Name="Card1Bar" Height="4" Background="#0078D4"/>
+                        <StackPanel Margin="16,12,16,14">
+                            <TextBlock x:Name="TxtCard1" Text="—"
+                                       FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                            <TextBlock x:Name="TxtLabel1" Text=""
+                                       FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
-                <Border Margin="4,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                    <StackPanel Margin="16,14">
-                        <TextBlock x:Name="TxtAttendanceToday" Text="—"
-                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
-                        <TextBlock Text="Посещаемость сегодня"
-                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                <Border Margin="3,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <Border x:Name="Card2Bar" Height="4" Background="#107C10"/>
+                        <StackPanel Margin="16,12,16,14">
+                            <TextBlock x:Name="TxtCard2" Text="—"
+                                       FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                            <TextBlock x:Name="TxtLabel2" Text=""
+                                       FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
-                <Border Margin="4,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                    <StackPanel Margin="16,14">
-                        <TextBlock x:Name="TxtAvgGrade" Text="—"
-                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
-                        <TextBlock Text="Средний балл"
-                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                <Border Margin="3,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <Border x:Name="Card3Bar" Height="4" Background="#CA5010"/>
+                        <StackPanel Margin="16,12,16,14">
+                            <TextBlock x:Name="TxtCard3" Text="—"
+                                       FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                            <TextBlock x:Name="TxtLabel3" Text=""
+                                       FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
-                <Border Margin="8,0,0,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                    <StackPanel Margin="16,14">
-                        <TextBlock x:Name="TxtAbsentCount" Text="—"
-                                   FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
-                        <TextBlock Text="Пропусков за 30 дней"
-                                   FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"/>
+                <Border Margin="6,0,0,0" Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <Border x:Name="Card4Bar" Height="4" Background="#D13438"/>
+                        <StackPanel Margin="16,12,16,14">
+                            <TextBlock x:Name="TxtCard4" Text="—"
+                                       FontSize="28" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                            <TextBlock x:Name="TxtLabel4" Text=""
+                                       FontSize="11" Foreground="#605E5C" Margin="0,4,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </UniformGrid>
 
-            <!-- Секция событий -->
-            <Grid Margin="0,0,0,10">
+            <!-- ═══════════════════════════════════════
+                 ОСНОВНОЙ КОНТЕНТ
+                 Левая часть — лента событий
+                 Правая часть — расписание на сегодня
+                              (скрыта для Admin)
+            ═══════════════════════════════════════ -->
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="TxtEventsTitle" Grid.Column="0"
-                           Text="Последние действия"
-                           FontSize="13" FontWeight="SemiBold" Foreground="#323130"/>
-                <TextBlock x:Name="TxtClickHint" Grid.Column="1"
-                           Text="Двойной клик — подробности"
-                           FontSize="10" Foreground="#A19F9D"
-                           VerticalAlignment="Center" Visibility="Collapsed"/>
-            </Grid>
 
-            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                <ListBox x:Name="EventsList"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         MouseDoubleClick="EventsList_DoubleClick">
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListBoxItem">
-                                        <Border x:Name="Bd" Background="Transparent"
-                                                BorderBrush="#F3F2F1" BorderThickness="0,0,0,1"
-                                                Padding="16,10">
-                                            <ContentPresenter/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="#F8F8F8"/>
-                                            </Trigger>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter TargetName="Bd" Property="Background" Value="#EFF6FC"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="14"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Rectangle Grid.Column="0" Width="3" Height="16"
-                                           Fill="{Binding DotColor}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Text}"
-                                           FontSize="12" Foreground="#323130"
-                                           TextWrapping="Wrap" Margin="10,0,0,0"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Time}"
-                                           FontSize="11" Foreground="#A19F9D"
-                                           VerticalAlignment="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
+                <!-- ЛЕНТА СОБЫТИЙ -->
+                <StackPanel Grid.Column="0">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="TxtEventsTitle" Grid.Column="0"
+                                   FontSize="13" FontWeight="SemiBold" Foreground="#323130"/>
+                        <TextBlock x:Name="TxtClickHint" Grid.Column="1"
+                                   Text="Двойной клик — подробности"
+                                   FontSize="10" Foreground="#A19F9D"
+                                   VerticalAlignment="Center" Visibility="Collapsed"/>
+                    </Grid>
+
+                    <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                        <ListBox x:Name="EventsList"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 MaxHeight="340"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 MouseDoubleClick="EventsList_DoubleClick">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd" Background="Transparent"
+                                                        BorderBrush="#F3F2F1" BorderThickness="0,0,0,1"
+                                                        Padding="16,10">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#F8F8F8"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#EFF6FC"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.Column="0" Width="3" Height="16"
+                                                   Fill="{Binding DotColor}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Text}"
+                                                   FontSize="12" Foreground="#323130"
+                                                   TextWrapping="Wrap" Margin="10,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Time}"
+                                                   FontSize="11" Foreground="#A19F9D"
+                                                   VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </StackPanel>
+
+                <!-- РАСПИСАНИЕ НА СЕГОДНЯ (для не-Admin) -->
+                <Border x:Name="SchedulePanel" Grid.Column="1"
+                        Width="270" Margin="16,0,0,0"
+                        VerticalAlignment="Top"
+                        Visibility="Collapsed">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="Расписание на сегодня"
+                                       FontSize="13" FontWeight="SemiBold" Foreground="#323130"/>
+                            <TextBlock x:Name="TxtWeekday" Grid.Column="1"
+                                       FontSize="11" Foreground="#A19F9D"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                            <ListBox x:Name="ScheduleList"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border Background="Transparent"
+                                                            BorderBrush="#F3F2F1" BorderThickness="0,0,0,1"
+                                                            Padding="14,9">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="22"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Номер пары -->
+                                            <Border Grid.Column="0"
+                                                    Width="18" Height="18"
+                                                    Background="#EFF6FC"
+                                                    VerticalAlignment="Top" Margin="0,1,0,0">
+                                                <TextBlock Text="{Binding LessonNumber}"
+                                                           FontSize="10" FontWeight="SemiBold"
+                                                           Foreground="#0078D4"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding SubjectName}"
+                                                           FontSize="12" Foreground="#1F1F1F"
+                                                           TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="10" Foreground="#605E5C" Margin="0,2,0,0">
+                                                    <Run Text="{Binding StartTime}"/>
+                                                    <Run Text="–"/>
+                                                    <Run Text="{Binding EndTime}"/>
+                                                    <Run Text=" · "/>
+                                                    <Run Text="{Binding Classroom}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding TeacherShort}"
+                                                           FontSize="10" Foreground="#A19F9D"
+                                                           Margin="0,1,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+
+                        <!-- Сообщение "выходной" -->
+                        <TextBlock x:Name="TxtNoLessons"
+                                   Text="Сегодня занятий нет"
+                                   FontSize="12" Foreground="#A19F9D"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,0"
+                                   Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>

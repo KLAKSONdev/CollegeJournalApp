@@ -164,6 +164,37 @@
                         Padding="0,0"
                         Click="BtnLogin_Click"/>
 
+                <Button Content="Войти как Админ"
+                        Height="32"
+                        Margin="0,8,0,0"
+                        Cursor="Hand"
+                        FontFamily="Segoe UI"
+                        FontSize="12"
+                        Foreground="#605E5C"
+                        Background="Transparent"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1"
+                        Click="BtnQuickAdmin_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="0,0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F3F2F1"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#EDEBE9"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
                 <TextBlock x:Name="TxtError"
                            Foreground="#A4262C"
                            FontSize="12"
