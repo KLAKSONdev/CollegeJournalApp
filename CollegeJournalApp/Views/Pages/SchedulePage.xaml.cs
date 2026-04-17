@@ -57,6 +57,7 @@ namespace CollegeJournalApp.Views.Pages
             {
                 BtnImport.Visibility = Visibility.Visible;
             }
+            // Teacher — только читает своё расписание, никаких фильтров и кнопок
         }
 
         private void LoadAdminFilters()
@@ -97,15 +98,26 @@ namespace CollegeJournalApp.Views.Pages
                     return;
                 }
 
-                DataTable dt = SessionHelper.IsCurator
-                    ? DatabaseHelper.ExecuteProcedure("sp_GetCuratorSchedule",
-                        new[] { new SqlParameter("@UserId", SessionHelper.UserId) })
-                    : DatabaseHelper.ExecuteProcedure("sp_GetGroupSchedule",
+                DataTable dt;
+                if (SessionHelper.IsTeacher)
+                {
+                    dt = DatabaseHelper.ExecuteProcedure("sp_GetTeacherSchedule",
+                        new[] { new SqlParameter("@UserId", SessionHelper.UserId) });
+                }
+                else if (SessionHelper.IsCurator)
+                {
+                    dt = DatabaseHelper.ExecuteProcedure("sp_GetCuratorSchedule",
+                        new[] { new SqlParameter("@UserId", SessionHelper.UserId) });
+                }
+                else
+                {
+                    dt = DatabaseHelper.ExecuteProcedure("sp_GetGroupSchedule",
                         new[]
                         {
                             new SqlParameter("@UserId",   SessionHelper.UserId),
                             new SqlParameter("@RoleName", SessionHelper.RoleName)
                         });
+                }
 
                 FillFromTable(dt);
                 if (_all.Count == 0) ShowEmpty("Расписание не загружено");
@@ -329,6 +341,7 @@ namespace CollegeJournalApp.Views.Pages
             bool hasScheduleId = dt.Columns.Contains("ScheduleId");
             bool hasGroupId    = dt.Columns.Contains("GroupId");
             bool hasSubjectId  = dt.Columns.Contains("SubjectId");
+            bool hasTeacher    = dt.Columns.Contains("TeacherName");
 
             _all.Clear();
             foreach (DataRow r in dt.Rows)
@@ -341,7 +354,7 @@ namespace CollegeJournalApp.Views.Pages
                     LessonNum  = r["LessonNumber"]?.ToString() ?? "",
                     Subject    = r["SubjectName"]?.ToString()  ?? "—",
                     Classroom  = r["Classroom"]?.ToString()    ?? "—",
-                    Teacher    = r["TeacherName"]?.ToString()  ?? "—",
+                    Teacher    = hasTeacher && r["TeacherName"] != DBNull.Value ? r["TeacherName"]?.ToString() ?? "—" : "—",
                     GroupName  = hasGroup     && r["GroupName"]  != DBNull.Value ? r["GroupName"]?.ToString()  ?? "" : "",
                     GroupId    = hasGroupId   && r["GroupId"]    != DBNull.Value ? Convert.ToInt32(r["GroupId"])    : 0,
                     SubjectId  = hasSubjectId && r["SubjectId"]  != DBNull.Value ? Convert.ToInt32(r["SubjectId"])  : 0
@@ -377,7 +390,7 @@ namespace CollegeJournalApp.Views.Pages
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            bool showGroup  = SessionHelper.IsCurator || SessionHelper.IsAdmin;
+            bool showGroup  = SessionHelper.IsCurator || SessionHelper.IsAdmin || SessionHelper.IsTeacher;
             bool isAdmin    = SessionHelper.IsAdmin;
 
             // Цвета

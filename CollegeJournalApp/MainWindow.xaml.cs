@@ -26,6 +26,16 @@ namespace CollegeJournalApp
                 TabAdmin.Visibility  = Visibility.Visible;
             }
 
+            if (SessionHelper.IsTeacher)
+            {
+                // Преподаватель видит только своё расписание + общие разделы
+                TabStudents.Visibility     = Visibility.Collapsed;
+                TabAttendance.Visibility   = Visibility.Collapsed;
+                TabGrades.Visibility       = Visibility.Collapsed;
+                TabSocial.Visibility       = Visibility.Collapsed;
+                TabAchievements.Visibility = Visibility.Collapsed;
+            }
+
             if (SessionHelper.IsStudent)
                 TabSocial.Visibility = Visibility.Collapsed;
 
@@ -88,6 +98,7 @@ namespace CollegeJournalApp
                 case "Curator": return "Куратор";
                 case "Headman": return "Староста";
                 case "Student": return "Студент";
+                case "Teacher": return "Преподаватель";
                 default:        return role ?? "";
             }
         }

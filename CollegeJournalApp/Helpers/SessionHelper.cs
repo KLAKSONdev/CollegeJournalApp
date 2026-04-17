@@ -13,6 +13,7 @@ namespace CollegeJournalApp.Helpers
         public static bool IsCurator => RoleName == "Curator";
         public static bool IsHeadman => RoleName == "Headman";
         public static bool IsStudent => RoleName == "Student";
+        public static bool IsTeacher => RoleName == "Teacher";
 
         public static void Clear()
         {
