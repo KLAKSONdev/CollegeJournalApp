@@ -1,5 +1,7 @@
 using System;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using CollegeJournalApp.Database;
@@ -91,6 +93,32 @@ namespace CollegeJournalApp.Views.Dialogs
             }
         }
 
+        private void CmbGroup_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Авто-подстановка только при добавлении нового студента и если поле ещё не заполнено вручную
+            if (_studentId.HasValue) return;
+
+            if (!(CmbGroup.SelectedItem is ComboBoxItem item) ||
+                !(item.Tag is int groupId) || groupId == 0)
+            {
+                TxtStudentCode.Text = "";
+                return;
+            }
+
+            try
+            {
+                var row = DatabaseHelper.ExecuteSingleRow("sp_GetNextStudentCode",
+                    new[] { new SqlParameter("@GroupId", groupId) });
+
+                var code = row?["NextCode"]?.ToString() ?? "";
+                TxtStudentCode.Text = code;
+            }
+            catch
+            {
+                TxtStudentCode.Text = "";
+            }
+        }
+
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             if (!Validate(out int groupId, out string gender, out string basis, out DateTime birthDate))
@@ -103,24 +131,26 @@ namespace CollegeJournalApp.Views.Dialogs
                     // Добавление
                     var result = DatabaseHelper.ExecuteSingleRow("sp_AddStudent", new[]
                     {
-                        new SqlParameter("@Login",        TxtLogin.Text.Trim()),
-                        new SqlParameter("@PasswordHash", PwdPassword.Password),
-                        new SqlParameter("@LastName",     TxtLastName.Text.Trim()),
-                        new SqlParameter("@FirstName",    TxtFirstName.Text.Trim()),
-                        new SqlParameter("@MiddleName",   ToDb(TxtMiddleName.Text)),
-                        new SqlParameter("@Phone",        ToDb(TxtPhone.Text)),
-                        new SqlParameter("@Email",        ToDb(TxtEmail.Text)),
-                        new SqlParameter("@GroupId",      groupId),
-                        new SqlParameter("@BirthDate",    birthDate),
-                        new SqlParameter("@Gender",       gender),
-                        new SqlParameter("@StudyBasis",   basis),
-                        new SqlParameter("@AddedById",    SessionHelper.UserId)
+                        new SqlParameter("@Login",          TxtLogin.Text.Trim()),
+                        new SqlParameter("@PasswordHash",   HashPassword(PwdPassword.Password)),
+                        new SqlParameter("@LastName",       TxtLastName.Text.Trim()),
+                        new SqlParameter("@FirstName",      TxtFirstName.Text.Trim()),
+                        new SqlParameter("@MiddleName",     ToDb(TxtMiddleName.Text)),
+                        new SqlParameter("@Phone",          ToDb(TxtPhone.Text)),
+                        new SqlParameter("@Email",          ToDb(TxtEmail.Text)),
+                        new SqlParameter("@GroupId",        groupId),
+                        new SqlParameter("@BirthDate",      birthDate),
+                        new SqlParameter("@Gender",         gender),
+                        new SqlParameter("@StudyBasis",     basis),
+                        new SqlParameter("@StudentCode",    ToDb(TxtStudentCode.Text)),
+                        new SqlParameter("@EnrollmentDate", DpEnrollment.SelectedDate.HasValue ? (object)DpEnrollment.SelectedDate.Value : DBNull.Value),
+                        new SqlParameter("@AddedById",      SessionHelper.UserId)
                     });
 
                     if (result == null || Convert.ToInt32(result["StudentId"]) <= 0)
                     {
-                        MessageBox.Show(result?["Message"]?.ToString() ?? "Не удалось добавить студента.",
-                            "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        var rawMsg = result?["Message"]?.ToString() ?? "Не удалось добавить студента.";
+                        MessageBox.Show(TranslateSpMessage(rawMsg), "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
 
@@ -187,9 +217,9 @@ namespace CollegeJournalApp.Views.Dialogs
                 {
                     Show("Логин не должен содержать пробелы."); return false;
                 }
-                if (PwdPassword.Password.Length < 32)
+                if (PwdPassword.Password.Length < 6)
                 {
-                    Show("Пароль слишком короткий.\n\nМинимальная длина — 32 символа.\nПример: student2024student2024student2024");
+                    Show("Пароль слишком короткий.\n\nМинимальная длина — 6 символов.");
                     return false;
                 }
             }
@@ -220,6 +250,28 @@ namespace CollegeJournalApp.Views.Dialogs
                 new SqlParameter("@IsHeadman",   ChkHeadman.IsChecked == true),
                 new SqlParameter("@UpdatedById", SessionHelper.UserId)
             });
+        }
+
+        private static string TranslateSpMessage(string msg)
+        {
+            if (msg.Contains("UQ_Users_Login") || (msg.Contains("duplicate key") && msg.Contains("Login")))
+                return "Пользователь с таким логином уже существует.\nВыберите другой логин.";
+            if (msg.Contains("UQ_Students_Code") || msg.Contains("StudentCode"))
+                return "Студент с таким номером зачётной книжки уже существует.";
+            if (msg.Contains("UQ_Students_OneHeadman"))
+                return "В группе уже есть староста.";
+            if (msg.Contains("duplicate key") || msg.Contains("UNIQUE"))
+                return "Запись с такими данными уже существует в базе.";
+            return msg;
+        }
+
+        private static string HashPassword(string password)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            }
         }
 
         private static object ToDb(string s)

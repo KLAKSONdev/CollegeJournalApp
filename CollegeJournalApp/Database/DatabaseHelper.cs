@@ -124,7 +124,7 @@ namespace CollegeJournalApp.Database
                 if (msg.Contains("CK_Groups_SemesterCourse"))
                     return "Номер семестра не соответствует курсу.\nКурс 1 → семестры 1-2, Курс 2 → семестры 3-4, Курс 3 → семестры 5-6 и т.д.";
                 if (msg.Contains("CK_Users_PasswordHash"))
-                    return "Пароль слишком короткий. Минимальная длина — 32 символа.";
+                    return "Пароль слишком короткий. Минимальная длина — 6 символов.";
                 if (msg.Contains("CK_Users_Login"))
                     return "Логин должен быть не менее 4 символов и не содержать пробелов.";
                 if (msg.Contains("CK_Students_BirthDate") || msg.Contains("BirthDate"))

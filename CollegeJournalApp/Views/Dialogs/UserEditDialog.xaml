@@ -57,7 +57,7 @@
                 </Grid>
 
                 <StackPanel x:Name="PanelPassword" Margin="0,0,0,12">
-                    <TextBlock Text="Пароль (мин. 32 символа) *" Style="{StaticResource Lbl}"/>
+                    <TextBlock Text="Пароль (мин. 6 символов) *" Style="{StaticResource Lbl}"/>
                     <PasswordBox x:Name="PwdPassword" Height="30" Padding="8,0"
                                  FontSize="12" BorderBrush="#D0D0D0" BorderThickness="1"/>
                 </StackPanel>

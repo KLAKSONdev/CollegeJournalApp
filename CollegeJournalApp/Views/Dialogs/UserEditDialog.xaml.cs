@@ -1,5 +1,7 @@
 using System;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using CollegeJournalApp.Database;
@@ -92,12 +94,10 @@ namespace CollegeJournalApp.Views.Dialogs
                     MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
 
-            if (!_userId.HasValue && PwdPassword.Password.Length < 32)
+            if (!_userId.HasValue && PwdPassword.Password.Length < 6)
             {
                 MessageBox.Show(
-                    "Пароль слишком короткий.\n\n" +
-                    "Минимальная длина — 32 символа.\n" +
-                    "Пример: MyPassword2024MyPassword2024",
+                    "Пароль слишком короткий.\n\nМинимальная длина — 6 символов.",
                     "Проверьте данные", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -111,7 +111,7 @@ namespace CollegeJournalApp.Views.Dialogs
                     DatabaseHelper.ExecuteNonQuery("sp_AddUser", new[]
                     {
                         new SqlParameter("@Login",        TxtLogin.Text.Trim()),
-                        new SqlParameter("@PasswordHash", PwdPassword.Password),
+                        new SqlParameter("@PasswordHash", HashPassword(PwdPassword.Password)),
                         new SqlParameter("@RoleName",     roleName),
                         new SqlParameter("@LastName",     TxtLastName.Text.Trim()),
                         new SqlParameter("@FirstName",    TxtFirstName.Text.Trim()),
@@ -144,6 +144,15 @@ namespace CollegeJournalApp.Views.Dialogs
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static string HashPassword(string password)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLower();
             }
         }
 

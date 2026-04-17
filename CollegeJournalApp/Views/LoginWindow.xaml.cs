@@ -2,6 +2,8 @@ using System;
 using System.Data;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using CollegeJournalApp.Database;
@@ -60,7 +62,7 @@ namespace CollegeJournalApp.Views
             var parameters = new[]
             {
                 new SqlParameter("@Login",        login),
-                new SqlParameter("@PasswordHash", password),
+                new SqlParameter("@PasswordHash", HashPassword(password)),
                 new SqlParameter("@IPAddress",    GetLocalIP())
             };
 
@@ -97,8 +99,8 @@ namespace CollegeJournalApp.Views
 
         private void BtnQuickAdmin_Click(object sender, RoutedEventArgs e)
         {
-            TxtLogin.Text = "admin";
-            PwdPassword.Password = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
+            TxtLogin.Text        = "admin";
+            PwdPassword.Password = "123456";
             BtnLogin_Click(sender, e);
         }
 
@@ -106,6 +108,15 @@ namespace CollegeJournalApp.Views
         {
             TxtError.Text = message;
             TxtError.Visibility = Visibility.Visible;
+        }
+
+        private static string HashPassword(string password)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLower();
+            }
         }
 
         private string GetLocalIP()

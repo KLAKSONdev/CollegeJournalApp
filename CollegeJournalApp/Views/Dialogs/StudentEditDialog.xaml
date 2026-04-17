@@ -150,8 +150,7 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Группа *" Style="{StaticResource Lbl}"/>
                         <ComboBox x:Name="CmbGroup" Style="{StaticResource Cmb}"
-                                  DisplayMemberPath="GroupName"
-                                  SelectedValuePath="GroupId"/>
+                                  SelectionChanged="CmbGroup_SelectionChanged"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Основание обучения" Style="{StaticResource Lbl}"/>

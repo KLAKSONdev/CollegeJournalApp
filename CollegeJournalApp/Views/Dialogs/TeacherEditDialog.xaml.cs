@@ -1,5 +1,7 @@
 using System;
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using CollegeJournalApp.Database;
@@ -22,7 +24,8 @@ namespace CollegeJournalApp.Views.Dialogs
         {
             if (_teacherId.HasValue)
             {
-                TxtTitle.Text = "Редактировать преподавателя";
+                TxtTitle.Text            = "Редактировать преподавателя";
+                PanelAccount.Visibility  = Visibility.Collapsed;
                 LoadTeacherData();
             }
             else
@@ -40,9 +43,9 @@ namespace CollegeJournalApp.Views.Dialogs
                 {
                     if (Convert.ToInt32(r["TeacherId"]) != _teacherId.Value) continue;
 
-                    TxtLastName.Text   = r["LastName"]?.ToString()   ?? "";
-                    TxtFirstName.Text  = r["FirstName"]?.ToString()  ?? "";
-                    TxtMiddleName.Text = r["MiddleName"]?.ToString() ?? "";
+                    TxtLastName.Text    = r["LastName"]?.ToString()   ?? "";
+                    TxtFirstName.Text   = r["FirstName"]?.ToString()  ?? "";
+                    TxtMiddleName.Text  = r["MiddleName"]?.ToString() ?? "";
                     ChkActive.IsChecked = r["IsActive"] != DBNull.Value && Convert.ToBoolean(r["IsActive"]);
                     break;
                 }
@@ -59,14 +62,32 @@ namespace CollegeJournalApp.Views.Dialogs
             if (string.IsNullOrWhiteSpace(TxtLastName.Text))
             {
                 MessageBox.Show("Введите фамилию преподавателя.", "Проверьте данные",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
             }
             if (string.IsNullOrWhiteSpace(TxtFirstName.Text))
             {
                 MessageBox.Show("Введите имя преподавателя.", "Проверьте данные",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                    MessageBoxButton.OK, MessageBoxImage.Warning); return;
+            }
+
+            // Валидация учётной записи (только при добавлении)
+            if (!_teacherId.HasValue)
+            {
+                if (string.IsNullOrWhiteSpace(TxtLogin.Text) || TxtLogin.Text.Trim().Length < 4)
+                {
+                    MessageBox.Show("Логин должен содержать не менее 4 символов.", "Проверьте данные",
+                        MessageBoxButton.OK, MessageBoxImage.Warning); return;
+                }
+                if (TxtLogin.Text.Contains(" "))
+                {
+                    MessageBox.Show("Логин не должен содержать пробелы.", "Проверьте данные",
+                        MessageBoxButton.OK, MessageBoxImage.Warning); return;
+                }
+                if (PwdPassword.Password.Length < 6)
+                {
+                    MessageBox.Show("Минимальная длина пароля — 6 символов.", "Проверьте данные",
+                        MessageBoxButton.OK, MessageBoxImage.Warning); return;
+                }
             }
 
             try
@@ -75,11 +96,15 @@ namespace CollegeJournalApp.Views.Dialogs
                 {
                     DatabaseHelper.ExecuteNonQuery("sp_AddTeacher", new[]
                     {
-                        new SqlParameter("@LastName",   TxtLastName.Text.Trim()),
-                        new SqlParameter("@FirstName",  TxtFirstName.Text.Trim()),
-                        new SqlParameter("@MiddleName", ToDb(TxtMiddleName.Text)),
-                        new SqlParameter("@IsActive",   ChkActive.IsChecked == true),
-                        new SqlParameter("@AdminId",    SessionHelper.UserId)
+                        new SqlParameter("@LastName",     TxtLastName.Text.Trim()),
+                        new SqlParameter("@FirstName",    TxtFirstName.Text.Trim()),
+                        new SqlParameter("@MiddleName",   ToDb(TxtMiddleName.Text)),
+                        new SqlParameter("@IsActive",     ChkActive.IsChecked == true),
+                        new SqlParameter("@Login",        TxtLogin.Text.Trim()),
+                        new SqlParameter("@PasswordHash", HashPassword(PwdPassword.Password)),
+                        new SqlParameter("@Phone",        ToDb(TxtPhone.Text)),
+                        new SqlParameter("@Email",        ToDb(TxtEmail.Text)),
+                        new SqlParameter("@AdminId",      SessionHelper.UserId)
                     });
                 }
                 else
@@ -102,6 +127,15 @@ namespace CollegeJournalApp.Views.Dialogs
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static string HashPassword(string password)
+        {
+            using (var sha = SHA256.Create())
+            {
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLower();
             }
         }
 
