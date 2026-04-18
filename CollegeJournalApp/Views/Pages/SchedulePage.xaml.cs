@@ -373,6 +373,24 @@ namespace CollegeJournalApp.Views.Pages
         private int GetAdminGroupId() =>
             (int)((CmbGroup?.SelectedItem as ComboBoxItem)?.Tag ?? 0);
 
+        // ── Текущая пара ─────────────────────────────────────────────────────
+
+        private int GetCurrentLessonNum()
+        {
+            var now = DateTime.Now.TimeOfDay;
+            for (int i = 1; i <= 6; i++)
+            {
+                var times    = LessonTimes[i];
+                var startStr = times[0].Split(new[] { " – " }, StringSplitOptions.None)[0].Trim();
+                var endStr   = times[1].Split(new[] { " – " }, StringSplitOptions.None)[1].Trim();
+                if (TimeSpan.TryParse(startStr, out var start) &&
+                    TimeSpan.TryParse(endStr,   out var end)   &&
+                    now >= start && now <= end)
+                    return i;
+            }
+            return 0;
+        }
+
         // ── Построение карточек дней ─────────────────────────────────────────
 
         private void BuildDayCards()
@@ -394,20 +412,25 @@ namespace CollegeJournalApp.Views.Pages
             bool isAdmin    = SessionHelper.IsAdmin;
 
             // Цвета
-            var borderBrush = new SolidColorBrush(Color.FromRgb(0xE0, 0xE0, 0xE0));
-            var headerBg    = new SolidColorBrush(Color.FromRgb(0xF3, 0xF2, 0xF1));
-            var accentBlue  = new SolidColorBrush(Color.FromRgb(0x00, 0x78, 0xD4));
-            var lightBlue   = new SolidColorBrush(Color.FromRgb(0xF0, 0xF7, 0xFF));
-            var todayHeader = new SolidColorBrush(Color.FromRgb(0xDE, 0xEC, 0xF8));
-            var todayText   = new SolidColorBrush(Color.FromRgb(0x00, 0x56, 0x9B));
-            var textPrimary = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x1F));
-            var textMuted   = new SolidColorBrush(Color.FromRgb(0x96, 0x94, 0x92));
-            var emptyBg     = new SolidColorBrush(Color.FromRgb(0xFD, 0xFD, 0xFD));
-            var badgeGray   = new SolidColorBrush(Color.FromRgb(0xC8, 0xC6, 0xC4));
-            var redBrush    = new SolidColorBrush(Color.FromRgb(0xD1, 0x34, 0x38));
+            var borderBrush  = new SolidColorBrush(Color.FromRgb(0xE0, 0xE0, 0xE0));
+            var headerBg     = new SolidColorBrush(Color.FromRgb(0xF3, 0xF2, 0xF1));
+            var accentBlue   = new SolidColorBrush(Color.FromRgb(0x00, 0x78, 0xD4));
+            var lightBlue    = new SolidColorBrush(Color.FromRgb(0xF0, 0xF7, 0xFF));
+            var todayHeader  = new SolidColorBrush(Color.FromRgb(0xDE, 0xEC, 0xF8));
+            var todayText    = new SolidColorBrush(Color.FromRgb(0x00, 0x56, 0x9B));
+            var textPrimary  = new SolidColorBrush(Color.FromRgb(0x1F, 0x1F, 0x1F));
+            var textMuted    = new SolidColorBrush(Color.FromRgb(0x96, 0x94, 0x92));
+            var emptyBg      = new SolidColorBrush(Color.FromRgb(0xFD, 0xFD, 0xFD));
+            var badgeGray    = new SolidColorBrush(Color.FromRgb(0xC8, 0xC6, 0xC4));
+            var redBrush     = new SolidColorBrush(Color.FromRgb(0xD1, 0x34, 0x38));
+            // Текущая пара — зелёный акцент
+            var nowGreen     = new SolidColorBrush(Color.FromRgb(0x10, 0x79, 0x27));
+            var nowGreenBg   = new SolidColorBrush(Color.FromRgb(0xF0, 0xFB, 0xF2));
+            var nowGreenBadge= new SolidColorBrush(Color.FromRgb(0xDC, 0xF5, 0xE0));
 
-            int rawDow   = (int)DateTime.Today.DayOfWeek;
-            int todayDow = rawDow == 0 ? 7 : rawDow;
+            int rawDow        = (int)DateTime.Today.DayOfWeek;
+            int todayDow      = rawDow == 0 ? 7 : rawDow;
+            int currentLesson = GetCurrentLessonNum(); // 0 если не идёт пара
 
             for (int dayNum = 1; dayNum <= 6; dayNum++)
             {
@@ -465,9 +488,11 @@ namespace CollegeJournalApp.Views.Pages
                     int  capturedLesson = lessonNum;
                     var  lesson       = _all.FirstOrDefault(x =>
                         x.DayNum == dayNum && x.LessonNum == lessonNum.ToString());
-                    bool has   = lesson != null;
-                    var  times = LessonTimes[lessonNum];
-                    var  rowBg = has ? Brushes.White : emptyBg;
+                    bool has       = lesson != null;
+                    var  times     = LessonTimes[lessonNum];
+                    bool isNow     = isToday && has && lessonNum == currentLesson;
+                    var  rowBg     = isNow ? nowGreenBg : (has ? Brushes.White : emptyBg);
+                    var  accentBar = isNow ? nowGreen   : accentBlue;
 
                     // Ячейка №
                     var numCell = new Border
@@ -479,7 +504,7 @@ namespace CollegeJournalApp.Views.Pages
                     };
                     var badge = new Border
                     {
-                        Background          = has ? accentBlue : badgeGray,
+                        Background          = isNow ? nowGreen : (has ? accentBlue : badgeGray),
                         CornerRadius        = new CornerRadius(10),
                         Width               = 22,
                         Padding             = new Thickness(0, 2, 0, 2),
@@ -503,14 +528,14 @@ namespace CollegeJournalApp.Views.Pages
                     // Ячейка времени
                     var timeCell = new Border
                     {
-                        Background      = isToday && has ? lightBlue : rowBg,
+                        Background      = rowBg,
                         BorderBrush     = borderBrush,
                         BorderThickness = new Thickness(0, 0, 1, lastRow ? 0 : 1),
                         Padding         = new Thickness(6, 8, 6, 8)
                     };
                     var timeStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-                    timeStack.Children.Add(new TextBlock { Text = times[0], FontSize = 10, Foreground = has ? textPrimary : textMuted });
-                    timeStack.Children.Add(new TextBlock { Text = times[1], FontSize = 10, Foreground = has ? textPrimary : textMuted, Margin = new Thickness(0, 2, 0, 0) });
+                    timeStack.Children.Add(new TextBlock { Text = times[0], FontSize = 10, Foreground = isNow ? nowGreen : (has ? textPrimary : textMuted), FontWeight = isNow ? FontWeights.SemiBold : FontWeights.Normal });
+                    timeStack.Children.Add(new TextBlock { Text = times[1], FontSize = 10, Foreground = isNow ? nowGreen : (has ? textPrimary : textMuted), Margin = new Thickness(0, 2, 0, 0), FontWeight = isNow ? FontWeights.SemiBold : FontWeights.Normal });
                     timeCell.Child = timeStack;
                     Grid.SetRow(timeCell, i + 1);
                     Grid.SetColumn(timeCell, 1);
@@ -519,7 +544,7 @@ namespace CollegeJournalApp.Views.Pages
                     // Ячейка предмета
                     var subjectCell = new Border
                     {
-                        Background      = isToday && has ? lightBlue : rowBg,
+                        Background      = rowBg,
                         BorderBrush     = borderBrush,
                         BorderThickness = new Thickness(0, 0, 0, lastRow ? 0 : 1),
                         MinHeight       = 62
@@ -532,18 +557,40 @@ namespace CollegeJournalApp.Views.Pages
 
                         var inner = new Border
                         {
-                            BorderBrush     = accentBlue,
+                            BorderBrush     = accentBar,
                             BorderThickness = new Thickness(3, 0, 0, 0),
                             Margin          = new Thickness(8, 8, 8, isAdmin ? 4 : 8),
                             Padding         = new Thickness(8, 4, 6, 4)
                         };
                         var sp = new StackPanel();
+
+                        // Бейдж "▶ Идёт сейчас"
+                        if (isNow)
+                        {
+                            var nowBadge = new Border
+                            {
+                                Background          = nowGreenBadge,
+                                CornerRadius        = new CornerRadius(4),
+                                Padding             = new Thickness(5, 2, 5, 2),
+                                Margin              = new Thickness(0, 0, 0, 4),
+                                HorizontalAlignment = HorizontalAlignment.Left
+                            };
+                            nowBadge.Child = new TextBlock
+                            {
+                                Text       = "▶  Идёт сейчас",
+                                FontSize   = 10,
+                                FontWeight = FontWeights.SemiBold,
+                                Foreground = nowGreen
+                            };
+                            sp.Children.Add(nowBadge);
+                        }
+
                         sp.Children.Add(new TextBlock
                         {
                             Text         = lesson.Subject,
                             FontSize     = 12,
                             FontWeight   = FontWeights.SemiBold,
-                            Foreground   = textPrimary,
+                            Foreground   = isNow ? nowGreen : textPrimary,
                             TextWrapping = TextWrapping.Wrap
                         });
                         sp.Children.Add(new TextBlock
@@ -558,7 +605,7 @@ namespace CollegeJournalApp.Views.Pages
                             {
                                 Text       = "гр. " + lesson.GroupName,
                                 FontSize   = 10,
-                                Foreground = accentBlue,
+                                Foreground = isNow ? nowGreen : accentBlue,
                                 Margin     = new Thickness(0, 2, 0, 0)
                             });
 

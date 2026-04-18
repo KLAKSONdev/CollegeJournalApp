@@ -2,6 +2,40 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Background="#FAF9F8" FontFamily="Segoe UI" Title="Посещаемость">
+
+    <Page.Resources>
+        <Style x:Key="ColHdr" TargetType="DataGridColumnHeader">
+            <Setter Property="Background"      Value="#F3F2F1"/>
+            <Setter Property="Foreground"      Value="#605E5C"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="SemiBold"/>
+            <Setter Property="Padding"         Value="12,8"/>
+            <Setter Property="BorderBrush"     Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+        <Style x:Key="Cell" TargetType="DataGridCell">
+            <Setter Property="BorderThickness"  Value="0"/>
+            <Setter Property="Padding"          Value="12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EFF6FC"/>
+                    <Setter Property="Foreground" Value="#1F1F1F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ActBtn" TargetType="Button">
+            <Setter Property="Width"           Value="26"/>
+            <Setter Property="Height"          Value="26"/>
+            <Setter Property="Padding"         Value="0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="FontSize"        Value="13"/>
+        </Style>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,51 +44,131 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок -->
+        <!-- ЗАГОЛОВОК -->
         <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
                 BorderThickness="0,0,0,1" Padding="24,14">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Посещаемость" FontSize="18" FontWeight="SemiBold" Foreground="#1F1F1F"/>
-                <TextBlock x:Name="TxtTotal" Text="" FontSize="12" Foreground="#605E5C"
-                           VerticalAlignment="Bottom" Margin="10,0,0,2"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Посещаемость" FontSize="18" FontWeight="SemiBold"
+                               Foreground="#1F1F1F"/>
+                    <TextBlock x:Name="TxtTotal" Text="" FontSize="12" Foreground="#605E5C"
+                               VerticalAlignment="Bottom" Margin="10,0,0,2"/>
+                </StackPanel>
+                <Button x:Name="BtnMarkAttendance" Grid.Column="1"
+                        Content="+ Отметить посещаемость" Height="32" Padding="16,0"
+                        Background="#0078D4" Foreground="White" BorderThickness="0"
+                        FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                        Visibility="Collapsed"
+                        Click="BtnMarkAttendance_Click"/>
+            </Grid>
         </Border>
 
-        <!-- Статистика -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="24,16,24,0">
-            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,8,0">
-                <StackPanel Margin="16,12">
-                    <TextBlock x:Name="StatPresent" Text="—" FontSize="24" FontWeight="SemiBold" Foreground="#107C10"/>
-                    <TextBlock Text="Присутствовал" FontSize="10" Foreground="#605E5C" Margin="0,3,0,0"/>
-                </StackPanel>
+        <!-- КАРТОЧКИ СТАТИСТИКИ -->
+        <UniformGrid Grid.Row="1" Columns="5" Margin="24,14,24,0">
+
+            <Border x:Name="CardPresent" Margin="0,0,8,0" Background="White"
+                    BorderBrush="#E0E0E0" BorderThickness="1"
+                    Cursor="Hand" MouseLeftButtonUp="CardPresent_Click">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✓ " FontSize="13" Foreground="#107C10" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StatPresent" Text="—" FontSize="22" FontWeight="SemiBold" Foreground="#107C10"/>
+                        </StackPanel>
+                        <TextBlock Text="Присутствовал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" x:Name="BarPresent" Background="#E8E8E8">
+                        <Border x:Name="BarPresentFill" HorizontalAlignment="Left" Background="#107C10" Width="0"/>
+                    </Grid>
+                </Grid>
             </Border>
-            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,8,0">
-                <StackPanel Margin="16,12">
-                    <TextBlock x:Name="StatAbsent" Text="—" FontSize="24" FontWeight="SemiBold" Foreground="#D13438"/>
-                    <TextBlock Text="Отсутствовал" FontSize="10" Foreground="#605E5C" Margin="0,3,0,0"/>
-                </StackPanel>
+
+            <Border x:Name="CardAbsent" Margin="0,0,8,0" Background="White"
+                    BorderBrush="#E0E0E0" BorderThickness="1"
+                    Cursor="Hand" MouseLeftButtonUp="CardAbsent_Click">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✗ " FontSize="13" Foreground="#D13438" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StatAbsent" Text="—" FontSize="22" FontWeight="SemiBold" Foreground="#D13438"/>
+                        </StackPanel>
+                        <TextBlock Text="Отсутствовал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" x:Name="BarAbsent" Background="#E8E8E8">
+                        <Border x:Name="BarAbsentFill" HorizontalAlignment="Left" Background="#D13438" Width="0"/>
+                    </Grid>
+                </Grid>
             </Border>
-            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,0,8,0">
-                <StackPanel Margin="16,12">
-                    <TextBlock x:Name="StatLate" Text="—" FontSize="24" FontWeight="SemiBold" Foreground="#CA5010"/>
-                    <TextBlock Text="Опоздал" FontSize="10" Foreground="#605E5C" Margin="0,3,0,0"/>
-                </StackPanel>
+
+            <Border x:Name="CardLate" Margin="0,0,8,0" Background="White"
+                    BorderBrush="#E0E0E0" BorderThickness="1"
+                    Cursor="Hand" MouseLeftButtonUp="CardLate_Click">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⏰ " FontSize="13" Foreground="#CA5010" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StatLate" Text="—" FontSize="22" FontWeight="SemiBold" Foreground="#CA5010"/>
+                        </StackPanel>
+                        <TextBlock Text="Опоздал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" x:Name="BarLate" Background="#E8E8E8">
+                        <Border x:Name="BarLateFill" HorizontalAlignment="Left" Background="#CA5010" Width="0"/>
+                    </Grid>
+                </Grid>
             </Border>
+
+            <Border x:Name="CardExcused" Margin="0,0,8,0" Background="White"
+                    BorderBrush="#E0E0E0" BorderThickness="1"
+                    Cursor="Hand" MouseLeftButtonUp="CardExcused_Click">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋 " FontSize="13" Foreground="#0078D4" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StatExcused" Text="—" FontSize="22" FontWeight="SemiBold" Foreground="#0078D4"/>
+                        </StackPanel>
+                        <TextBlock Text="Уважит. причина" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" x:Name="BarExcused" Background="#E8E8E8">
+                        <Border x:Name="BarExcusedFill" HorizontalAlignment="Left" Background="#0078D4" Width="0"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
             <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-                <StackPanel Margin="16,12">
-                    <TextBlock x:Name="StatPercent" Text="—" FontSize="24" FontWeight="SemiBold" Foreground="#0078D4"/>
-                    <TextBlock Text="% посещаемости" FontSize="10" Foreground="#605E5C" Margin="0,3,0,0"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="4"/></Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📊 " FontSize="13" Foreground="#6B69D6" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="StatPercent" Text="—" FontSize="22" FontWeight="SemiBold" Foreground="#6B69D6"/>
+                        </StackPanel>
+                        <TextBlock Text="Посещаемость" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" x:Name="BarPercent" Background="#E8E8E8">
+                        <Border x:Name="BarPercentFill" HorizontalAlignment="Left" Background="#6B69D6" Width="0"/>
+                    </Grid>
+                </Grid>
             </Border>
         </UniformGrid>
 
-        <!-- Фильтры -->
-        <Border Grid.Row="2" Background="White" Padding="24,10"
-                BorderBrush="#E0E0E0" BorderThickness="0,1,0,1" Margin="0,12,0,0">
-            <StackPanel Orientation="Horizontal">
-                <Border BorderBrush="#D0D0D0" BorderThickness="1" Width="200" Height="30" Margin="0,0,8,0">
-                    <TextBox x:Name="TxtSearch" BorderThickness="0" Padding="8,6" FontSize="12"
-                             Background="White" TextChanged="Filter_Changed">
+        <!-- ФИЛЬТРЫ -->
+        <Border x:Name="PanelFilters" Grid.Row="2" Background="White"
+                BorderBrush="#E0E0E0" BorderThickness="0,1,0,1"
+                Padding="24,10" Margin="0,12,0,0">
+            <WrapPanel>
+                <Border BorderBrush="#D0D0D0" BorderThickness="1"
+                        Width="185" Height="30" Margin="0,0,6,0">
+                    <TextBox x:Name="TxtSearch" BorderThickness="0" Padding="8,6"
+                             FontSize="12" Background="White"
+                             TextChanged="Filter_Changed">
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Style.Triggers>
@@ -63,8 +177,10 @@
                                             <Setter.Value>
                                                 <VisualBrush Stretch="None" AlignmentX="Left">
                                                     <VisualBrush.Visual>
-                                                        <TextBlock Text="Поиск по студенту..." Foreground="#A19F9D"
-                                                                   FontFamily="Segoe UI" FontSize="12" Margin="8,6,0,0"/>
+                                                        <TextBlock Text="Поиск по студенту..."
+                                                                   Foreground="#A19F9D"
+                                                                   FontFamily="Segoe UI"
+                                                                   FontSize="12" Margin="8,6,0,0"/>
                                                     </VisualBrush.Visual>
                                                 </VisualBrush>
                                             </Setter.Value>
@@ -75,76 +191,200 @@
                         </TextBox.Style>
                     </TextBox>
                 </Border>
-                <ComboBox x:Name="CmbStatus" Width="160" Height="30" Margin="0,0,8,0"
-                          FontSize="12" SelectionChanged="Filter_Changed">
+                <DatePicker x:Name="DtFrom" Width="128" Height="30" Margin="0,0,4,0"
+                            FontSize="11" SelectedDateChanged="Filter_Changed"
+                            ToolTip="Дата с"/>
+                <DatePicker x:Name="DtTo" Width="128" Height="30" Margin="0,0,6,0"
+                            FontSize="11" SelectedDateChanged="Filter_Changed"
+                            ToolTip="Дата по"/>
+                <ComboBox x:Name="CmbStatus" Width="150" Height="30" Margin="0,0,6,0"
+                          FontSize="12" Visibility="Collapsed" SelectionChanged="Filter_Changed">
                     <ComboBoxItem Content="Все статусы" IsSelected="True"/>
                     <ComboBoxItem Content="Присутствовал"/>
                     <ComboBoxItem Content="Отсутствовал"/>
                     <ComboBoxItem Content="Опоздал"/>
                     <ComboBoxItem Content="Уважительная причина"/>
                 </ComboBox>
-                <ComboBox x:Name="CmbSubject" Width="200" Height="30" Margin="0,0,8,0"
+                <ComboBox x:Name="CmbSubject" Width="180" Height="30" Margin="0,0,6,0"
                           FontSize="12" SelectionChanged="Filter_Changed"/>
-                <Button Content="Сбросить" Height="30" Padding="12,0"
+                <ComboBox x:Name="CmbGroup" Width="120" Height="30" Margin="0,0,6,0"
+                          FontSize="12" Visibility="Collapsed"
+                          SelectionChanged="Filter_Changed"/>
+                <Button Content="Сбросить" Height="30" Padding="12,0" Margin="0,0,6,0"
                         Background="Transparent" BorderBrush="#D0D0D0" BorderThickness="1"
-                        FontFamily="Segoe UI" FontSize="12" Foreground="#605E5C"
-                        Cursor="Hand" Click="BtnReset_Click" Margin="0,0,8,0"/>
+                        FontSize="12" Foreground="#605E5C" Cursor="Hand"
+                        Click="BtnReset_Click"/>
                 <Button Content="📥 Экспорт" Height="30" Padding="12,0"
                         Background="#107C10" Foreground="White" BorderThickness="0"
-                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"
-                        Click="BtnExport_Click"/>
-            </StackPanel>
+                        FontSize="12" Cursor="Hand" Click="BtnExport_Click"/>
+            </WrapPanel>
         </Border>
 
-        <!-- Таблица -->
-        <Border Grid.Row="3" Margin="24,12,24,16"
+        <!-- ТАБЛИЦА (Admin / Curator / Teacher / Headman) -->
+        <Border x:Name="PanelGrid" Grid.Row="3" Margin="24,10,24,16"
                 Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
-            <DataGrid x:Name="AttGrid" AutoGenerateColumns="False" IsReadOnly="True"
-                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#F3F2F1"
-                      BorderThickness="0" Background="White" RowBackground="White"
-                      AlternatingRowBackground="#FAFAFA" HeadersVisibility="Column"
-                      CanUserResizeRows="False" FontFamily="Segoe UI" FontSize="12" RowHeight="34">
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#F3F2F1"/>
-                        <Setter Property="Foreground" Value="#605E5C"/>
-                        <Setter Property="FontSize" Value="11"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="12,8"/>
-                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
-                <DataGrid.CellStyle>
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#EFF6FC"/>
-                                <Setter Property="Foreground" Value="#1F1F1F"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.CellStyle>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Дата"       Binding="{Binding LessonDate}"  Width="100"/>
-                    <DataGridTextColumn Header="Студент"    Binding="{Binding StudentName}" Width="220"/>
-                    <DataGridTextColumn Header="Дисциплина" Binding="{Binding Subject}"     Width="*"/>
-                    <DataGridTemplateColumn Header="Статус" Width="150">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Background="{Binding StatusColor}" Padding="8,3" Margin="8,4"
-                                        HorizontalAlignment="Left">
-                                    <TextBlock Text="{Binding Status}" FontSize="11" Foreground="White"/>
-                                </Border>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Причина"    Binding="{Binding Reason}"      Width="160"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <DataGrid x:Name="AttGrid" Grid.Row="0"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#F0EFEE"
+                          BorderThickness="0" Background="White"
+                          RowBackground="White" AlternatingRowBackground="#FAFAFA"
+                          HeadersVisibility="Column" CanUserResizeRows="False"
+                          CanUserSortColumns="True" SelectionMode="Single"
+                          FontFamily="Segoe UI" FontSize="12" RowHeight="36"
+                          ColumnHeaderStyle="{StaticResource ColHdr}"
+                          CellStyle="{StaticResource Cell}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Дата"       Binding="{Binding LessonDate}"  Width="95"/>
+                        <DataGridTextColumn Header="Студент"    Binding="{Binding StudentName}" Width="195"/>
+                        <DataGridTextColumn x:Name="ColGroup"   Header="Группа" Binding="{Binding GroupName}" Width="95"/>
+                        <DataGridTextColumn Header="Дисциплина" Binding="{Binding Subject}"     Width="*"/>
+                        <DataGridTemplateColumn Header="Статус" Width="158" SortMemberPath="Status">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding StatusBg}" Padding="8,3"
+                                            Margin="8,5" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Status}" FontSize="11"
+                                                   Foreground="{Binding StatusFg}"
+                                                   FontWeight="SemiBold"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Причина" Binding="{Binding Reason}" Width="140">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#605E5C"/>
+                                    <Setter Property="FontStyle"  Value="Italic"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn x:Name="ColActions" Header="" Width="62" Visibility="Collapsed">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Tag="{Binding AttendanceId}" Content="✏️"
+                                                ToolTip="Редактировать"
+                                                Style="{StaticResource ActBtn}"
+                                                Click="BtnEdit_Click"/>
+                                        <Button Tag="{Binding AttendanceId}" Content="🗑️"
+                                                ToolTip="Удалить"
+                                                Style="{StaticResource ActBtn}" Margin="2,0,0,0"
+                                                Click="BtnDelete_Click"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Панель пагинации -->
+                <Border Grid.Row="1" Background="#F8F8F8"
+                        BorderBrush="#E0E0E0" BorderThickness="0,1,0,0"
+                        Padding="16,7">
+                    <Grid>
+                        <!-- Левая часть: счётчик записей -->
+                        <TextBlock x:Name="TxtPageInfo"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center"
+                                   FontSize="11" Foreground="#605E5C"/>
+
+                        <!-- Центр: кнопки страниц -->
+                        <StackPanel x:Name="PaginationPanel"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <!-- Правая часть: записей на странице -->
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock Text="На странице:" FontSize="11" Foreground="#605E5C"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="CmbPageSize" Width="56" Height="24" FontSize="11"
+                                      SelectionChanged="CmbPageSize_Changed">
+                                <ComboBoxItem Content="15"/>
+                                <ComboBoxItem Content="25" IsSelected="True"/>
+                                <ComboBoxItem Content="50"/>
+                                <ComboBoxItem Content="100"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
         </Border>
+
+        <!-- ЛИЧНАЯ СТАТИСТИКА (только Student) -->
+        <ScrollViewer x:Name="PanelStudent" Grid.Row="3"
+                      Margin="24,10,24,16"
+                      VerticalScrollBarVisibility="Auto"
+                      Visibility="Collapsed">
+            <StackPanel>
+                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                        Padding="20,14" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock x:Name="TxtStudentGreeting"
+                                   FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                        <TextBlock x:Name="TxtStudentGroup"
+                                   FontSize="12" Foreground="#605E5C" Margin="0,3,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                        Padding="20,14" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="По дисциплинам" FontSize="13"
+                                   FontWeight="SemiBold" Foreground="#1F1F1F" Margin="0,0,0,12"/>
+                        <StackPanel x:Name="SubjectBars"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <Border BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="16,10">
+                            <TextBlock Text="История посещений" FontSize="13"
+                                       FontWeight="SemiBold" Foreground="#1F1F1F"/>
+                        </Border>
+                        <DataGrid x:Name="StudentGrid"
+                                  AutoGenerateColumns="False" IsReadOnly="True"
+                                  GridLinesVisibility="Horizontal"
+                                  HorizontalGridLinesBrush="#F0EFEE"
+                                  BorderThickness="0" Background="White"
+                                  RowBackground="White" AlternatingRowBackground="#FAFAFA"
+                                  HeadersVisibility="Column" CanUserResizeRows="False"
+                                  MaxHeight="360" FontFamily="Segoe UI" FontSize="12" RowHeight="34"
+                                  ColumnHeaderStyle="{StaticResource ColHdr}"
+                                  CellStyle="{StaticResource Cell}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Дата"       Binding="{Binding LessonDate}" Width="95"/>
+                                <DataGridTextColumn Header="Дисциплина" Binding="{Binding Subject}"    Width="*"/>
+                                <DataGridTemplateColumn Header="Статус" Width="158">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding StatusBg}" Padding="8,3"
+                                                    Margin="8,4" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                                           Foreground="{Binding StatusFg}"
+                                                           FontWeight="SemiBold"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Причина" Binding="{Binding Reason}" Width="160">
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#605E5C"/>
+                                            <Setter Property="FontStyle"  Value="Italic"/>
+                                        </Style>
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
     </Grid>
 </Page>

@@ -174,6 +174,9 @@
                             <Button Content="✎ Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditGroup_Click"/>
+                            <Button Content="👤 Куратор"
+                                    Style="{StaticResource SecondaryBtn}"
+                                    Margin="0,0,8,0" Click="BtnAssignCurator_Click"/>
                             <Button Content="✕ Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteGroup_Click"/>

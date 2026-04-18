@@ -5,9 +5,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using ClosedXML.Excel;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
+using CollegeJournalApp.Views.Dialogs;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 
@@ -15,11 +17,13 @@ namespace CollegeJournalApp.Views.Pages
 {
     public partial class AttendancePage : Page
     {
-        private List<AttRow> _all = new List<AttRow>();
-        private DataGrid _grid;
-        private TextBox _search;
-        private ComboBox _cmbStatus, _cmbSubject;
-        private TextBlock _statPresent, _statAbsent, _statLate, _statPercent, _total;
+        private List<AttRow> _all            = new List<AttRow>();
+        private List<AttRow> _filtered       = new List<AttRow>();
+        private bool   _filterSuspended      = false;
+        private bool   _initialized          = false;
+        private string _activeStatusFilter   = null;
+        private int    _currentPage          = 1;
+        private int    _pageSize             = 25;
 
         public AttendancePage()
         {
@@ -28,138 +32,51 @@ namespace CollegeJournalApp.Views.Pages
             Loaded += (s, e) => Init();
         }
 
+        // ── Инициализация ──────────────────────────────────────────────────
+
         private void Init()
         {
-            _grid       = FindName("AttGrid")    as DataGrid;
-            _search     = FindName("TxtSearch")  as TextBox;
-            _cmbStatus  = FindName("CmbStatus")  as ComboBox;
-            _cmbSubject = FindName("CmbSubject") as ComboBox;
-            _total      = FindName("TxtTotal")   as TextBlock;
-            _statPresent= FindName("StatPresent")as TextBlock;
-            _statAbsent = FindName("StatAbsent") as TextBlock;
-            _statLate   = FindName("StatLate")   as TextBlock;
-            _statPercent= FindName("StatPercent")as TextBlock;
-
-            if (_grid == null) BuildUI();
+            ConfigureForRole();
             LoadData();
+            _initialized = true;
         }
 
-        private void BuildUI()
+        private void ConfigureForRole()
         {
-            var root = new Grid();
-            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            var role = SessionHelper.RoleName;
 
-            // Заголовок
-            var hdr = new Border { Background = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(224,224,224)),
-                BorderThickness = new Thickness(0,0,0,1), Padding = new Thickness(24,14,24,14) };
-            var hdrPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            hdrPanel.Children.Add(new TextBlock { Text = "Посещаемость", FontSize = 18,
-                FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(Color.FromRgb(31,31,31)) });
-            _total = new TextBlock { FontSize = 12, Foreground = new SolidColorBrush(Color.FromRgb(96,94,92)),
-                VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(10,0,0,2) };
-            hdrPanel.Children.Add(_total);
-            hdr.Child = hdrPanel;
-            Grid.SetRow(hdr, 0); root.Children.Add(hdr);
+            // Кнопка «Отметить посещаемость» — Teacher, Headman, Admin
+            if (role == "Teacher" || role == "Headman" || role == "Admin")
+                BtnMarkAttendance.Visibility = Visibility.Visible;
 
-            // Статистика
-            var stats = new System.Windows.Controls.Primitives.UniformGrid { Columns = 4, Margin = new Thickness(24, 16, 24, 0) };
-            _statPresent = AddStatCard(stats, "Присутствовал", Color.FromRgb(16,124,16));
-            _statAbsent  = AddStatCard(stats, "Отсутствовал",  Color.FromRgb(209,52,56));
-            _statLate    = AddStatCard(stats, "Опоздал",       Color.FromRgb(202,80,16));
-            _statPercent = AddStatCard(stats, "% посещаемости",Color.FromRgb(0,120,212));
-            Grid.SetRow(stats, 1); root.Children.Add(stats);
+            // Student → только личная статистика
+            if (role == "Student")
+            {
+                PanelGrid.Visibility    = Visibility.Collapsed;
+                PanelFilters.Visibility = Visibility.Collapsed;
+                PanelStudent.Visibility = Visibility.Visible;
+                return;
+            }
 
-            // Тулбар
-            var toolbar = new Border { Background = Brushes.White,
-                BorderBrush = new SolidColorBrush(Color.FromRgb(224,224,224)),
-                BorderThickness = new Thickness(0,1,0,1), Padding = new Thickness(24,10,24,10),
-                Margin = new Thickness(0,12,0,0) };
-            var tp = new StackPanel { Orientation = Orientation.Horizontal };
+            // Куратор и Headman — одна группа, колонка «Группа» лишняя
+            if (role == "Curator" || role == "Headman")
+                ColGroup.Visibility = Visibility.Collapsed;
 
-            _search = new TextBox { Width=200, Height=30, Padding=new Thickness(8,6,8,6), FontSize=12,
-                BorderBrush=new SolidColorBrush(Color.FromRgb(208,208,208)) };
-            _search.TextChanged += (s,e) => ApplyFilter();
-            tp.Children.Add(_search);
-
-            _cmbStatus = new ComboBox { Width=160, Height=30, Margin=new Thickness(8,0,0,0), FontSize=12 };
-            _cmbStatus.Items.Add(new ComboBoxItem { Content="Все статусы", IsSelected=true });
-            _cmbStatus.Items.Add(new ComboBoxItem { Content="Присутствовал" });
-            _cmbStatus.Items.Add(new ComboBoxItem { Content="Отсутствовал" });
-            _cmbStatus.Items.Add(new ComboBoxItem { Content="Опоздал" });
-            _cmbStatus.Items.Add(new ComboBoxItem { Content="Уважительная причина" });
-            _cmbStatus.SelectedIndex = 0;
-            _cmbStatus.SelectionChanged += (s,e) => ApplyFilter();
-            tp.Children.Add(_cmbStatus);
-
-            _cmbSubject = new ComboBox { Width=200, Height=30, Margin=new Thickness(8,0,0,0), FontSize=12 };
-            _cmbSubject.SelectionChanged += (s,e) => ApplyFilter();
-            tp.Children.Add(_cmbSubject);
-
-            var btnReset = new Button { Content="Сбросить", Height=30, Padding=new Thickness(12,0,12,0),
-                Margin=new Thickness(8,0,0,0), Background=Brushes.Transparent,
-                BorderBrush=new SolidColorBrush(Color.FromRgb(208,208,208)), FontSize=12,
-                Cursor=System.Windows.Input.Cursors.Hand };
-            btnReset.Click += (s,e) => { _search.Text=""; _cmbStatus.SelectedIndex=0; _cmbSubject.SelectedIndex=0; };
-            tp.Children.Add(btnReset);
-
-            var btnExport = new Button { Content="📥 Экспорт", Height=30, Padding=new Thickness(12,0,12,0),
-                Margin=new Thickness(8,0,0,0), Background=new SolidColorBrush(Color.FromRgb(16,124,16)),
-                Foreground=Brushes.White, BorderThickness=new Thickness(0), FontSize=12,
-                Cursor=System.Windows.Input.Cursors.Hand };
-            btnExport.Click += BtnExport_Click;
-            tp.Children.Add(btnExport);
-
-            toolbar.Child = tp;
-            Grid.SetRow(toolbar, 2); root.Children.Add(toolbar);
-
-            // Таблица
-            _grid = new DataGrid { AutoGenerateColumns=false, IsReadOnly=true,
-                GridLinesVisibility=DataGridGridLinesVisibility.Horizontal,
-                HorizontalGridLinesBrush=new SolidColorBrush(Color.FromRgb(243,242,241)),
-                BorderThickness=new Thickness(0), Background=Brushes.White,
-                RowBackground=Brushes.White,
-                AlternatingRowBackground=new SolidColorBrush(Color.FromRgb(250,250,250)),
-                HeadersVisibility=DataGridHeadersVisibility.Column, CanUserResizeRows=false,
-                FontFamily=new FontFamily("Segoe UI"), FontSize=12, RowHeight=34 };
-
-            _grid.Columns.Add(new DataGridTextColumn { Header="Дата",       Binding=new System.Windows.Data.Binding("LessonDate"),  Width=new DataGridLength(100) });
-            _grid.Columns.Add(new DataGridTextColumn { Header="Студент",     Binding=new System.Windows.Data.Binding("StudentName"), Width=new DataGridLength(220) });
-            _grid.Columns.Add(new DataGridTextColumn { Header="Дисциплина",  Binding=new System.Windows.Data.Binding("Subject"),     Width=new DataGridLength(1, DataGridLengthUnitType.Star) });
-            _grid.Columns.Add(new DataGridTextColumn { Header="Статус",      Binding=new System.Windows.Data.Binding("Status"),      Width=new DataGridLength(150) });
-            _grid.Columns.Add(new DataGridTextColumn { Header="Причина",     Binding=new System.Windows.Data.Binding("Reason"),      Width=new DataGridLength(160) });
-
-            var border = new Border { Margin=new Thickness(24,12,24,16),
-                BorderBrush=new SolidColorBrush(Color.FromRgb(224,224,224)),
-                BorderThickness=new Thickness(1), Child=_grid };
-            Grid.SetRow(border, 3); root.Children.Add(border);
-            this.Content = root;
+            // Admin — показываем кнопки действий и фильтр по группе
+            if (role == "Admin")
+            {
+                ColActions.Visibility = Visibility.Visible;
+                CmbGroup.Visibility   = Visibility.Visible;
+            }
         }
 
-        private TextBlock AddStatCard(Panel parent, string label, Color color)
-        {
-            var border = new Border { Background=Brushes.White,
-                BorderBrush=new SolidColorBrush(Color.FromRgb(224,224,224)),
-                BorderThickness=new Thickness(1), Margin=new Thickness(0,0,8,0) };
-            var sp = new StackPanel { Margin=new Thickness(16,12,16,12) };
-            var val = new TextBlock { Text="—", FontSize=24, FontWeight=FontWeights.SemiBold,
-                Foreground=new SolidColorBrush(color) };
-            sp.Children.Add(val);
-            sp.Children.Add(new TextBlock { Text=label, FontSize=10,
-                Foreground=new SolidColorBrush(Color.FromRgb(96,94,92)), Margin=new Thickness(0,3,0,0) });
-            border.Child = sp;
-            parent.Children.Add(border);
-            return val;
-        }
+        // ── Загрузка данных ────────────────────────────────────────────────
 
         private void LoadData()
         {
             try
             {
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetGroupAttendance", new[]
+                var dt = DatabaseHelper.ExecuteProcedure("sp_GetAttendanceReport", new[]
                 {
                     new SqlParameter("@UserId",   SessionHelper.UserId),
                     new SqlParameter("@RoleName", SessionHelper.RoleName)
@@ -167,83 +84,679 @@ namespace CollegeJournalApp.Views.Pages
 
                 _all.Clear();
                 var subjects = new HashSet<string>();
+                var groups   = new HashSet<string>();
+
                 foreach (DataRow r in dt.Rows)
                 {
                     var status  = r["Status"]?.ToString()      ?? "—";
                     var subject = r["SubjectName"]?.ToString() ?? "—";
+                    var group   = r["GroupName"]?.ToString()   ?? "—";
                     subjects.Add(subject);
+                    groups.Add(group);
+
+                    var dateRaw = r["LessonDate"] != DBNull.Value
+                        ? Convert.ToDateTime(r["LessonDate"])
+                        : DateTime.MinValue;
+
                     _all.Add(new AttRow
                     {
-                        LessonDate  = r["LessonDate"] != DBNull.Value ? Convert.ToDateTime(r["LessonDate"]).ToString("dd.MM.yyyy") : "—",
-                        StudentName = r["StudentName"]?.ToString() ?? "—",
-                        Subject     = subject,
-                        Status      = status,
-                        Reason      = r["Reason"]?.ToString()  ?? "—",
-                        StatusColor = GetStatusColor(status)
+                        AttendanceId  = r["AttendanceId"] != DBNull.Value
+                                        ? (int?)Convert.ToInt32(r["AttendanceId"]) : null,
+                        LessonDateRaw = dateRaw,
+                        LessonDate    = dateRaw != DateTime.MinValue
+                                        ? dateRaw.ToString("dd.MM.yyyy") : "—",
+                        StudentName   = r["StudentName"]?.ToString()   ?? "—",
+                        GroupName     = group,
+                        Subject       = subject,
+                        Status        = status,
+                        Reason        = r["Reason"]?.ToString()        ?? "",
+                        StatusBg      = GetStatusBg(status),
+                        StatusFg      = GetStatusFg(status),
+                        StudentId     = r["StudentId"]  != DBNull.Value
+                                        ? Convert.ToInt32(r["StudentId"])  : 0,
+                        ScheduleId    = r["ScheduleId"] != DBNull.Value
+                                        ? Convert.ToInt32(r["ScheduleId"]) : 0
                     });
                 }
 
-                if (_cmbSubject != null)
-                {
-                    _cmbSubject.Items.Clear();
-                    _cmbSubject.Items.Add(new ComboBoxItem { Content="Все дисциплины", IsSelected=true });
-                    foreach (var s in subjects.OrderBy(x => x))
-                        _cmbSubject.Items.Add(new ComboBoxItem { Content=s });
-                    _cmbSubject.SelectedIndex = 0;
-                }
+                // Заполнить ComboBox дисциплин (сохранить текущий выбор)
+                RefillCombo(CmbSubject, subjects.OrderBy(x => x), "Все дисциплины");
 
-                ApplyFilter();
+                // Заполнить ComboBox групп для Admin
+                if (SessionHelper.IsAdmin)
+                    RefillCombo(CmbGroup, groups.OrderBy(x => x), "Все группы");
+
+                if (SessionHelper.IsStudent)
+                    BuildStudentView();
+                else
+                    ApplyFilter();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки:\n" + ex.Message, "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Ошибка загрузки данных:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void RefillCombo(ComboBox cmb, IEnumerable<string> items, string allLabel)
+        {
+            var current = (cmb.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            cmb.SelectionChanged -= Filter_Changed;
+            cmb.Items.Clear();
+            cmb.Items.Add(new ComboBoxItem { Content = allLabel });
+            foreach (var s in items)
+                cmb.Items.Add(new ComboBoxItem { Content = s });
+            cmb.SelectedIndex = 0;
+            if (current != null && current != allLabel)
+            {
+                for (int i = 1; i < cmb.Items.Count; i++)
+                    if ((cmb.Items[i] as ComboBoxItem)?.Content?.ToString() == current)
+                    { cmb.SelectedIndex = i; break; }
+            }
+            cmb.SelectionChanged += Filter_Changed;
+        }
+
+        // ── Фильтрация ─────────────────────────────────────────────────────
 
         private void ApplyFilter()
         {
-            if (_grid == null) return;
+            if (_filterSuspended) return;
+
             var filtered = _all.AsEnumerable();
-            var search = _search?.Text?.Trim().ToLower() ?? "";
+
+            // Поиск по имени / дисциплине
+            var search = TxtSearch.Text.Trim().ToLower();
             if (!string.IsNullOrEmpty(search))
-                filtered = filtered.Where(r => r.StudentName.ToLower().Contains(search));
-            if (_cmbStatus?.SelectedIndex > 0)
+                filtered = filtered.Where(r =>
+                    r.StudentName.ToLower().Contains(search) ||
+                    r.Subject.ToLower().Contains(search));
+
+            // Диапазон дат
+            if (DtFrom.SelectedDate.HasValue)
+                filtered = filtered.Where(r =>
+                    r.LessonDateRaw != DateTime.MinValue &&
+                    r.LessonDateRaw.Date >= DtFrom.SelectedDate.Value.Date);
+
+            if (DtTo.SelectedDate.HasValue)
+                filtered = filtered.Where(r =>
+                    r.LessonDateRaw != DateTime.MinValue &&
+                    r.LessonDateRaw.Date <= DtTo.SelectedDate.Value.Date);
+
+            // Статус — через карточки
+            if (!string.IsNullOrEmpty(_activeStatusFilter))
+                filtered = filtered.Where(r => r.Status == _activeStatusFilter);
+
+            // Дисциплина
+            if (CmbSubject.SelectedIndex > 0)
             {
-                var st = (_cmbStatus.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
-                filtered = filtered.Where(r => r.Status == st);
-            }
-            if (_cmbSubject?.SelectedIndex > 0)
-            {
-                var subj = (_cmbSubject.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+                var subj = (CmbSubject.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
                 filtered = filtered.Where(r => r.Subject == subj);
             }
-            var result = filtered.ToList();
-            _grid.ItemsSource = result;
-            if (_total != null) _total.Text = $"— {result.Count} записей";
 
-            int present = result.Count(r => r.Status == "Присутствовал");
-            int absent  = result.Count(r => r.Status == "Отсутствовал");
-            int late    = result.Count(r => r.Status == "Опоздал");
-            int total   = result.Count;
-            if (_statPresent != null) _statPresent.Text = present.ToString();
-            if (_statAbsent  != null) _statAbsent.Text  = absent.ToString();
-            if (_statLate    != null) _statLate.Text     = late.ToString();
-            if (_statPercent != null) _statPercent.Text  = total > 0 ? $"{Math.Round(100.0*present/total,1)}%" : "—";
+            // Группа (только Admin)
+            if (CmbGroup.Visibility == Visibility.Visible && CmbGroup.SelectedIndex > 0)
+            {
+                var grp = (CmbGroup.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+                filtered = filtered.Where(r => r.GroupName == grp);
+            }
+
+            _filtered = filtered.ToList();
+            TxtTotal.Text = $"— {_filtered.Count} записей";
+            UpdateStats(_filtered);
+            ShowPage(1);
         }
 
-        private void Filter_Changed(object sender, RoutedEventArgs e) => ApplyFilter();
+        // ── Пагинация ──────────────────────────────────────────────────────
+
+        private void ShowPage(int page)
+        {
+            if (_filtered.Count == 0)
+            {
+                _currentPage          = 1;
+                AttGrid.ItemsSource   = null;
+                TxtPageInfo.Text      = "Нет записей";
+                PaginationPanel.Children.Clear();
+                return;
+            }
+
+            int totalPages = Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)_pageSize));
+            _currentPage   = Math.Max(1, Math.Min(page, totalPages));
+
+            int from = (_currentPage - 1) * _pageSize;
+            int to   = Math.Min(from + _pageSize, _filtered.Count);
+
+            AttGrid.ItemsSource = _filtered.Skip(from).Take(_pageSize).ToList();
+            TxtPageInfo.Text    = $"Записи {from + 1}–{to} из {_filtered.Count}";
+
+            BuildPageButtons(totalPages);
+        }
+
+        private void BuildPageButtons(int totalPages)
+        {
+            PaginationPanel.Children.Clear();
+
+            // Кнопка «←»
+            PaginationPanel.Children.Add(MakeNavBtn("←", _currentPage > 1,
+                () => ShowPage(_currentPage - 1)));
+
+            // Номера страниц (показываем не более 7 кнопок)
+            var pages = GetPageNumbers(_currentPage, totalPages);
+            int? prev = null;
+            foreach (int p in pages)
+            {
+                if (prev.HasValue && p - prev.Value > 1)
+                {
+                    // Многоточие
+                    PaginationPanel.Children.Add(new TextBlock
+                    {
+                        Text              = "…",
+                        FontSize          = 12,
+                        Foreground        = new SolidColorBrush(Color.FromRgb(160, 159, 157)),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin            = new Thickness(2, 0, 2, 0)
+                    });
+                }
+                int captured = p;
+                bool isCurrent = p == _currentPage;
+                var btn = new Button
+                {
+                    Content         = p.ToString(),
+                    Width           = 30,
+                    Height          = 28,
+                    FontSize        = 12,
+                    Margin          = new Thickness(2, 0, 2, 0),
+                    Cursor          = System.Windows.Input.Cursors.Hand,
+                    BorderThickness = new Thickness(1),
+                    FontWeight      = isCurrent ? FontWeights.SemiBold : FontWeights.Normal,
+                    Background      = isCurrent
+                        ? new SolidColorBrush(Color.FromRgb(0, 120, 212))
+                        : Brushes.White,
+                    Foreground      = isCurrent
+                        ? Brushes.White
+                        : new SolidColorBrush(Color.FromRgb(50, 50, 50)),
+                    BorderBrush     = isCurrent
+                        ? new SolidColorBrush(Color.FromRgb(0, 120, 212))
+                        : new SolidColorBrush(Color.FromRgb(208, 208, 208))
+                };
+                btn.Click += (s, e) => ShowPage(captured);
+                PaginationPanel.Children.Add(btn);
+                prev = p;
+            }
+
+            // Кнопка «→»
+            PaginationPanel.Children.Add(MakeNavBtn("→", _currentPage < totalPages,
+                () => ShowPage(_currentPage + 1)));
+        }
+
+        private static Button MakeNavBtn(string label, bool enabled, Action onClick)
+        {
+            var btn = new Button
+            {
+                Content         = label,
+                Width           = 30,
+                Height          = 28,
+                FontSize        = 13,
+                Margin          = new Thickness(2, 0, 2, 0),
+                Cursor          = System.Windows.Input.Cursors.Hand,
+                BorderThickness = new Thickness(1),
+                IsEnabled       = enabled,
+                Background      = Brushes.White,
+                Foreground      = enabled
+                    ? new SolidColorBrush(Color.FromRgb(0, 120, 212))
+                    : new SolidColorBrush(Color.FromRgb(180, 180, 180)),
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(208, 208, 208))
+            };
+            btn.Click += (s, e) => onClick();
+            return btn;
+        }
+
+        // Алгоритм «окна» страниц: всегда показываем первую, последнюю и ±2 от текущей
+        private static List<int> GetPageNumbers(int current, int total)
+        {
+            var set = new SortedSet<int>();
+            set.Add(1);
+            set.Add(total);
+            for (int i = Math.Max(1, current - 2); i <= Math.Min(total, current + 2); i++)
+                set.Add(i);
+            return new List<int>(set);
+        }
+
+        private void CmbPageSize_Changed(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_initialized) return;
+            var item = CmbPageSize.SelectedItem as ComboBoxItem;
+            if (item != null && int.TryParse(item.Content?.ToString(), out int size))
+            {
+                _pageSize = size;
+                ShowPage(1);
+            }
+        }
+
+        // ── Статистика ─────────────────────────────────────────────────────
+
+        private void UpdateStats(List<AttRow> rows)
+        {
+            int total   = rows.Count;
+            int present = rows.Count(r => r.Status == "Присутствовал");
+            int absent  = rows.Count(r => r.Status == "Отсутствовал");
+            int late    = rows.Count(r => r.Status == "Опоздал");
+            int excused = rows.Count(r => r.Status == "Уважительная причина");
+
+            StatPresent.Text = present.ToString();
+            StatAbsent.Text  = absent.ToString();
+            StatLate.Text    = late.ToString();
+            StatExcused.Text = excused.ToString();
+            StatPercent.Text = total > 0
+                ? $"{Math.Round(100.0 * present / total, 1)}%"
+                : "—";
+
+            // Ширины прогресс-баров после отрисовки
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+            {
+                double w = BarPresent.ActualWidth;
+                if (w <= 0) return;
+                BarPresentFill.Width = total > 0 ? w * present / total : 0;
+                BarAbsentFill.Width  = total > 0 ? w * absent  / total : 0;
+                BarLateFill.Width    = total > 0 ? w * late    / total : 0;
+                BarExcusedFill.Width = total > 0 ? w * excused / total : 0;
+                BarPercentFill.Width = total > 0 ? w * present / total : 0;
+            }));
+        }
+
+        // ── Личная статистика студента ─────────────────────────────────────
+
+        private void BuildStudentView()
+        {
+            TxtStudentGreeting.Text = $"Ваша посещаемость, {SessionHelper.FullName ?? "студент"}";
+            var groupNames = _all.Select(r => r.GroupName).Distinct().ToList();
+            TxtStudentGroup.Text = groupNames.Count > 0
+                ? "Группа: " + string.Join(", ", groupNames)
+                : "";
+
+            TxtTotal.Text = $"— {_all.Count} записей";
+            UpdateStats(_all);
+            StudentGrid.ItemsSource = _all;
+
+            // Полосы прогресса по дисциплинам
+            SubjectBars.Children.Clear();
+            var bySubject = _all
+                .GroupBy(r => r.Subject)
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            foreach (var grp in bySubject)
+            {
+                int total   = grp.Count();
+                int present = grp.Count(r => r.Status == "Присутствовал");
+                double pct  = total > 0 ? 100.0 * present / total : 0;
+
+                var barColor = pct >= 80 ? Color.FromRgb(16, 124, 16)
+                             : pct >= 60 ? Color.FromRgb(202, 80, 16)
+                             :             Color.FromRgb(209, 52, 56);
+
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(190) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });
+
+                // Название дисциплины
+                var lblSubj = new TextBlock
+                {
+                    Text              = grp.Key,
+                    FontSize          = 12,
+                    Foreground        = new SolidColorBrush(Color.FromRgb(31, 31, 31)),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextTrimming      = TextTrimming.CharacterEllipsis,
+                    ToolTip           = grp.Key
+                };
+                Grid.SetColumn(lblSubj, 0);
+                row.Children.Add(lblSubj);
+
+                // Полоска прогресса
+                var track = new Border
+                {
+                    Height            = 8,
+                    Background        = new SolidColorBrush(Color.FromRgb(232, 232, 232)),
+                    Margin            = new Thickness(8, 0, 8, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                var fill = new Border
+                {
+                    Background          = new SolidColorBrush(barColor),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Height              = 8,
+                    Width               = 0
+                };
+                var trackGrid = new Grid();
+                trackGrid.Children.Add(track);
+                trackGrid.Children.Add(fill);
+                Grid.SetColumn(trackGrid, 1);
+                row.Children.Add(trackGrid);
+
+                // Задать ширину после рендеринга
+                double capturedPct = pct;
+                fill.Loaded += (s, e2) =>
+                    Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+                    {
+                        if (track.ActualWidth > 0)
+                            fill.Width = track.ActualWidth * capturedPct / 100.0;
+                    }));
+
+                // Процент
+                var lblPct = new TextBlock
+                {
+                    Text              = $"{Math.Round(pct)}%",
+                    FontSize          = 12,
+                    FontWeight        = FontWeights.SemiBold,
+                    Foreground        = new SolidColorBrush(barColor),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextAlignment     = TextAlignment.Right
+                };
+                Grid.SetColumn(lblPct, 2);
+                row.Children.Add(lblPct);
+
+                SubjectBars.Children.Add(row);
+            }
+        }
+
+        // ── Обработчики фильтров ────────────────────────────────────────────
+
+        private void Filter_Changed(object sender, RoutedEventArgs e)
+        {
+            if (!_initialized) return;
+            if (!SessionHelper.IsStudent)
+                ApplyFilter();
+        }
+
         private void BtnReset_Click(object sender, RoutedEventArgs e)
-        { if(_search!=null)_search.Text=""; if(_cmbStatus!=null)_cmbStatus.SelectedIndex=0; if(_cmbSubject!=null)_cmbSubject.SelectedIndex=0; }
+        {
+            _filterSuspended    = true;
+            _activeStatusFilter = null;
+            TxtSearch.Text           = "";
+            DtFrom.SelectedDate      = null;
+            DtTo.SelectedDate        = null;
+            CmbStatus.SelectedIndex  = 0;
+            CmbSubject.SelectedIndex = 0;
+            if (CmbGroup.Visibility == Visibility.Visible)
+                CmbGroup.SelectedIndex = 0;
+            _filterSuspended = false;
+            UpdateCardHighlights();
+            ApplyFilter();
+        }
+
+        // ── Клики по карточкам статуса ─────────────────────────────────────
+
+        private void CardPresent_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => ToggleCardFilter("Присутствовал");
+
+        private void CardAbsent_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => ToggleCardFilter("Отсутствовал");
+
+        private void CardLate_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => ToggleCardFilter("Опоздал");
+
+        private void CardExcused_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => ToggleCardFilter("Уважительная причина");
+
+        private void ToggleCardFilter(string status)
+        {
+            // Повторный клик снимает фильтр
+            _activeStatusFilter = _activeStatusFilter == status ? null : status;
+            UpdateCardHighlights();
+            if (SessionHelper.IsStudent)
+                BuildStudentView();
+            else
+                ApplyFilter();
+        }
+
+        private void UpdateCardHighlights()
+        {
+            SetCardHighlight(CardPresent, "Присутствовал",        "#107C10", "#E8F6E8");
+            SetCardHighlight(CardAbsent,  "Отсутствовал",         "#D13438", "#FDE8E8");
+            SetCardHighlight(CardLate,    "Опоздал",              "#CA5010", "#FDF0E8");
+            SetCardHighlight(CardExcused, "Уважительная причина", "#0078D4", "#E8F0FD");
+        }
+
+        private void SetCardHighlight(Border card, string status, string colorHex, string bgHex)
+        {
+            bool active = _activeStatusFilter == status;
+            var  color  = (Color)ColorConverter.ConvertFromString(colorHex);
+            card.BorderBrush     = active
+                ? new SolidColorBrush(color)
+                : new SolidColorBrush(Color.FromRgb(224, 224, 224));
+            card.BorderThickness = active ? new Thickness(2) : new Thickness(1);
+            card.Background      = active
+                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString(bgHex))
+                : Brushes.White;
+        }
+
+        // ── Открытие окна отметки посещаемости ────────────────────────────
+
+        private void BtnMarkAttendance_Click(object sender, RoutedEventArgs e)
+        {
+            var win = new MarkAttendanceWindow(SessionHelper.UserId, SessionHelper.RoleName)
+            {
+                Owner = Window.GetWindow(this)
+            };
+            if (win.ShowDialog() == true)
+                LoadData();
+        }
+
+        // ── Редактирование записи (Admin) ──────────────────────────────────
+
+        private void BtnEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn)) return;
+            int? attId = btn.Tag is int i ? (int?)i : null;
+            if (attId == null) return;
+            var row = _all.FirstOrDefault(r => r.AttendanceId == attId);
+            if (row == null) return;
+            ShowEditDialog(row);
+        }
+
+        private void ShowEditDialog(AttRow row)
+        {
+            var win = new Window
+            {
+                Title                 = "Изменить запись посещаемости",
+                Width                 = 420,
+                Height                = 310,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner                 = Window.GetWindow(this),
+                ResizeMode            = ResizeMode.NoResize,
+                FontFamily            = new FontFamily("Segoe UI"),
+                Background            = new SolidColorBrush(Color.FromRgb(250, 249, 248))
+            };
+
+            var root = new Grid { Margin = new Thickness(20) };
+            for (int i = 0; i < 6; i++)
+                root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            root.RowDefinitions[5] = new RowDefinition { Height = GridLength.Auto };
+
+            // Заголовок — имя студента
+            root.Children.Add(Rowed(0, new TextBlock
+            {
+                Text       = row.StudentName,
+                FontSize   = 14,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(31, 31, 31)),
+                Margin     = new Thickness(0, 0, 0, 4)
+            }));
+
+            // Подзаголовок — предмет и дата
+            root.Children.Add(Rowed(1, new TextBlock
+            {
+                Text       = $"{row.Subject}  ·  {row.LessonDate}",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(96, 94, 92)),
+                Margin     = new Thickness(0, 0, 0, 14)
+            }));
+
+            // Статус
+            root.Children.Add(Rowed(2, new TextBlock
+            {
+                Text       = "Статус",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(96, 94, 92)),
+                Margin     = new Thickness(0, 0, 0, 4)
+            }));
+
+            var statuses = new[] { "Присутствовал", "Отсутствовал", "Опоздал", "Уважительная причина" };
+            var cmbSt = new ComboBox { Height = 30, FontSize = 12, Margin = new Thickness(0, 0, 0, 12) };
+            foreach (var s in statuses) cmbSt.Items.Add(new ComboBoxItem { Content = s });
+            cmbSt.SelectedIndex = Math.Max(0, Array.IndexOf(statuses, row.Status));
+            root.Children.Add(Rowed(3, cmbSt));
+
+            root.Children.Add(Rowed(4, new TextBlock
+            {
+                Text       = "Причина (необязательно)",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(96, 94, 92)),
+                Margin     = new Thickness(0, 0, 0, 4)
+            }));
+
+            var txtR = new TextBox
+            {
+                Height                      = 56,
+                FontSize                    = 12,
+                Text                        = row.Reason,
+                Padding                     = new Thickness(8, 6, 8, 6),
+                TextWrapping                = TextWrapping.Wrap,
+                BorderBrush                 = new SolidColorBrush(Color.FromRgb(208, 208, 208)),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin                      = new Thickness(0, 0, 0, 14)
+            };
+            root.Children.Add(Rowed(5, txtR));
+
+            // Кнопки
+            var btnPanel = new StackPanel
+            {
+                Orientation         = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+
+            var btnCancel = new Button
+            {
+                Content         = "Отмена",
+                Height          = 32,
+                Padding         = new Thickness(16, 0, 16, 0),
+                Background      = Brushes.Transparent,
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(208, 208, 208)),
+                BorderThickness = new Thickness(1),
+                FontSize        = 12,
+                Foreground      = new SolidColorBrush(Color.FromRgb(96, 94, 92)),
+                Margin          = new Thickness(0, 0, 8, 0),
+                Cursor          = System.Windows.Input.Cursors.Hand
+            };
+            btnCancel.Click += (s2, e2) => { win.DialogResult = false; win.Close(); };
+            btnPanel.Children.Add(btnCancel);
+
+            var btnSave = new Button
+            {
+                Content         = "Сохранить",
+                Height          = 32,
+                Padding         = new Thickness(16, 0, 16, 0),
+                Background      = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                Foreground      = Brushes.White,
+                BorderThickness = new Thickness(0),
+                FontSize        = 12,
+                FontWeight      = FontWeights.SemiBold,
+                Cursor          = System.Windows.Input.Cursors.Hand
+            };
+            btnSave.Click += (s2, e2) =>
+            {
+                var newStatus = (cmbSt.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? row.Status;
+                var newReason = txtR.Text.Trim();
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery("sp_SaveAttendanceMark", new[]
+                    {
+                        new SqlParameter("@MarkedById", SessionHelper.UserId),
+                        new SqlParameter("@StudentId",  row.StudentId),
+                        new SqlParameter("@ScheduleId", row.ScheduleId),
+                        new SqlParameter("@LessonDate", row.LessonDateRaw.Date),
+                        new SqlParameter("@Status",     newStatus),
+                        new SqlParameter("@Reason",     string.IsNullOrEmpty(newReason)
+                                                        ? (object)DBNull.Value : newReason)
+                    });
+                    win.DialogResult = true;
+                    win.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Ошибка сохранения:\n" + ex.Message,
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+            btnPanel.Children.Add(btnSave);
+
+            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            root.Children.Add(Rowed(6, btnPanel));
+
+            win.Content = root;
+            if (win.ShowDialog() == true)
+                LoadData();
+        }
+
+        private static UIElement Rowed(int row, UIElement el)
+        {
+            Grid.SetRow(el, row);
+            return el;
+        }
+
+        // ── Удаление записи (Admin) ────────────────────────────────────────
+
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn)) return;
+            int? attId = btn.Tag is int i ? (int?)i : null;
+            if (attId == null) return;
+
+            var row  = _all.FirstOrDefault(r => r.AttendanceId == attId);
+            var name = row != null ? $"{row.StudentName} ({row.LessonDate})" : "эту запись";
+
+            if (MessageBox.Show($"Удалить запись посещаемости\n«{name}»?",
+                    "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning)
+                != MessageBoxResult.Yes) return;
+
+            try
+            {
+                DatabaseHelper.ExecuteNonQuery("sp_DeleteAttendanceMark", new[]
+                {
+                    new SqlParameter("@AttendanceId", attId.Value),
+                    new SqlParameter("@UserId",       SessionHelper.UserId)
+                });
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка удаления:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── Экспорт в Excel ────────────────────────────────────────────────
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
-            var source = _grid?.ItemsSource as List<AttRow>;
-            if (source == null || source.Count == 0)
-            { MessageBox.Show("Нет данных.", "Экспорт", MessageBoxButton.OK, MessageBoxImage.Information); return; }
+            // Экспортируем все отфильтрованные записи, а не только текущую страницу
+            var source = SessionHelper.IsStudent
+                ? StudentGrid.ItemsSource as List<AttRow>
+                : _filtered;
 
-            var dlg = new SaveFileDialog { Title="Сохранить посещаемость", Filter="Excel|*.xlsx",
-                FileName=$"Посещаемость_{DateTime.Now:yyyy-MM-dd}" };
+            if (source == null || source.Count == 0)
+            {
+                MessageBox.Show("Нет данных для экспорта.", "Экспорт",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dlg = new SaveFileDialog
+            {
+                Title    = "Сохранить посещаемость",
+                Filter   = "Excel (*.xlsx)|*.xlsx",
+                FileName = $"Посещаемость_{DateTime.Now:yyyy-MM-dd}"
+            };
             if (dlg.ShowDialog() != true) return;
 
             try
@@ -251,37 +764,135 @@ namespace CollegeJournalApp.Views.Pages
                 using (var wb = new XLWorkbook())
                 {
                     var ws = wb.Worksheets.Add("Посещаемость");
-                    ws.Style.Font.FontName="Arial"; ws.Style.Font.FontSize=10;
-                    ws.Cell(1,1).Value="Посещаемость"; ws.Cell(1,1).Style.Font.Bold=true; ws.Cell(1,1).Style.Font.FontSize=14;
-                    ws.Cell(2,1).Value=$"Дата: {DateTime.Now:dd.MM.yyyy HH:mm}"; ws.Cell(2,1).Style.Font.FontColor=XLColor.Gray;
-                    string[] h={"Дата","Студент","Дисциплина","Статус","Причина"};
-                    for(int c=0;c<h.Length;c++){var cell=ws.Cell(4,c+1);cell.Value=h[c];cell.Style.Font.Bold=true;
-                        cell.Style.Fill.BackgroundColor=XLColor.FromArgb(0,120,212);cell.Style.Font.FontColor=XLColor.White;}
-                    for(int i=0;i<source.Count;i++){
-                        ws.Cell(5+i,1).Value=source[i].LessonDate; ws.Cell(5+i,2).Value=source[i].StudentName;
-                        ws.Cell(5+i,3).Value=source[i].Subject;    ws.Cell(5+i,4).Value=source[i].Status;
-                        ws.Cell(5+i,5).Value=source[i].Reason;
-                        if(i%2==1)ws.Range(5+i,1,5+i,5).Style.Fill.BackgroundColor=XLColor.FromArgb(245,245,245);}
-                    ws.Column(1).Width=12; ws.Column(2).Width=28; ws.Column(3).Width=30; ws.Column(4).Width=20; ws.Column(5).Width=25;
+                    ws.Style.Font.FontName = "Calibri";
+                    ws.Style.Font.FontSize = 11;
+
+                    ws.Cell(1, 1).Value = "Посещаемость";
+                    ws.Cell(1, 1).Style.Font.Bold     = true;
+                    ws.Cell(1, 1).Style.Font.FontSize = 14;
+                    ws.Cell(2, 1).Value = $"Экспорт: {DateTime.Now:dd.MM.yyyy HH:mm}";
+                    ws.Cell(2, 1).Style.Font.FontColor = XLColor.Gray;
+
+                    bool isAdmin = SessionHelper.IsAdmin;
+                    string[] headers = SessionHelper.IsStudent
+                        ? new[] { "Дата", "Дисциплина", "Статус", "Причина" }
+                        : isAdmin
+                          ? new[] { "Дата", "Студент", "Группа", "Дисциплина", "Статус", "Причина" }
+                          : new[] { "Дата", "Студент", "Дисциплина", "Статус", "Причина" };
+
+                    for (int c = 0; c < headers.Length; c++)
+                    {
+                        var cell = ws.Cell(4, c + 1);
+                        cell.Value = headers[c];
+                        cell.Style.Font.Bold                = true;
+                        cell.Style.Fill.BackgroundColor     = XLColor.FromArgb(0, 120, 212);
+                        cell.Style.Font.FontColor           = XLColor.White;
+                    }
+
+                    var statusColors = new Dictionary<string, XLColor>
+                    {
+                        { "Присутствовал",        XLColor.FromArgb(232, 246, 232) },
+                        { "Отсутствовал",         XLColor.FromArgb(253, 232, 233) },
+                        { "Опоздал",              XLColor.FromArgb(253, 240, 232) },
+                        { "Уважительная причина", XLColor.FromArgb(232, 240, 253) }
+                    };
+
+                    for (int i = 0; i < source.Count; i++)
+                    {
+                        var r   = source[i];
+                        int row = 5 + i;
+
+                        if (SessionHelper.IsStudent)
+                        {
+                            ws.Cell(row, 1).Value = r.LessonDate;
+                            ws.Cell(row, 2).Value = r.Subject;
+                            ws.Cell(row, 3).Value = r.Status;
+                            ws.Cell(row, 4).Value = r.Reason;
+                        }
+                        else if (isAdmin)
+                        {
+                            ws.Cell(row, 1).Value = r.LessonDate;
+                            ws.Cell(row, 2).Value = r.StudentName;
+                            ws.Cell(row, 3).Value = r.GroupName;
+                            ws.Cell(row, 4).Value = r.Subject;
+                            ws.Cell(row, 5).Value = r.Status;
+                            ws.Cell(row, 6).Value = r.Reason;
+                        }
+                        else
+                        {
+                            ws.Cell(row, 1).Value = r.LessonDate;
+                            ws.Cell(row, 2).Value = r.StudentName;
+                            ws.Cell(row, 3).Value = r.Subject;
+                            ws.Cell(row, 4).Value = r.Status;
+                            ws.Cell(row, 5).Value = r.Reason;
+                        }
+
+                        if (statusColors.TryGetValue(r.Status, out var bg))
+                            ws.Range(row, 1, row, headers.Length).Style.Fill.BackgroundColor = bg;
+                    }
+
+                    ws.Column(1).Width = 12;
+                    ws.Column(2).Width = 28;
+                    ws.Column(3).Width = isAdmin ? 12 : 28;
+                    ws.Column(4).Width = isAdmin ? 28 : 14;
+                    if (headers.Length >= 5) ws.Column(5).Width = 14;
+                    if (headers.Length >= 6) ws.Column(6).Width = 25;
+
                     wb.SaveAs(dlg.FileName);
                 }
-                if(MessageBox.Show("Открыть файл?","Готово",MessageBoxButton.YesNo,MessageBoxImage.Information)==MessageBoxResult.Yes)
-                    System.Diagnostics.Process.Start(dlg.FileName);
+
+                if (MessageBox.Show("Файл сохранён. Открыть?", "Готово",
+                        MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    System.Diagnostics.Process.Start(
+                        new System.Diagnostics.ProcessStartInfo(dlg.FileName) { UseShellExecute = true });
             }
-            catch(Exception ex){MessageBox.Show("Ошибка:\n"+ex.Message,"Ошибка",MessageBoxButton.OK,MessageBoxImage.Error);}
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка экспорта:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private string GetStatusColor(string s)
+        // ── Цвета статус-бейджей ───────────────────────────────────────────
+
+        private static string GetStatusBg(string s)
         {
-            switch(s){case "Присутствовал":return "#107C10";case "Отсутствовал":return "#D13438";
-                case "Опоздал":return "#CA5010";case "Уважительная причина":return "#0078D4";default:return "#A19F9D";}
+            switch (s)
+            {
+                case "Присутствовал":        return "#E8F6E8";
+                case "Отсутствовал":         return "#FDE8E8";
+                case "Опоздал":              return "#FDF0E8";
+                case "Уважительная причина": return "#E8F0FD";
+                default:                     return "#F0F0F0";
+            }
+        }
+
+        private static string GetStatusFg(string s)
+        {
+            switch (s)
+            {
+                case "Присутствовал":        return "#107C10";
+                case "Отсутствовал":         return "#A4262C";
+                case "Опоздал":              return "#8A3B00";
+                case "Уважительная причина": return "#0050A4";
+                default:                     return "#605E5C";
+            }
         }
     }
 
     public class AttRow
     {
-        public string LessonDate{get;set;} public string StudentName{get;set;}
-        public string Subject{get;set;}    public string Status{get;set;}
-        public string Reason{get;set;}     public string StatusColor{get;set;}
+        public int?     AttendanceId  { get; set; }
+        public DateTime LessonDateRaw { get; set; }
+        public string   LessonDate    { get; set; }
+        public string   StudentName   { get; set; }
+        public string   GroupName     { get; set; }
+        public string   Subject       { get; set; }
+        public string   Status        { get; set; }
+        public string   Reason        { get; set; }
+        public string   StatusBg      { get; set; }
+        public string   StatusFg      { get; set; }
+        public int      StudentId     { get; set; }
+        public int      ScheduleId    { get; set; }
     }
 }

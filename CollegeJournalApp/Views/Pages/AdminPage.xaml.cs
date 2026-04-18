@@ -187,6 +187,7 @@ namespace CollegeJournalApp.Views.Pages
                         EduForm       = row["EducationForm"]?.ToString() ?? "—",
                         EduBasis      = row["EducationBasis"]?.ToString()?? "—",
                         CuratorName   = row["CuratorName"]?.ToString()  ?? "—",
+                        CuratorUserId = row["CuratorId"] != DBNull.Value ? (int?)Convert.ToInt32(row["CuratorId"]) : null,
                         StudentCount  = row["StudentCount"]?.ToString()  ?? "0"
                     });
                 GroupsAdminGrid.ItemsSource = new List<AdminGroupRow>(_groups);
@@ -228,6 +229,22 @@ namespace CollegeJournalApp.Views.Pages
         {
             var dlg = new GroupEditDialog(groupId);
             dlg.Owner = Window.GetWindow(this);
+            if (dlg.ShowDialog() == true)
+                LoadGroups();
+        }
+
+        private void BtnAssignCurator_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(GroupsAdminGrid.SelectedItem is AdminGroupRow row))
+            {
+                MessageBox.Show("Выберите группу для назначения куратора.", "Внимание",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            var dlg = new CuratorAssignDialog(row.GroupId, row.GroupName, row.CuratorUserId)
+            {
+                Owner = Window.GetWindow(this)
+            };
             if (dlg.ShowDialog() == true)
                 LoadGroups();
         }
@@ -684,16 +701,17 @@ namespace CollegeJournalApp.Views.Pages
     }
     public class AdminGroupRow
     {
-        public int    GroupId       { get; set; }
-        public string GroupName     { get; set; }
-        public string Specialty     { get; set; }
-        public string SpecialtyCode { get; set; }
-        public string Course        { get; set; }
-        public string Semester      { get; set; }
-        public string EduForm       { get; set; }
-        public string EduBasis      { get; set; }
-        public string CuratorName   { get; set; }
-        public string StudentCount  { get; set; }
+        public int    GroupId         { get; set; }
+        public string GroupName       { get; set; }
+        public string Specialty       { get; set; }
+        public string SpecialtyCode   { get; set; }
+        public string Course          { get; set; }
+        public string Semester        { get; set; }
+        public string EduForm         { get; set; }
+        public string EduBasis        { get; set; }
+        public string CuratorName     { get; set; }
+        public int?   CuratorUserId   { get; set; }
+        public string StudentCount    { get; set; }
     }
     public class AdminUserRow
     {

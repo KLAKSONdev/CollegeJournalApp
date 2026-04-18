@@ -30,7 +30,6 @@ namespace CollegeJournalApp
             {
                 // Преподаватель видит только своё расписание + общие разделы
                 TabStudents.Visibility     = Visibility.Collapsed;
-                TabAttendance.Visibility   = Visibility.Collapsed;
                 TabGrades.Visibility       = Visibility.Collapsed;
                 TabSocial.Visibility       = Visibility.Collapsed;
                 TabAchievements.Visibility = Visibility.Collapsed;
