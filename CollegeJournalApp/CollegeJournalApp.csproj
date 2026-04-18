@@ -344,6 +344,7 @@
       <DependentUpon>CuratorAssignDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Views\Dialogs\HelpWindow.cs"/>
     <Page Include="Views\Dialogs\MarkAttendanceWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

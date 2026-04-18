@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using CollegeJournalApp.Helpers;
+using CollegeJournalApp.Views.Dialogs;
 using CollegeJournalApp.Views.Pages;
 
 namespace CollegeJournalApp
@@ -73,6 +75,16 @@ namespace CollegeJournalApp
                 case "Users":         MainFrame.Navigate(new UsersPage());         break;
                 case "Admin":         MainFrame.Navigate(new AdminPage());         break;
             }
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.F1) return;
+            e.Handled = true;
+
+            // Определяем текущую страницу для открытия нужного раздела справки
+            var pageName = (MainFrame.Content?.GetType().Name) ?? "";
+            new HelpWindow(pageName, this).ShowDialog();
         }
 
         private void BtnLogout_Click(object sender, RoutedEventArgs e)

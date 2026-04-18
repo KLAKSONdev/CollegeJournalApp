@@ -7,7 +7,8 @@
         WindowStartupLocation="CenterScreen"
         Background="#FFFFFF"
         FontFamily="Segoe UI"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <Window.Resources>
         <Style x:Key="TabStyle" TargetType="Button">

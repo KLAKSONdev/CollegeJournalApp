@@ -853,6 +853,225 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
+        // ── Справка (оставлена для возможного прямого вызова) ─────────────
+
+        private void ShowHelp()
+        {
+            var win = new Window
+            {
+                Title                 = "Справка — Посещаемость",
+                Width                 = 560,
+                Height                = 620,
+                MinWidth              = 460,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner                 = Window.GetWindow(this),
+                ResizeMode            = ResizeMode.CanResizeWithGrip,
+                FontFamily            = new FontFamily("Segoe UI"),
+                Background            = new SolidColorBrush(Color.FromRgb(237, 242, 247))
+            };
+
+            var scroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Padding                     = new Thickness(0, 0, 2, 0)
+            };
+
+            var root = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+
+            // ── Шапка окна справки
+            var header = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                Padding    = new Thickness(24, 18, 24, 18)
+            };
+            var headerContent = new StackPanel();
+            headerContent.Children.Add(new TextBlock
+            {
+                Text       = "📋  Посещаемость — Справка",
+                FontSize   = 17,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White
+            });
+            headerContent.Children.Add(new TextBlock
+            {
+                Text       = "Нажмите F1 в любой момент, чтобы открыть эту страницу",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(200, 228, 255)),
+                Margin     = new Thickness(0, 4, 0, 0)
+            });
+            header.Child = headerContent;
+            root.Children.Add(header);
+
+            // ── Секции справки
+            var sections = new[]
+            {
+                ("🃏  Карточки статистики",
+                 new[]
+                 {
+                     ("Фильтр по клику",
+                      "Кликните на карточку Присутствовал, Отсутствовал, Опоздал или\nУважит. причина — таблица сразу отфильтруется по этому статусу.\nПовторный клик на ту же карточку снимает фильтр."),
+                     ("Прогресс-полоска",
+                      "Цветная полоска в нижней части каждой карточки показывает\nдолю данного статуса от общего числа записей.")
+                 }),
+                ("🔍  Фильтры",
+                 new[]
+                 {
+                     ("Поиск",
+                      "Строка поиска фильтрует одновременно по имени студента\nи по названию дисциплины."),
+                     ("Диапазон дат",
+                      "Два поля «Дата с» и «Дата по» ограничивают выборку\nнужным периодом. Можно задать только одну из границ."),
+                     ("Дисциплина",
+                      "Выпадающий список позволяет смотреть посещаемость\nпо одному конкретному предмету."),
+                     ("Группа (Admin)",
+                      "Администратор видит дополнительный фильтр по группе."),
+                     ("Сбросить",
+                      "Кнопка «Сбросить» одновременно снимает все фильтры,\nвключая активную карточку-статус.")
+                 }),
+                ("📄  Таблица и пагинация",
+                 new[]
+                 {
+                     ("Страницы",
+                      "Кнопки ← [1][2]… → переключают страницы. Справа можно\nвыбрать количество записей на странице: 15, 25, 50 или 100."),
+                     ("Сортировка",
+                      "Кликните на заголовок любого столбца для сортировки.\nПовторный клик меняет направление сортировки."),
+                     ("Счётчик",
+                      "В левой части строки пагинации показано, какие записи\nотображены (например, «Записи 1–25 из 143»).")
+                 }),
+                ("📥  Экспорт",
+                 new[]
+                 {
+                     ("Excel",
+                      "Кнопка «Экспорт» сохраняет все отфильтрованные записи\n(не только текущую страницу) в файл .xlsx.\nСтроки окрашены по статусу: зелёный / красный / оранжевый / синий.")
+                 }),
+                ("👥  Роли пользователей",
+                 new[]
+                 {
+                     ("Преподаватель",
+                      "Видит посещаемость по своим дисциплинам.\nМожет отмечать посещаемость через кнопку «Отметить посещаемость»."),
+                     ("Старoста",
+                      "Видит посещаемость своей группы.\nМожет отмечать посещаемость на занятиях своей группы."),
+                     ("Куратор",
+                      "Только просмотр — отчёт по закреплённой группе.\nКолонка «Группа» скрыта (одна группа)."),
+                     ("Студент",
+                      "Видит только свою статистику: карточки, полосы\nпо дисциплинам и историю посещений."),
+                     ("Администратор",
+                      "Полный доступ: просмотр всех записей, фильтр по группе,\nкнопки ✏️ (редактировать) и 🗑️ (удалить) в каждой строке.")
+                 }),
+                ("✏️  Отметка посещаемости",
+                 new[]
+                 {
+                     ("Как отметить",
+                      "Нажмите «＋ Отметить посещаемость», выберите дату и занятие.\nДля каждого студента кликните кнопку статуса (зелёный,\nкрасный, оранжевый, синий). При необходимости укажите причину."),
+                     ("Повторная отметка",
+                      "Если посещаемость уже выставлена — она загрузится автоматически.\nПри сохранении существующая запись будет обновлена."),
+                     ("Всех присутствующими",
+                      "Кнопка «✓ Всех присутствующими» мгновенно ставит статус\n«Присутствовал» всем студентам в списке.")
+                 }),
+            };
+
+            foreach (var (title, items) in sections)
+            {
+                root.Children.Add(BuildHelpSection(title, items));
+            }
+
+            // ── Подвал
+            var footer = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(222, 226, 230)),
+                BorderThickness = new Thickness(0, 1, 0, 0),
+                Padding = new Thickness(24, 12, 24, 12),
+                Margin  = new Thickness(16, 8, 16, 0)
+            };
+            footer.Child = new TextBlock
+            {
+                Text       = "Нажмите F1 в любой момент, чтобы открыть эту справку.",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(108, 117, 125)),
+                TextAlignment = TextAlignment.Center
+            };
+            root.Children.Add(footer);
+
+            scroll.Content = root;
+            win.Content    = scroll;
+            win.ShowDialog();
+        }
+
+        private static UIElement BuildHelpSection(string title, (string label, string text)[] items)
+        {
+            var outer = new Border
+            {
+                Background      = Brushes.White,
+                BorderThickness = new Thickness(0),
+                CornerRadius    = new CornerRadius(10),
+                Margin          = new Thickness(16, 12, 16, 0)
+            };
+            outer.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color       = Color.FromRgb(26, 43, 74),
+                Opacity     = 0.08,
+                BlurRadius  = 10,
+                ShadowDepth = 2,
+                Direction   = 270
+            };
+
+            var sp = new StackPanel();
+
+            // Заголовок секции
+            var titleBorder = new Border
+            {
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(233, 236, 239)),
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding         = new Thickness(18, 12, 18, 12)
+            };
+            titleBorder.Child = new TextBlock
+            {
+                Text       = title,
+                FontSize   = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(26, 26, 46))
+            };
+            sp.Children.Add(titleBorder);
+
+            // Пункты
+            foreach (var (label, text) in items)
+            {
+                var row = new Grid { Margin = new Thickness(18, 10, 18, 0) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(148) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                var lbl = new TextBlock
+                {
+                    Text              = label,
+                    FontSize          = 12,
+                    FontWeight        = FontWeights.SemiBold,
+                    Foreground        = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                    VerticalAlignment = VerticalAlignment.Top,
+                    TextWrapping      = TextWrapping.Wrap
+                };
+                Grid.SetColumn(lbl, 0);
+                row.Children.Add(lbl);
+
+                var desc = new TextBlock
+                {
+                    Text         = text,
+                    FontSize     = 12,
+                    Foreground   = new SolidColorBrush(Color.FromRgb(52, 58, 64)),
+                    TextWrapping = TextWrapping.Wrap,
+                    LineHeight   = 18
+                };
+                Grid.SetColumn(desc, 1);
+                row.Children.Add(desc);
+
+                sp.Children.Add(row);
+            }
+
+            // Нижний отступ внутри карточки
+            sp.Children.Add(new Border { Height = 12 });
+            outer.Child = sp;
+            return outer;
+        }
+
         // ── Цвета статус-бейджей ───────────────────────────────────────────
 
         private static string GetStatusBg(string s)
