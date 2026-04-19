@@ -97,6 +97,12 @@ namespace CollegeJournalApp.Views
             this.Close();
         }
 
+        private void BtnLoginMinimize_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void BtnLoginClose_Click(object sender, RoutedEventArgs e)
+            => Close();
+
         private void BtnQuickAdmin_Click(object sender, RoutedEventArgs e)
         {
             TxtLogin.Text        = "admin";

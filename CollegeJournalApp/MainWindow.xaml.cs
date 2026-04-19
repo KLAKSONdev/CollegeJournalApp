@@ -100,6 +100,32 @@ namespace CollegeJournalApp
             new HelpWindow(pageName, this).ShowDialog();
         }
 
+        // ── Управление окном ───────────────────────────────────────────────
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void BtnMaximize_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState          = WindowState.Normal;
+                BtnMaximize.Content  = "□";
+                BtnMaximize.ToolTip  = "Развернуть";
+            }
+            else
+            {
+                WindowState          = WindowState.Maximized;
+                BtnMaximize.Content  = "❐";
+                BtnMaximize.ToolTip  = "Восстановить";
+            }
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+            => Close();
+
+        // ── Выход из аккаунта ──────────────────────────────────────────────
+
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(

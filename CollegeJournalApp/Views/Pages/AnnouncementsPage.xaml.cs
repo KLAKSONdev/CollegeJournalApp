@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Threading;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
 using Microsoft.Data.SqlClient;
@@ -15,13 +16,15 @@ namespace CollegeJournalApp.Views.Pages
 {
     public partial class AnnouncementsPage : Page
     {
-        private List<AnnRow> _all = new List<AnnRow>();
+        private List<AnnRow>    _all   = new List<AnnRow>();
+        private DispatcherTimer _timer;
 
         public AnnouncementsPage()
         {
             InitializeComponent();
             KeepAlive = false;
-            Loaded += (s, e) => Init();
+            Loaded   += (s, e) => Init();
+            Unloaded += (s, e) => _timer?.Stop();
         }
 
         // ── Инициализация ──────────────────────────────────────────────────
@@ -32,6 +35,12 @@ namespace CollegeJournalApp.Views.Pages
                 BtnCreate.Visibility = Visibility.Visible;
 
             LoadData();
+
+            // Автообновление: каждые 60 секунд перезагружаем данные
+            // — истёкшие объявления исчезнут без ручного перехода по вкладкам
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
+            _timer.Tick += (s, e) => LoadData();
+            _timer.Start();
         }
 
         // ── Загрузка данных ────────────────────────────────────────────────
@@ -236,15 +245,34 @@ namespace CollegeJournalApp.Views.Pages
 
             if (row.ExpiresAt.HasValue)
             {
-                bool expiresSoon = row.ExpiresAt.Value.Date <= DateTime.Today.AddDays(3);
+                var diff = row.ExpiresAt.Value - DateTime.Now;
+
+                // Если уже истекло — не показываем (SQL должен был отфильтровать,
+                // но на случай если данные устарели с момента загрузки)
+                if (diff <= TimeSpan.Zero) return card;
+
+                bool expiresSoon = diff.TotalHours <= 24;
                 var expColor = expiresSoon
-                    ? Color.FromRgb(164, 38, 44)   // красный — скоро истекает
-                    : Color.FromRgb(108, 117, 125); // серый — обычный
+                    ? Color.FromRgb(164, 38, 44)
+                    : Color.FromRgb(108, 117, 125);
+
+                var expires = row.ExpiresAt.Value;
+                bool hasTime = expires.Hour != 0 || expires.Minute != 0;
+                string expiresStr = hasTime
+                    ? expires.ToString("dd MMMM yyyy, HH:mm",
+                          new System.Globalization.CultureInfo("ru-RU"))
+                    : expires.ToString("dd MMMM yyyy",
+                          new System.Globalization.CultureInfo("ru-RU"));
+
+                // Подсказка «осталось» — только если меньше суток
+                string leftStr = "";
+                if (diff.TotalMinutes < 60)
+                    leftStr = $" (осталось {(int)diff.TotalMinutes} мин.)";
+                else if (diff.TotalHours < 24)
+                    leftStr = $" (осталось {(int)diff.TotalHours} ч. {diff.Minutes} мин.)";
 
                 footer.Inlines.Add(new Run("  ·  до "));
-                footer.Inlines.Add(new Run(
-                    row.ExpiresAt.Value.ToString("dd MMMM yyyy",
-                        new System.Globalization.CultureInfo("ru-RU")))
+                footer.Inlines.Add(new Run(expiresStr + leftStr)
                 {
                     Foreground = new SolidColorBrush(expColor),
                     FontWeight = expiresSoon ? FontWeights.SemiBold : FontWeights.Normal
@@ -617,10 +645,24 @@ namespace CollegeJournalApp.Views.Pages
                     default: targetAudience = "all"; break;
                 }
 
-                // Срок действия
+                // Срок действия — дата + выбранные часы/минуты
                 object expiresVal = DBNull.Value;
                 if (chkExpires.IsChecked == true && dpExpires.SelectedDate.HasValue)
-                    expiresVal = dpExpires.SelectedDate.Value.Date;
+                {
+                    int selHour = cmbHour.SelectedIndex >= 0 ? cmbHour.SelectedIndex : 23;
+                    int selMin  = cmbMinute.SelectedIndex >= 0
+                                  ? minuteValues[cmbMinute.SelectedIndex] : 0;
+                    var expiresDateTime = dpExpires.SelectedDate.Value.Date
+                                                  .AddHours(selHour)
+                                                  .AddMinutes(selMin);
+                    if (expiresDateTime <= DateTime.Now)
+                    {
+                        MessageBox.Show("Время истечения должно быть в будущем.", "Проверка",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    expiresVal = expiresDateTime;
+                }
 
                 try
                 {
@@ -639,7 +681,9 @@ namespace CollegeJournalApp.Views.Pages
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Ошибка сохранения:\n" + ex.Message,
+                    var inner = ex.InnerException?.Message ?? "";
+                    MessageBox.Show("Ошибка сохранения:\n" + ex.Message
+                        + (inner.Length > 0 ? "\n\n[SQL] " + inner : ""),
                         "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             };
