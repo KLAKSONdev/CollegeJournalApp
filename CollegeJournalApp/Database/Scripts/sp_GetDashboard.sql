@@ -17,6 +17,7 @@ BEGIN
             (SELECT COUNT(*) FROM dbo.Users    WHERE IsDeleted = 0)                             AS UserCount,
             (SELECT COUNT(*) FROM dbo.Students WHERE IsDeleted = 0)                             AS StudentCount,
             (SELECT COUNT(*) FROM dbo.Groups   WHERE IsDeleted = 0 AND IsGraduated = 0)         AS GroupCount,
+            (SELECT COUNT(*) FROM dbo.Teachers WHERE IsDeleted = 0 AND IsActive = 1)            AS TeacherCount,
             ISNULL(
                 (SELECT AVG(CAST(GradeValue AS DECIMAL(4,2)))
                  FROM dbo.Grades WHERE IsDeleted = 0), 0)                                       AS AvgGrade,
@@ -25,6 +26,10 @@ BEGIN
                AND CAST(ActionAt AS DATE) = CAST(GETDATE() AS DATE))                            AS LoginsToday,
             (SELECT COUNT(*) FROM dbo.AuditLog
              WHERE CAST(ActionAt AS DATE) = CAST(GETDATE() AS DATE))                            AS ActionsToday,
+            (SELECT COUNT(*) FROM dbo.Users
+             WHERE IsDeleted = 0
+               AND MONTH(CreatedAt) = MONTH(GETDATE())
+               AND YEAR(CreatedAt)  = YEAR(GETDATE()))                                          AS NewUsersThisMonth,
             N'Система'                                                                           AS GroupName,
             NULL                                                                                 AS GroupId,
             NULL                                                                                 AS AttendancePercent,
