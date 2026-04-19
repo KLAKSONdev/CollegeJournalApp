@@ -41,8 +41,8 @@ namespace CollegeJournalApp.Views.Dialogs
             Title                 = "Справка";
             Width                 = 760;
             Height                = 580;
-            MinWidth              = 560;
-            MinHeight             = 380;
+            MinWidth              = 760;
+            MinHeight             = 580;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             ResizeMode            = ResizeMode.CanResizeWithGrip;
             FontFamily            = new FontFamily("Segoe UI");

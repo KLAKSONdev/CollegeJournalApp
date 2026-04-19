@@ -5,6 +5,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 using ClosedXML.Excel;
 using CollegeJournalApp.Database;
@@ -24,6 +26,7 @@ namespace CollegeJournalApp.Views.Pages
         private string _activeStatusFilter   = null;
         private int    _currentPage          = 1;
         private int    _pageSize             = 25;
+        private bool   _chartsVisible        = false;
 
         public AttendancePage()
         {
@@ -39,6 +42,10 @@ namespace CollegeJournalApp.Views.Pages
             ConfigureForRole();
             LoadData();
             _initialized = true;
+
+            // Перерисовывать графики при изменении размера окна
+            PieCanvas.SizeChanged += (s, e) => { if (_chartsVisible) RedrawCharts(); };
+            BarCanvas.SizeChanged += (s, e) => { if (_chartsVisible) RedrawCharts(); };
         }
 
         private void ConfigureForRole()
@@ -361,6 +368,314 @@ namespace CollegeJournalApp.Views.Pages
                 BarExcusedFill.Width = total > 0 ? w * excused / total : 0;
                 BarPercentFill.Width = total > 0 ? w * present / total : 0;
             }));
+
+            if (_chartsVisible) RedrawCharts();
+        }
+
+        // ── Графики ────────────────────────────────────────────────────────
+
+        private void BtnToggleCharts_Click(object sender, RoutedEventArgs e)
+        {
+            _chartsVisible = !_chartsVisible;
+            PanelCharts.Visibility = _chartsVisible ? Visibility.Visible : Visibility.Collapsed;
+            BtnToggleCharts.Content = _chartsVisible ? "📊  Скрыть" : "📊  Графики";
+
+            if (_chartsVisible) RedrawCharts();
+        }
+
+        private void RedrawCharts()
+        {
+            var data = SessionHelper.IsStudent ? _all : _filtered;
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() => DrawCharts(data)));
+        }
+
+        private void DrawCharts(List<AttRow> rows)
+        {
+            int total   = rows.Count;
+            int present = rows.Count(r => r.Status == "Присутствовал");
+            int absent  = rows.Count(r => r.Status == "Отсутствовал");
+            int late    = rows.Count(r => r.Status == "Опоздал");
+            int excused = rows.Count(r => r.Status == "Уважительная причина");
+
+            DrawPieChart(present, absent, late, excused, total);
+            DrawBarChart(rows);
+        }
+
+        private void DrawPieChart(int present, int absent, int late, int excused, int total)
+        {
+            PieCanvas.Children.Clear();
+            PieLegend.Children.Clear();
+
+            double w = PieCanvas.ActualWidth;
+            double h = PieCanvas.ActualHeight;
+            if (w <= 0 || h <= 0) return;
+
+            double cx    = w / 2;
+            double cy    = h / 2;
+            double r     = Math.Min(cx, cy) - 6;
+            double inner = r * 0.42; // радиус отверстия «пончика»
+
+            var segments = new (int Count, Color Color, string Label)[]
+            {
+                (present, Color.FromRgb(16,  124, 16),  "Присутствовал"),
+                (absent,  Color.FromRgb(209,  52, 56),  "Отсутствовал"),
+                (late,    Color.FromRgb(202,  80, 16),  "Опоздал"),
+                (excused, Color.FromRgb(0,   120, 212), "Уважит. причина"),
+            };
+
+            if (total == 0)
+            {
+                // Пустое кольцо
+                var gEmpty = new GeometryGroup { FillRule = FillRule.EvenOdd };
+                gEmpty.Children.Add(new EllipseGeometry(new System.Windows.Point(cx, cy), r, r));
+                gEmpty.Children.Add(new EllipseGeometry(new System.Windows.Point(cx, cy), inner, inner));
+                PieCanvas.Children.Add(new Path
+                {
+                    Fill = new SolidColorBrush(Color.FromRgb(233, 236, 239)),
+                    Data = gEmpty
+                });
+                BuildPieLegend(segments, total);
+                return;
+            }
+
+            int nonZero = segments.Count(s => s.Count > 0);
+            double startAngle = -Math.PI / 2;
+
+            foreach (var (count, color, label) in segments)
+            {
+                if (count == 0) continue;
+                double sweep    = 2 * Math.PI * count / total;
+                double endAngle = startAngle + sweep;
+
+                Path path;
+                if (nonZero == 1)
+                {
+                    // Единственный сегмент — полное кольцо
+                    var g = new GeometryGroup { FillRule = FillRule.EvenOdd };
+                    g.Children.Add(new EllipseGeometry(new System.Windows.Point(cx, cy), r, r));
+                    g.Children.Add(new EllipseGeometry(new System.Windows.Point(cx, cy), inner, inner));
+                    path = new Path { Fill = new SolidColorBrush(color), Data = g };
+                }
+                else
+                {
+                    bool largeArc = sweep > Math.PI;
+
+                    var outerStart = new System.Windows.Point(cx + r * Math.Cos(startAngle),   cy + r * Math.Sin(startAngle));
+                    var outerEnd   = new System.Windows.Point(cx + r * Math.Cos(endAngle),     cy + r * Math.Sin(endAngle));
+                    var innerEnd   = new System.Windows.Point(cx + inner * Math.Cos(endAngle), cy + inner * Math.Sin(endAngle));
+                    var innerStart = new System.Windows.Point(cx + inner * Math.Cos(startAngle), cy + inner * Math.Sin(startAngle));
+
+                    var fig = new PathFigure { StartPoint = outerStart, IsClosed = true };
+                    fig.Segments.Add(new ArcSegment(outerEnd, new System.Windows.Size(r, r), 0,
+                        largeArc, SweepDirection.Clockwise, true));
+                    fig.Segments.Add(new LineSegment(innerEnd, true));
+                    fig.Segments.Add(new ArcSegment(innerStart, new System.Windows.Size(inner, inner), 0,
+                        largeArc, SweepDirection.Counterclockwise, true));
+
+                    path = new Path { Fill = new SolidColorBrush(color), Data = new PathGeometry(new[] { fig }) };
+                }
+                PieCanvas.Children.Add(path);
+                startAngle += sweep;
+            }
+
+            // Процент в центре кольца
+            double pct = total > 0 ? 100.0 * present / total : 0;
+            var centerTb = new TextBlock
+            {
+                Text              = $"{Math.Round(pct)}%",
+                FontSize          = 16,
+                FontWeight        = FontWeights.Bold,
+                Foreground        = new SolidColorBrush(Color.FromRgb(31, 31, 31)),
+                TextAlignment     = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            centerTb.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetLeft(centerTb, cx - centerTb.DesiredSize.Width / 2);
+            Canvas.SetTop(centerTb,  cy - centerTb.DesiredSize.Height / 2 - 7);
+            PieCanvas.Children.Add(centerTb);
+
+            var subTb = new TextBlock
+            {
+                Text          = "",
+                FontSize      = 4,
+                Foreground    = new SolidColorBrush(Color.FromRgb(108, 117, 125)),
+                TextAlignment = TextAlignment.Center
+            };
+            subTb.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetLeft(subTb, cx - subTb.DesiredSize.Width / 2);
+            Canvas.SetTop(subTb,  cy + 6);
+            PieCanvas.Children.Add(subTb);
+
+            BuildPieLegend(segments, total);
+        }
+
+        private void BuildPieLegend((int Count, Color Color, string Label)[] segments, int total)
+        {
+            PieLegend.Children.Clear();
+            foreach (var (count, color, label) in segments)
+            {
+                double pct = total > 0 ? 100.0 * count / total : 0;
+                var row = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin      = new Thickness(0, 0, 0, 8)
+                };
+                row.Children.Add(new Border
+                {
+                    Width               = 10,
+                    Height              = 10,
+                    Background          = new SolidColorBrush(color),
+                    CornerRadius        = new CornerRadius(2),
+                    Margin              = new Thickness(0, 2, 7, 0),
+                    VerticalAlignment   = VerticalAlignment.Top
+                });
+                var tb = new TextBlock
+                {
+                    FontSize    = 11,
+                    LineHeight  = 15,
+                    TextWrapping = TextWrapping.Wrap,
+                    Foreground  = new SolidColorBrush(Color.FromRgb(73, 80, 87))
+                };
+                tb.Inlines.Add(new System.Windows.Documents.Run(label + "\n")
+                    { FontWeight = FontWeights.SemiBold });
+                tb.Inlines.Add(new System.Windows.Documents.Run(
+                    $"{count}  ({Math.Round(pct, 1)}%)")
+                    { Foreground = new SolidColorBrush(Color.FromRgb(108, 117, 125)), FontSize = 10 });
+                row.Children.Add(tb);
+                PieLegend.Children.Add(row);
+            }
+        }
+
+        private void DrawBarChart(List<AttRow> rows)
+        {
+            BarCanvas.Children.Clear();
+
+            double w = BarCanvas.ActualWidth;
+            double h = BarCanvas.ActualHeight;
+            if (w <= 0 || h <= 0) return;
+
+            var byDate = rows
+                .Where(r => r.LessonDateRaw != DateTime.MinValue)
+                .GroupBy(r => r.LessonDateRaw.Date)
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            if (byDate.Count == 0)
+            {
+                var noData = new TextBlock
+                {
+                    Text       = "Нет данных для отображения",
+                    FontSize   = 12,
+                    Foreground = new SolidColorBrush(Color.FromRgb(173, 181, 189))
+                };
+                noData.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+                Canvas.SetLeft(noData, w / 2 - noData.DesiredSize.Width / 2);
+                Canvas.SetTop(noData,  h / 2 - 8);
+                BarCanvas.Children.Add(noData);
+                return;
+            }
+
+            // Не больше 20 дат — берём последние
+            if (byDate.Count > 20)
+                byDate = byDate.Skip(byDate.Count - 20).ToList();
+
+            double labelH  = 18;
+            double chartH  = h - labelH;
+            double n       = byDate.Count;
+            double slotW   = w / n;
+            double barW    = Math.Max(6, Math.Min(slotW * 0.55, 30));
+
+            // Сетка горизонтальных линий (0%, 25%, 50%, 75%, 100%)
+            for (int p = 0; p <= 100; p += 25)
+            {
+                double y = chartH * (1.0 - p / 100.0);
+                BarCanvas.Children.Add(new Line
+                {
+                    X1 = 0, Y1 = y, X2 = w, Y2 = y,
+                    Stroke          = new SolidColorBrush(p == 0
+                        ? Color.FromRgb(206, 212, 218)
+                        : Color.FromRgb(233, 236, 239)),
+                    StrokeDashArray = p == 0 ? null : new DoubleCollection(new double[] { 3, 3 }),
+                    StrokeThickness = p == 0 ? 1.5 : 1
+                });
+
+                if (p > 0)
+                {
+                    var gl = new TextBlock
+                    {
+                        Text       = p + "%",
+                        FontSize   = 8,
+                        Foreground = new SolidColorBrush(Color.FromRgb(173, 181, 189))
+                    };
+                    Canvas.SetLeft(gl, 2);
+                    Canvas.SetTop(gl,  y - 9);
+                    BarCanvas.Children.Add(gl);
+                }
+            }
+
+            // Столбцы
+            for (int i = 0; i < byDate.Count; i++)
+            {
+                var grp        = byDate[i];
+                int dayTotal   = grp.Count();
+                int dayPresent = grp.Count(r => r.Status == "Присутствовал");
+                double pct     = dayTotal > 0 ? (double)dayPresent / dayTotal : 0;
+
+                var barColor = pct >= 0.8 ? Color.FromRgb(16,  124, 16)
+                             : pct >= 0.6 ? Color.FromRgb(202,  80, 16)
+                             :              Color.FromRgb(209,  52, 56);
+
+                double barH      = Math.Max(pct > 0 ? 3 : 0, chartH * pct);
+                double slotLeft  = i * slotW;
+                double barLeft   = slotLeft + (slotW - barW) / 2;
+                double barTop    = chartH - barH;
+
+                // Фоновая дорожка
+                var track = new Rectangle
+                {
+                    Width   = barW,
+                    Height  = chartH,
+                    Fill    = new SolidColorBrush(Color.FromRgb(248, 249, 250)),
+                    RadiusX = 3,
+                    RadiusY = 3
+                };
+                Canvas.SetLeft(track, barLeft);
+                Canvas.SetTop(track,  0);
+                BarCanvas.Children.Add(track);
+
+                // Цветной столбец
+                if (barH > 0)
+                {
+                    var bar = new Rectangle
+                    {
+                        Width   = barW,
+                        Height  = barH,
+                        Fill    = new SolidColorBrush(barColor),
+                        RadiusX = 3,
+                        RadiusY = 3,
+                        ToolTip = $"{grp.Key:dd.MM.yyyy}  —  {dayPresent}/{dayTotal} ({Math.Round(pct * 100)}%)"
+                    };
+                    Canvas.SetLeft(bar, barLeft);
+                    Canvas.SetTop(bar,  barTop);
+                    BarCanvas.Children.Add(bar);
+                }
+
+                // Метка даты под столбцом
+                string dateStr = byDate.Count <= 10
+                    ? grp.Key.ToString("dd.MM")
+                    : grp.Key.ToString("dd");
+                var lbl = new TextBlock
+                {
+                    Text          = dateStr,
+                    FontSize      = 8,
+                    Foreground    = new SolidColorBrush(Color.FromRgb(108, 117, 125)),
+                    Width         = slotW,
+                    TextAlignment = TextAlignment.Center
+                };
+                Canvas.SetLeft(lbl, slotLeft);
+                Canvas.SetTop(lbl,  chartH + 3);
+                BarCanvas.Children.Add(lbl);
+            }
         }
 
         // ── Личная статистика студента ─────────────────────────────────────

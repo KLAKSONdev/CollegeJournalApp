@@ -82,6 +82,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -109,14 +110,23 @@
                         <TextBlock x:Name="TxtTotal" Text="" FontSize="12" Foreground="#6C757D"
                                    VerticalAlignment="Bottom" Margin="12,0,0,2"/>
                     </StackPanel>
-                    <Button x:Name="BtnMarkAttendance" Grid.Column="1"
-                            Content="＋  Отметить посещаемость"
-                            Height="36" Padding="18,0"
-                            Background="#0078D4" Foreground="White"
-                            FontSize="12" FontWeight="SemiBold"
-                            Visibility="Collapsed"
-                            Style="{StaticResource RoundBtn}"
-                            Click="BtnMarkAttendance_Click"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BtnToggleCharts"
+                                Content="📊  Графики"
+                                Height="36" Padding="14,0" Margin="0,0,8,0"
+                                Background="White" BorderBrush="#CED4DA" Foreground="#495057"
+                                FontSize="12" FontWeight="SemiBold"
+                                Style="{StaticResource RoundOutlineBtn}"
+                                Click="BtnToggleCharts_Click"/>
+                        <Button x:Name="BtnMarkAttendance"
+                                Content="＋  Отметить посещаемость"
+                                Height="36" Padding="18,0"
+                                Background="#0078D4" Foreground="White"
+                                FontSize="12" FontWeight="SemiBold"
+                                Visibility="Collapsed"
+                                Style="{StaticResource RoundBtn}"
+                                Click="BtnMarkAttendance_Click"/>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Border>
@@ -284,8 +294,60 @@
 
         </UniformGrid>
 
+        <!-- ══════════════════ ГРАФИКИ ══════════════════ -->
+        <Border x:Name="PanelCharts" Grid.Row="2" Margin="16,10,16,0"
+                Background="White" BorderThickness="0" CornerRadius="10"
+                Visibility="Collapsed">
+            <Border.Effect>
+                <DropShadowEffect Color="#1A2B4A" Opacity="0.08"
+                                  BlurRadius="10" ShadowDepth="2" Direction="270"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Круговая диаграмма -->
+                <Grid Grid.Column="0" Margin="18,14,18,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Распределение статусов"
+                               FontSize="12" FontWeight="SemiBold" Foreground="#495057"
+                               Margin="0,0,0,10"/>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Canvas x:Name="PieCanvas" Grid.Column="0" Height="150"/>
+                        <StackPanel x:Name="PieLegend" Grid.Column="1"
+                                    VerticalAlignment="Center" Margin="14,0,0,0" Width="148"/>
+                    </Grid>
+                </Grid>
+
+                <!-- Разделитель -->
+                <Border Grid.Column="1" Width="1" Background="#E9ECEF" Margin="0,10,0,10"/>
+
+                <!-- Столбчатая диаграмма -->
+                <Grid Grid.Column="2" Margin="18,14,18,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Посещаемость по датам"
+                               FontSize="12" FontWeight="SemiBold" Foreground="#495057"
+                               Margin="0,0,0,10"/>
+                    <Canvas x:Name="BarCanvas" Grid.Row="1" Height="160"/>
+                </Grid>
+            </Grid>
+        </Border>
+
         <!-- ══════════════════ ФИЛЬТРЫ ══════════════════ -->
-        <Border x:Name="PanelFilters" Grid.Row="2"
+        <Border x:Name="PanelFilters" Grid.Row="3"
                 Background="White" BorderThickness="0" CornerRadius="10"
                 Margin="16,12,16,0" Padding="16,10">
             <Border.Effect>
@@ -352,7 +414,7 @@
         </Border>
 
         <!-- ══════════════════ ТАБЛИЦА ══════════════════ -->
-        <Border x:Name="PanelGrid" Grid.Row="3" Margin="16,10,16,16"
+        <Border x:Name="PanelGrid" Grid.Row="4" Margin="16,10,16,16"
                 Background="White" BorderThickness="0" CornerRadius="10">
             <Border.Effect>
                 <DropShadowEffect Color="#1A2B4A" Opacity="0.1"
@@ -450,7 +512,7 @@
         </Border>
 
         <!-- ══════════════════ ЛИЧНАЯ СТАТИСТИКА (Student) ══════════════════ -->
-        <ScrollViewer x:Name="PanelStudent" Grid.Row="3"
+        <ScrollViewer x:Name="PanelStudent" Grid.Row="4"
                       Margin="16,10,16,16"
                       VerticalScrollBarVisibility="Auto"
                       Visibility="Collapsed">
