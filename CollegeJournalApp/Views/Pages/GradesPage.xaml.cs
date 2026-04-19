@@ -38,9 +38,18 @@ namespace CollegeJournalApp.Views.Pages
             = new Dictionary<DataGridColumn, string>();
 
         // Попап ввода оценки
-        private Popup   _gradePopup;
-        private int     _popStudentId, _popSubjectId;
+        private Popup     _gradePopup;
+        private int       _popStudentId, _popSubjectId;
         private DateTime? _popDate;          // null → итоговая за месяц
+
+        // Попап редактирования темы урока
+        private Popup     _notePopup;
+        private TextBox   _noteTb;
+        private TextBlock _noteDateHeader;
+        private int       _noteDay;
+
+        // Заметки к урокам: день → текст
+        private readonly Dictionary<int, string> _lessonNotes = new Dictionary<int, string>();
 
         private bool CanEdit =>
             SessionHelper.RoleName == "Admin" ||
@@ -60,6 +69,8 @@ namespace CollegeJournalApp.Views.Pages
             _month = DateTime.Today.Month;
             UpdateMonthLabel();
             BuildGradePopup();
+            BuildNotePopup();
+            MainGrid.LoadingRow += MainGrid_LoadingRow;
             LoadGroups();
 
             // Закрываем попап при клике за его пределами
@@ -77,11 +88,18 @@ namespace CollegeJournalApp.Views.Pages
 
         private void Win_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!(_gradePopup?.IsOpen == true)) return;
-            var content = _gradePopup.Child as UIElement;
-            // Если клик НЕ на попапе — закрываем
-            if (content == null || !content.IsMouseOver)
-                _gradePopup.IsOpen = false;
+            if (_gradePopup?.IsOpen == true)
+            {
+                var gc = _gradePopup.Child as UIElement;
+                if (gc == null || !gc.IsMouseOver)
+                    _gradePopup.IsOpen = false;
+            }
+            if (_notePopup?.IsOpen == true)
+            {
+                var nc = _notePopup.Child as UIElement;
+                if (nc == null || !nc.IsMouseOver)
+                    _notePopup.IsOpen = false;
+            }
         }
 
         // ── Группы ─────────────────────────────────────────────────────────
@@ -256,6 +274,9 @@ namespace CollegeJournalApp.Views.Pages
                     );
                 }
 
+                // Загружаем темы уроков
+                LoadLessonNotes();
+
                 // Строим DataTable
                 var table = new DataTable();
                 table.Columns.Add("StudentId",   typeof(int));
@@ -265,7 +286,17 @@ namespace CollegeJournalApp.Views.Pages
                 table.Columns.Add("Avg",   typeof(string));
                 table.Columns.Add("Final", typeof(string));
 
-                // Пивот
+                // Строка тем уроков (всегда первая, StudentId = -1)
+                var notesRow = table.NewRow();
+                notesRow["StudentId"]   = -1;
+                notesRow["StudentName"] = "📝 Тема урока";
+                for (int d = 1; d <= _daysInMonth; d++)
+                    notesRow[$"d{d:00}"] = _lessonNotes.ContainsKey(d) ? "•" : "";
+                notesRow["Avg"]   = "";
+                notesRow["Final"] = "";
+                table.Rows.Add(notesRow);
+
+                // Пивот студентов
                 var rows = new Dictionary<int, DataRow>();
                 foreach (DataRow r in dtGrades.Rows)
                 {
@@ -285,10 +316,11 @@ namespace CollegeJournalApp.Views.Pages
                     }
                 }
 
-                // Среднее и итог
+                // Среднее и итог (строку тем пропускаем)
                 foreach (DataRow dr in table.Rows)
                 {
                     int sid = Convert.ToInt32(dr["StudentId"]);
+                    if (sid == -1) continue;
 
                     if (monthly.TryGetValue(sid, out var mg) && mg.avg.HasValue)
                     {
@@ -312,9 +344,9 @@ namespace CollegeJournalApp.Views.Pages
                 }
 
                 BuildJournalColumns(_daysInMonth);
-                MainGrid.ItemsSource    = table.DefaultView;
+                MainGrid.ItemsSource       = table.DefaultView;
                 MainGrid.FrozenColumnCount = 1;
-                TxtSubtitle.Text = $"— {table.Rows.Count} студентов";
+                TxtSubtitle.Text = $"— {table.Rows.Count - 1} студентов";
             }
             catch (Exception ex)
             {
@@ -594,7 +626,22 @@ namespace CollegeJournalApp.Views.Pages
             var drv = cell.DataContext as DataRowView;
             if (drv == null) return;
 
-            _popStudentId = Convert.ToInt32(drv["StudentId"]);
+            int studentId = Convert.ToInt32(drv["StudentId"]);
+
+            // ── Строка тем уроков ──────────────────────────────────────────
+            if (studentId == -1)
+            {
+                if (!_isJournalView || !CanEdit) return;
+                if (!tag.StartsWith("day:"))     return;
+                if (!_editableSubjectIds.Contains(_currentSubjectId)) return;
+                int day = int.Parse(tag.Substring(4));
+                _gradePopup.IsOpen = false;
+                OpenNotePopup(day);
+                e.Handled = true;
+                return;
+            }
+
+            _popStudentId = studentId;
             _popSubjectId = _currentSubjectId;
             _popDate      = null;
 
@@ -666,6 +713,193 @@ namespace CollegeJournalApp.Views.Pages
             catch (Exception ex)
             {
                 MessageBox.Show("Ошибка:\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── Темы уроков ────────────────────────────────────────────────────
+
+        private void LoadLessonNotes()
+        {
+            _lessonNotes.Clear();
+            if (_currentGroupId == 0 || _currentSubjectId == 0) return;
+            try
+            {
+                var dt = DatabaseHelper.ExecuteProcedure("sp_GetLessonNotes", new[]
+                {
+                    new SqlParameter("@GroupId",   _currentGroupId),
+                    new SqlParameter("@SubjectId", _currentSubjectId),
+                    new SqlParameter("@Year",      _year),
+                    new SqlParameter("@Month",     _month)
+                });
+                foreach (DataRow r in dt.Rows)
+                {
+                    int    day  = Convert.ToInt32(r["DayNum"]);
+                    string text = r["NoteText"]?.ToString() ?? "";
+                    if (!string.IsNullOrWhiteSpace(text))
+                        _lessonNotes[day] = text;
+                }
+            }
+            catch { }
+        }
+
+        private void BuildNotePopup()
+        {
+            var root = new StackPanel { Width = 290, Margin = new Thickness(14) };
+
+            // Заголовок с датой
+            _noteDateHeader = new TextBlock
+            {
+                FontSize   = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(26, 26, 46)),
+                Margin     = new Thickness(0, 0, 0, 10)
+            };
+            root.Children.Add(_noteDateHeader);
+
+            // Подпись
+            root.Children.Add(new TextBlock
+            {
+                Text       = "Тема / тип урока:",
+                FontSize   = 11,
+                Foreground = new SolidColorBrush(Color.FromRgb(96, 94, 92)),
+                Margin     = new Thickness(0, 0, 0, 4)
+            });
+
+            // Текстовое поле
+            _noteTb = new TextBox
+            {
+                AcceptsReturn   = true,
+                TextWrapping    = TextWrapping.Wrap,
+                MaxLength       = 300,
+                Height          = 66,
+                FontSize        = 12,
+                Padding         = new Thickness(6),
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                BorderThickness = new Thickness(1),
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+            root.Children.Add(_noteTb);
+
+            // Кнопки
+            var btnPanel = new StackPanel
+            {
+                Orientation         = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin              = new Thickness(0, 10, 0, 0)
+            };
+
+            var btnClear = MakeNoteButton("Очистить",
+                Color.FromRgb(243, 242, 241), Color.FromRgb(50, 49, 48),
+                Color.FromRgb(208, 208, 208), new Thickness(0, 0, 8, 0));
+            btnClear.Click += (s, ev) => { _noteTb.Text = ""; CommitNote(); };
+
+            var btnSave = MakeNoteButton("Сохранить",
+                Color.FromRgb(0, 120, 212), Colors.White,
+                Color.FromRgb(0, 120, 212), new Thickness(0));
+            btnSave.Click += (s, ev) => CommitNote();
+
+            btnPanel.Children.Add(btnClear);
+            btnPanel.Children.Add(btnSave);
+            root.Children.Add(btnPanel);
+
+            var border = new Border
+            {
+                Background      = Brushes.White,
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                BorderThickness = new Thickness(1),
+                CornerRadius    = new CornerRadius(8),
+                Child           = root,
+                Effect          = new DropShadowEffect
+                {
+                    Color       = Colors.Black, Opacity = 0.18,
+                    BlurRadius  = 14, ShadowDepth = 3, Direction = 270
+                }
+            };
+
+            _notePopup = new Popup
+            {
+                Child              = border,
+                StaysOpen          = true,
+                AllowsTransparency = true,
+                PopupAnimation     = PopupAnimation.Fade,
+                Placement          = PlacementMode.MousePoint
+            };
+        }
+
+        private static Button MakeNoteButton(string text, Color bg, Color fg, Color border, Thickness margin)
+        {
+            return new Button
+            {
+                Content         = text,
+                Width           = 90,
+                Height          = 28,
+                FontSize        = 11,
+                Margin          = margin,
+                Background      = new SolidColorBrush(bg),
+                Foreground      = new SolidColorBrush(fg),
+                BorderBrush     = new SolidColorBrush(border),
+                BorderThickness = new Thickness(1),
+                Cursor          = Cursors.Hand
+            };
+        }
+
+        private void OpenNotePopup(int day)
+        {
+            _noteDay = day;
+            var date = new DateTime(_year, _month, day);
+            _noteDateHeader.Text = "📅 " + date.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+            _noteTb.Text = _lessonNotes.TryGetValue(day, out string existing) ? existing : "";
+
+            _notePopup.IsOpen = false;
+            _notePopup.IsOpen = true;
+
+            // Переводим фокус в поле ввода
+            Dispatcher.BeginInvoke(
+                new Action(() => { _noteTb.Focus(); _noteTb.SelectAll(); }),
+                System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void CommitNote()
+        {
+            _notePopup.IsOpen = false;
+            string text = _noteTb.Text.Trim();
+            try
+            {
+                DatabaseHelper.ExecuteNonQuery("sp_SaveLessonNote", new[]
+                {
+                    new SqlParameter("@GroupId",    _currentGroupId),
+                    new SqlParameter("@SubjectId",  _currentSubjectId),
+                    new SqlParameter("@LessonDate", new DateTime(_year, _month, _noteDay).Date),
+                    new SqlParameter("@NoteText",   text),
+                    new SqlParameter("@UserId",     SessionHelper.UserId)
+                });
+                LoadJournal();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения темы урока:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MainGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            if (e.Row.Item is DataRowView drv &&
+                drv.Row.Table.Columns.Contains("StudentId") &&
+                Convert.ToInt32(drv["StudentId"]) == -1)
+            {
+                // Строка тем — светло-жёлтый фон, курсив
+                e.Row.Background = new SolidColorBrush(Color.FromRgb(255, 251, 224));
+                e.Row.FontStyle  = FontStyles.Italic;
+                e.Row.ToolTip    = CanEdit
+                    ? "Нажмите на дату, чтобы добавить тему урока"
+                    : "Темы уроков";
+            }
+            else
+            {
+                e.Row.Background = null;
+                e.Row.FontStyle  = FontStyles.Normal;
+                e.Row.ToolTip    = null;
             }
         }
 
@@ -809,9 +1043,12 @@ namespace CollegeJournalApp.Views.Pages
         public object Convert(object value, Type t, object p, CultureInfo c)
         {
             string s = value?.ToString()?.TrimEnd('*') ?? "";
-            return int.TryParse(s, out int g) && g >= 2 && g <= 5
-                ? (object)Brushes.White
-                : Brushes.Transparent;
+            if (int.TryParse(s, out int g) && g >= 2 && g <= 5)
+                return Brushes.White;
+            // «•» индикатор темы урока — синий
+            if (!string.IsNullOrEmpty(s))
+                return new SolidColorBrush(Color.FromRgb(0, 120, 212));
+            return Brushes.Transparent;
         }
         public object ConvertBack(object v, Type t, object p, CultureInfo c)
             => throw new NotImplementedException();
