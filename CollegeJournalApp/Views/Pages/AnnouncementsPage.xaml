@@ -1,0 +1,122 @@
+<Page x:Class="CollegeJournalApp.Views.Pages.AnnouncementsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="#EDF2F7" FontFamily="Segoe UI" Title="Объявления">
+
+    <Page.Resources>
+        <Style x:Key="RoundBtn" TargetType="Button">
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="7"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="RoundOutlineBtn" TargetType="Button" BasedOn="{StaticResource RoundBtn}">
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════ ШАПКА ══════════ -->
+        <Border Grid.Row="0" Background="White">
+            <Border.Effect>
+                <DropShadowEffect Color="#1A2B4A" Opacity="0.07"
+                                  BlurRadius="10" ShadowDepth="2" Direction="270"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Background="#0078D4"/>
+                <Grid Grid.Column="1" Margin="22,15,22,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Объявления" FontSize="20" FontWeight="Bold" Foreground="#1A1A2E"/>
+                        <TextBlock x:Name="TxtCount" Text="" FontSize="12" Foreground="#6C757D"
+                                   VerticalAlignment="Bottom" Margin="12,0,0,2"/>
+                    </StackPanel>
+                    <Button x:Name="BtnCreate" Grid.Column="1"
+                            Content="＋  Создать объявление"
+                            Height="36" Padding="18,0"
+                            Background="#0078D4" Foreground="White"
+                            FontSize="12" FontWeight="SemiBold"
+                            Visibility="Collapsed"
+                            Style="{StaticResource RoundBtn}"
+                            Click="BtnCreate_Click"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- ══════════ ПОИСК ══════════ -->
+        <Border Grid.Row="1" Background="White" CornerRadius="10"
+                Margin="16,12,16,0" Padding="14,10">
+            <Border.Effect>
+                <DropShadowEffect Color="#1A2B4A" Opacity="0.07"
+                                  BlurRadius="8" ShadowDepth="2" Direction="270"/>
+            </Border.Effect>
+            <Border BorderBrush="#CED4DA" BorderThickness="1" CornerRadius="6"
+                    Width="260" HorizontalAlignment="Left" Height="30">
+                <TextBox x:Name="TxtSearch" BorderThickness="0" Padding="10,6"
+                         FontSize="12" Background="Transparent"
+                         TextChanged="TxtSearch_Changed">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <VisualBrush Stretch="None" AlignmentX="Left">
+                                                <VisualBrush.Visual>
+                                                    <TextBlock Text="🔍  Поиск по объявлениям..."
+                                                               Foreground="#ADB5BD"
+                                                               FontFamily="Segoe UI"
+                                                               FontSize="11" Margin="10,6,0,0"/>
+                                                </VisualBrush.Visual>
+                                            </VisualBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+            </Border>
+        </Border>
+
+        <!-- ══════════ СПИСОК ══════════ -->
+        <ScrollViewer Grid.Row="2" Margin="16,10,16,16"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="AnnouncementsPanel" Margin="0,0,0,4"/>
+        </ScrollViewer>
+
+    </Grid>
+</Page>

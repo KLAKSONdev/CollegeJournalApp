@@ -21,7 +21,7 @@ namespace CollegeJournalApp.Views.Pages
 
     // AttendancePage, GradesPage, SchedulePage — перенесены в отдельные XAML файлы
     public class EventsPage        : Page { public EventsPage()        { Content = PageHelper.MakePage("События");       KeepAlive = false; } }
-    public class AnnouncementsPage : Page { public AnnouncementsPage() { Content = PageHelper.MakePage("Объявления");    KeepAlive = false; } }
+    // AnnouncementsPage — перенесена в отдельный XAML файл
     public class AssignmentsPage   : Page { public AssignmentsPage()   { Content = PageHelper.MakePage("Поручения");     KeepAlive = false; } }
     public class DocumentsPage     : Page { public DocumentsPage()     { Content = PageHelper.MakePage("Документы");     KeepAlive = false; } }
     public class SocialPage        : Page { public SocialPage()        { Content = PageHelper.MakePage("Соц. карточки"); KeepAlive = false; } }

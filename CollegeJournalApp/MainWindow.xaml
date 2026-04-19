@@ -99,7 +99,28 @@
                         <TextBlock x:Name="TxtRole" Foreground="White" FontSize="10"/>
                     </Border>
                     <TextBlock x:Name="TxtUserName" Foreground="White" FontSize="12"
-                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                    <!-- Колокольчик уведомлений -->
+                    <Grid Margin="0,0,10,0" VerticalAlignment="Center" Width="26" Height="26">
+                        <Button x:Name="BtnNotifications" Width="26" Height="26"
+                                Background="Transparent" BorderThickness="0"
+                                Cursor="Hand" ToolTip="Уведомления"
+                                Click="BtnNotifications_Click">
+                            <TextBlock Text="🔔" FontSize="13"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Border x:Name="NotifBadge" Background="#E81123" CornerRadius="6"
+                                MinWidth="14" Height="14"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,0,-4,0" Padding="3,0"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="NotifBadgeText" Text="0"
+                                       FontSize="8" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+
                     <Button x:Name="BtnLogout" Content="Выйти"
                             Foreground="White" Background="Transparent"
                             BorderBrush="#80FFFFFF" BorderThickness="1"
@@ -137,5 +158,66 @@
                    NavigationUIVisibility="Hidden"
                    Background="Transparent"/>
         </Border>
+
+        <!-- POPUP УВЕДОМЛЕНИЙ -->
+        <Popup x:Name="NotifPopup"
+               Grid.Row="0"
+               PlacementTarget="{Binding ElementName=BtnNotifications}"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Fade">
+            <Border Background="White" CornerRadius="10" Width="370"
+                    BorderBrush="#D8DCE0" BorderThickness="1"
+                    Margin="0,6,0,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#1A2B4A" Opacity="0.18"
+                                      BlurRadius="20" ShadowDepth="6" Direction="270"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Заголовок попапа -->
+                    <Grid Grid.Row="0" Margin="16,12,12,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Уведомления" FontSize="13"
+                                   FontWeight="SemiBold" Foreground="#1A1A2E"
+                                   VerticalAlignment="Center"/>
+                        <Button x:Name="BtnMarkAllRead" Grid.Column="1"
+                                Content="Прочитать все" FontSize="10"
+                                Foreground="#0078D4" Background="Transparent"
+                                BorderThickness="0" Cursor="Hand"
+                                Click="BtnMarkAllRead_Click"/>
+                    </Grid>
+                    <Rectangle Grid.Row="0" Height="1" Fill="#EBEBEB" VerticalAlignment="Bottom"/>
+
+                    <!-- Список объявлений -->
+                    <ScrollViewer Grid.Row="1" MaxHeight="380"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="NotifList"/>
+                    </ScrollViewer>
+
+                    <!-- Подвал -->
+                    <Border Grid.Row="2" BorderBrush="#EBEBEB" BorderThickness="0,1,0,0"
+                            Padding="16,10">
+                        <Button x:Name="BtnShowAllAnn"
+                                Content="Открыть все объявления →"
+                                Background="Transparent" BorderThickness="0"
+                                FontSize="11" FontWeight="SemiBold"
+                                Foreground="#0078D4" Cursor="Hand"
+                                HorizontalAlignment="Left"
+                                Click="BtnShowAllAnn_Click"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Popup>
+
     </Grid>
 </Window>
