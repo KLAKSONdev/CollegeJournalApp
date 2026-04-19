@@ -126,20 +126,27 @@ namespace CollegeJournalApp.Views.Pages
 
             try
             {
-                // Для Admin/Headman/Student — все предметы группы.
-                // Для Curator/Teacher — только свои предметы (фильтрация в SP по Teachers.UserId).
-                var dt = DatabaseHelper.ExecuteProcedure("sp_GetSubjectsForGrades", new[]
+                // Все предметы группы — для отображения в выпадающем списке
+                var dtAll = DatabaseHelper.ExecuteProcedure("sp_GetGroupSubjects", new[]
+                {
+                    new SqlParameter("@GroupId", _currentGroupId)
+                });
+                foreach (DataRow r in dtAll.Rows)
+                    _subjects.Add(new IdNameG(Convert.ToInt32(r["SubjectId"]), r["SubjectName"]?.ToString() ?? ""));
+            }
+            catch { }
+
+            try
+            {
+                // Предметы, которые текущий пользователь ведёт — только их можно редактировать
+                var dtEditable = DatabaseHelper.ExecuteProcedure("sp_GetSubjectsForGrades", new[]
                 {
                     new SqlParameter("@GroupId",  _currentGroupId),
                     new SqlParameter("@UserId",   SessionHelper.UserId),
                     new SqlParameter("@RoleName", SessionHelper.RoleName)
                 });
-                foreach (DataRow r in dt.Rows)
-                {
-                    int id = Convert.ToInt32(r["SubjectId"]);
-                    _subjects.Add(new IdNameG(id, r["SubjectName"]?.ToString() ?? ""));
-                    _editableSubjectIds.Add(id);  // все загруженные предметы = редактируемые
-                }
+                foreach (DataRow r in dtEditable.Rows)
+                    _editableSubjectIds.Add(Convert.ToInt32(r["SubjectId"]));
             }
             catch { }
 
@@ -593,19 +600,25 @@ namespace CollegeJournalApp.Views.Pages
 
             if (tag.StartsWith("day:"))
             {
-                // Журнал: дневная оценка — предмет уже выбран в CmbSubject
+                // Журнал: дневная оценка — проверяем что текущий предмет редактируемый
+                if (!_editableSubjectIds.Contains(_currentSubjectId)) return;
                 int day  = int.Parse(tag.Substring(4));
                 _popDate = new DateTime(_year, _month, day);
             }
+            else if (tag == "final")
+            {
+                // Журнал: итоговая — тоже только для своего предмета
+                if (!_editableSubjectIds.Contains(_currentSubjectId)) return;
+                // _popDate = null → итоговая за месяц
+            }
             else if (tag.StartsWith("subj:"))
             {
-                // Ведомость: проверяем, что этот предмет входит в редактируемые
+                // Ведомость: только свои предметы
                 int subjectId = int.Parse(tag.Substring(5));
-                if (!_editableSubjectIds.Contains(subjectId)) return; // чужой предмет
+                if (!_editableSubjectIds.Contains(subjectId)) return;
                 _popSubjectId = subjectId;
                 // _popDate = null → итоговая за месяц
             }
-            // "final" → итоговая по текущему предмету журнала
 
             // Закрываем старый попап и открываем на новой позиции
             _gradePopup.IsOpen = false;
