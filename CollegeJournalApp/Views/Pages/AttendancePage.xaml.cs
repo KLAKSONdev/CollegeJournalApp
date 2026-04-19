@@ -1387,6 +1387,88 @@ namespace CollegeJournalApp.Views.Pages
             return outer;
         }
 
+        // ── Групповые действия ────────────────────────────────────────────
+
+        private void AttGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Групповые действия доступны только тем, кто может редактировать
+            bool canEdit = SessionHelper.IsAdmin || SessionHelper.IsTeacher || SessionHelper.IsHeadman;
+            int  count   = AttGrid.SelectedItems.Count;
+
+            BulkPanel.Visibility = (canEdit && count >= 1)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            if (count >= 1)
+                TxtSelectedCount.Text = count.ToString() + " " + RecordWord(count);
+        }
+
+        private void BtnApplyBulk_Click(object sender, RoutedEventArgs e)
+        {
+            var rows = AttGrid.SelectedItems
+                .OfType<AttRow>()
+                .Where(r => r.AttendanceId.HasValue)
+                .ToList();
+
+            if (rows.Count == 0)
+            {
+                MessageBox.Show("Нет записей для изменения (возможно, выбраны строки без AttendanceId).",
+                    "Групповое изменение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var newStatus = (CmbBulkStatus.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            var reason    = TxtBulkReason.Text.Trim();
+
+            var confirm = MessageBox.Show(
+                $"Изменить статус {rows.Count} {RecordWord(rows.Count)}\nна «{newStatus}»?",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            int ok = 0, fail = 0;
+            foreach (var row in rows)
+            {
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery("sp_SaveAttendanceMark", new[]
+                    {
+                        new SqlParameter("@MarkedById", SessionHelper.UserId),
+                        new SqlParameter("@StudentId",  row.StudentId),
+                        new SqlParameter("@ScheduleId", row.ScheduleId),
+                        new SqlParameter("@LessonDate", row.LessonDateRaw.Date),
+                        new SqlParameter("@Status",     newStatus),
+                        new SqlParameter("@Reason",     string.IsNullOrEmpty(reason)
+                                                        ? (object)DBNull.Value : reason)
+                    });
+                    ok++;
+                }
+                catch { fail++; }
+            }
+
+            var msg = $"Обновлено: {ok} записей.";
+            if (fail > 0) msg += $"\nНе удалось обновить: {fail}.";
+            MessageBox.Show(msg, "Готово", MessageBoxButton.OK,
+                fail > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+
+            TxtBulkReason.Text = "";
+            LoadData();
+        }
+
+        private void BtnClearBulk_Click(object sender, RoutedEventArgs e)
+        {
+            AttGrid.UnselectAll();
+        }
+
+        private static string RecordWord(int n)
+        {
+            int mod100 = n % 100;
+            int mod10  = n % 10;
+            if (mod100 >= 11 && mod100 <= 19) return "записей";
+            if (mod10  == 1)                  return "запись";
+            if (mod10  >= 2 && mod10 <= 4)    return "записи";
+            return "записей";
+        }
+
         // ── Цвета статус-бейджей ───────────────────────────────────────────
 
         private static string GetStatusBg(string s)

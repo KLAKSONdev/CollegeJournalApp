@@ -424,7 +424,96 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+
+                <!-- ── Панель групповых действий (под таблицей, чтоб строки не сдвигались) ── -->
+                <Border x:Name="BulkPanel" Grid.Row="1"
+                        Background="#EBF5FB" BorderBrush="#BDD9EF"
+                        BorderThickness="0,0,0,1" Padding="14,8"
+                        Visibility="Collapsed">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Счётчик -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="0,0,16,0">
+                            <Border Background="#0078D4" CornerRadius="10"
+                                    Padding="8,2" Margin="0,0,8,0">
+                                <TextBlock x:Name="TxtSelectedCount" FontSize="11"
+                                           FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                            <TextBlock Text="выбрано" FontSize="12"
+                                       Foreground="#0056A0" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Метка -->
+                        <TextBlock Grid.Column="1" Text="→  новый статус:"
+                                   FontSize="12" Foreground="#495057"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                        <!-- Выбор статуса -->
+                        <ComboBox x:Name="CmbBulkStatus" Grid.Column="2"
+                                  Width="190" Height="28" FontSize="12">
+                            <ComboBoxItem Content="Присутствовал"/>
+                            <ComboBoxItem Content="Отсутствовал"/>
+                            <ComboBoxItem Content="Опоздал"/>
+                            <ComboBoxItem Content="Уважительная причина" IsSelected="True"/>
+                        </ComboBox>
+
+                        <!-- Причина с плейсхолдером -->
+                        <Grid Grid.Column="3" Margin="8,0" Width="210" Height="28">
+                            <Border BorderBrush="#BDD9EF" BorderThickness="1"
+                                    CornerRadius="5" Background="White">
+                                <TextBox x:Name="TxtBulkReason" BorderThickness="0"
+                                         Padding="8,4" FontSize="12" Background="Transparent"
+                                         VerticalContentAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Причина (необязательно)" FontSize="11"
+                                       Foreground="#ADB5BD" IsHitTestVisible="False"
+                                       Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=TxtBulkReason}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <!-- Применить -->
+                        <Button x:Name="BtnApplyBulk" Grid.Column="4"
+                                Content="✓  Применить"
+                                Height="28" Padding="14,0" Margin="0,0,8,0"
+                                HorizontalAlignment="Left"
+                                Background="#0078D4" Foreground="White"
+                                FontSize="12" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand"
+                                Style="{StaticResource RoundBtn}"
+                                Click="BtnApplyBulk_Click"/>
+
+                        <!-- Снять выделение -->
+                        <Button Grid.Column="5"
+                                Content="✕  Снять"
+                                Height="28" Padding="10,0"
+                                Background="Transparent" Foreground="#495057"
+                                FontSize="12" BorderBrush="#BDD9EF" BorderThickness="1"
+                                Cursor="Hand"
+                                Style="{StaticResource RoundOutlineBtn}"
+                                Click="BtnClearBulk_Click"/>
+                    </Grid>
+                </Border>
 
                 <DataGrid x:Name="AttGrid" Grid.Row="0"
                           AutoGenerateColumns="False" IsReadOnly="True"
@@ -433,10 +522,11 @@
                           BorderThickness="0" Background="White"
                           RowBackground="White" AlternatingRowBackground="#F8F9FA"
                           HeadersVisibility="Column" CanUserResizeRows="False"
-                          CanUserSortColumns="True" SelectionMode="Single"
+                          CanUserSortColumns="True" SelectionMode="Extended"
                           FontFamily="Segoe UI" FontSize="12" RowHeight="38"
                           ColumnHeaderStyle="{StaticResource ColHdr}"
-                          CellStyle="{StaticResource Cell}">
+                          CellStyle="{StaticResource Cell}"
+                          SelectionChanged="AttGrid_SelectionChanged">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Дата"       Binding="{Binding LessonDate}"  Width="95"/>
                         <DataGridTextColumn Header="Студент"    Binding="{Binding StudentName}" Width="195"/>
@@ -484,7 +574,7 @@
                 </DataGrid>
 
                 <!-- Пагинация -->
-                <Border Grid.Row="1" Background="#F8F9FA"
+                <Border Grid.Row="2" Background="#F8F9FA"
                         BorderBrush="#E9ECEF" BorderThickness="0,1,0,0"
                         Padding="16,8" CornerRadius="0 0 10 10">
                     <Grid>
