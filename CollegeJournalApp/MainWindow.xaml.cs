@@ -42,9 +42,9 @@ namespace CollegeJournalApp
             if (SessionHelper.IsTeacher)
             {
                 TabStudents.Visibility     = Visibility.Collapsed;
-                TabGrades.Visibility       = Visibility.Collapsed;
                 TabSocial.Visibility       = Visibility.Collapsed;
                 TabAchievements.Visibility = Visibility.Collapsed;
+                // TabGrades доступен преподавателям — видят свои группы и предметы
             }
 
             if (SessionHelper.IsStudent)
