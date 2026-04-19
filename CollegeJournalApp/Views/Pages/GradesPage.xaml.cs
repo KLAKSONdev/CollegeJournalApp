@@ -287,11 +287,12 @@ namespace CollegeJournalApp.Views.Pages
                 table.Columns.Add("Final", typeof(string));
 
                 // Строка тем уроков (всегда первая, StudentId = -1)
+                // Храним полный текст — GradeTextConv покажет «•», NoteTooltipConv — тултип
                 var notesRow = table.NewRow();
                 notesRow["StudentId"]   = -1;
                 notesRow["StudentName"] = "📝 Тема урока";
                 for (int d = 1; d <= _daysInMonth; d++)
-                    notesRow[$"d{d:00}"] = _lessonNotes.ContainsKey(d) ? "•" : "";
+                    notesRow[$"d{d:00}"] = _lessonNotes.TryGetValue(d, out string nt) ? nt : "";
                 notesRow["Avg"]   = "";
                 notesRow["Final"] = "";
                 table.Rows.Add(notesRow);
@@ -373,7 +374,25 @@ namespace CollegeJournalApp.Views.Pages
 
             // Дни
             for (int d = 1; d <= days; d++)
-                MainGrid.Columns.Add(MakeGradeCol(d.ToString(), $"[d{d:00}]", $"day:{d}", 30));
+            {
+                var col = MakeGradeCol(d.ToString(), $"[d{d:00}]", $"day:{d}", 30);
+
+                // Если для этой даты есть тема — подсвечиваем заголовок
+                if (_lessonNotes.TryGetValue(d, out string hdrNote))
+                {
+                    col.Header = new TextBlock
+                    {
+                        Text            = d.ToString(),
+                        ToolTip         = hdrNote,
+                        Foreground      = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                        TextDecorations = TextDecorations.Underline,
+                        FontWeight      = FontWeights.SemiBold,
+                        FontSize        = 11
+                    };
+                }
+
+                MainGrid.Columns.Add(col);
+            }
 
             // Среднее
             var avgCol = new DataGridTextColumn
@@ -501,6 +520,9 @@ namespace CollegeJournalApp.Views.Pages
             border.SetValue(Border.HorizontalAlignmentProperty, HorizontalAlignment.Stretch);
             border.SetBinding(Border.BackgroundProperty,
                 new Binding(bindPath) { Converter = GradeBackConv.Instance });
+            // Тултип показывает полный текст темы урока (для нечисловых значений)
+            border.SetBinding(FrameworkElement.ToolTipProperty,
+                new Binding(bindPath) { Converter = NoteTooltipConv.Instance });
 
             // TextBlock с оценкой
             var tb = new FrameworkElementFactory(typeof(TextBlock));
@@ -1058,7 +1080,33 @@ namespace CollegeJournalApp.Views.Pages
     {
         public static readonly GradeTextConv Instance = new GradeTextConv();
         public object Convert(object value, Type t, object p, CultureInfo c)
-            => value?.ToString() ?? "";
+        {
+            string s = value?.ToString() ?? "";
+            if (string.IsNullOrEmpty(s)) return "";
+            string stripped = s.TrimEnd('*');
+            // Числовые значения (оценки, средние) — показываем как есть
+            if (int.TryParse(stripped, out _)) return s;
+            if (double.TryParse(stripped, NumberStyles.Any, CultureInfo.InvariantCulture, out _)) return s;
+            // Нечисловой текст (тема урока) — маркер, полный текст в тултипе
+            return "•";
+        }
+        public object ConvertBack(object v, Type t, object p, CultureInfo c)
+            => throw new NotImplementedException();
+    }
+
+    public class NoteTooltipConv : IValueConverter
+    {
+        public static readonly NoteTooltipConv Instance = new NoteTooltipConv();
+        public object Convert(object value, Type t, object p, CultureInfo c)
+        {
+            string s = value?.ToString() ?? "";
+            if (string.IsNullOrEmpty(s)) return null;
+            string stripped = s.TrimEnd('*');
+            if (int.TryParse(stripped, out _)) return null;
+            if (double.TryParse(stripped, NumberStyles.Any, CultureInfo.InvariantCulture, out _)) return null;
+            // Возвращаем полный текст как тултип
+            return s;
+        }
         public object ConvertBack(object v, Type t, object p, CultureInfo c)
             => throw new NotImplementedException();
     }
