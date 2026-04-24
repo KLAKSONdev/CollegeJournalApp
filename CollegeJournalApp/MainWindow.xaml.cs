@@ -43,7 +43,6 @@ namespace CollegeJournalApp
             {
                 TabStudents.Visibility     = Visibility.Collapsed;
                 TabSocial.Visibility       = Visibility.Collapsed;
-                TabAchievements.Visibility = Visibility.Collapsed;
                 // TabGrades доступен преподавателям — видят свои группы и предметы
             }
 
@@ -88,6 +87,13 @@ namespace CollegeJournalApp
                 case "Users":         MainFrame.Navigate(new UsersPage());         break;
                 case "Admin":         MainFrame.Navigate(new AdminPage());         break;
             }
+        }
+
+        private void MainFrame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        {
+            // Скрываем журнал навигации чтобы не появлялась системная полоса
+            if (sender is System.Windows.Controls.Frame frame)
+                while (frame.CanGoBack) frame.RemoveBackEntry();
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)

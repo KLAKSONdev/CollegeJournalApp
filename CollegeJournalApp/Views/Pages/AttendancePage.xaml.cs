@@ -1401,6 +1401,11 @@ namespace CollegeJournalApp.Views.Pages
 
             if (count >= 1)
                 TxtSelectedCount.Text = count.ToString() + " " + RecordWord(count);
+
+            // Кнопка удаления — только для Admin
+            BtnDeleteBulk.Visibility = (SessionHelper.IsAdmin && count >= 1)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
 
         private void BtnApplyBulk_Click(object sender, RoutedEventArgs e)
@@ -1451,6 +1456,48 @@ namespace CollegeJournalApp.Views.Pages
                 fail > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
 
             TxtBulkReason.Text = "";
+            LoadData();
+        }
+
+        private void BtnDeleteBulk_Click(object sender, RoutedEventArgs e)
+        {
+            var rows = AttGrid.SelectedItems
+                .OfType<AttRow>()
+                .Where(r => r.AttendanceId.HasValue)
+                .ToList();
+
+            if (rows.Count == 0)
+            {
+                MessageBox.Show("Нет записей для удаления (возможно, выбраны строки без AttendanceId).",
+                    "Удаление", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"Удалить {rows.Count} {RecordWord(rows.Count)} посещаемости?\n\nЭто действие необратимо.",
+                "Подтверждение удаления", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            int ok = 0, fail = 0;
+            foreach (var row in rows)
+            {
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery("sp_DeleteAttendanceMark", new[]
+                    {
+                        new SqlParameter("@AttendanceId", row.AttendanceId.Value),
+                        new SqlParameter("@UserId",       SessionHelper.UserId)
+                    });
+                    ok++;
+                }
+                catch { fail++; }
+            }
+
+            var msg = $"Удалено: {ok} записей.";
+            if (fail > 0) msg += $"\nНе удалось удалить: {fail}.";
+            MessageBox.Show(msg, "Готово", MessageBoxButton.OK,
+                fail > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+
             LoadData();
         }
 

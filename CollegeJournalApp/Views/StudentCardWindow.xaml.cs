@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
+using CollegeJournalApp.Views.Dialogs;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 
@@ -42,7 +44,7 @@ namespace CollegeJournalApp.Views
             PanelPassport.Visibility   = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
             TabSocial.Visibility       = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
             TabParents.Visibility      = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
-            TabDocuments.Visibility    = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
+            TabDocuments.Visibility    = (SessionHelper.IsAdmin || SessionHelper.IsHeadman) ? Visibility.Visible : Visibility.Collapsed;
             TabGrades.Visibility       = isHeadmanOrAbove ? Visibility.Visible : Visibility.Collapsed;
             TabAttendance.Visibility   = isHeadmanOrAbove ? Visibility.Visible : Visibility.Collapsed;
             TabAchievements.Visibility = isHeadmanOrAbove ? Visibility.Visible : Visibility.Collapsed;
@@ -50,6 +52,13 @@ namespace CollegeJournalApp.Views
             // Кнопки фото — только куратор и админ
             BtnUploadPhoto.Visibility  = _canEditPhoto ? Visibility.Visible : Visibility.Collapsed;
             BtnDeletePhoto.Visibility  = _canEditPhoto ? Visibility.Visible : Visibility.Collapsed;
+
+            // Кнопки редактирования данных — только куратор и админ
+            BtnEditPersonal.Visibility  = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnEditSocial.Visibility    = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnAddParent.Visibility     = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnAddDocument.Visibility    = SessionHelper.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnDeleteDocument.Visibility = SessionHelper.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void LoadAllData()
@@ -58,8 +67,9 @@ namespace CollegeJournalApp.Views
             bool isHeadmanOrAbove = SessionHelper.IsHeadman || isCuratorOrAdmin;
 
             LoadPersonalData();
-            if (isCuratorOrAdmin)  { LoadSocialData(); LoadParents(); LoadDocuments(); }
-            if (isHeadmanOrAbove)  { LoadGrades();     LoadAttendance(); LoadAchievements(); }
+            if (isCuratorOrAdmin)   { LoadSocialData(); LoadParents(); }
+            if (SessionHelper.IsAdmin || SessionHelper.IsHeadman) LoadDocuments();
+            if (isHeadmanOrAbove)   { LoadGrades(); LoadAttendance(); LoadAchievements(); }
         }
 
         private void LoadPersonalData()
@@ -261,6 +271,7 @@ namespace CollegeJournalApp.Views
         {
             try
             {
+                bool canEdit = SessionHelper.IsCurator || SessionHelper.IsAdmin;
                 var dt = DatabaseHelper.ExecuteProcedure("sp_GetStudentParents",
                     new[] { new SqlParameter("@StudentId", _studentId) });
                 var list = new List<ParentRow>();
@@ -268,13 +279,15 @@ namespace CollegeJournalApp.Views
                     foreach (DataRow r in dt.Rows)
                         list.Add(new ParentRow
                         {
-                            Relation  = r["Relation"]?.ToString()  ?? "—",
-                            FullName  = $"{r["LastName"]} {r["FirstName"]} {r["MiddleName"]}".Trim(),
-                            Phone     = NullOrDash(r["Phone"]),
-                            WorkPhone = NullOrDash(r["WorkPhone"]),
-                            Workplace = NullOrDash(r["Workplace"]),
-                            Position  = NullOrDash(r["Position"]),
-                            Education = NullOrDash(r["Education"])
+                            ParentId      = Convert.ToInt32(r["ParentId"]),
+                            Relation      = r["Relation"]?.ToString()  ?? "—",
+                            FullName      = $"{r["LastName"]} {r["FirstName"]} {r["MiddleName"]}".Trim(),
+                            Phone         = NullOrDash(r["Phone"]),
+                            WorkPhone     = NullOrDash(r["WorkPhone"]),
+                            Workplace     = NullOrDash(r["Workplace"]),
+                            Position      = NullOrDash(r["Position"]),
+                            Education     = NullOrDash(r["Education"]),
+                            EditVisibility = canEdit ? Visibility.Visible : Visibility.Collapsed
                         });
                 ParentsList.ItemsSource = list;
             }
@@ -295,15 +308,20 @@ namespace CollegeJournalApp.Views
                     foreach (DataRow r in dt.Rows)
                         list.Add(new DocumentRow
                         {
+                            DocumentId   = Convert.ToInt32(r["DocumentId"]),
                             Title        = r["Title"]?.ToString()        ?? "—",
                             DocumentType = r["DocumentType"]?.ToString() ?? "—",
                             FileSize     = NullOrDash(r["FileSize"]),
-                            UploadedAt   = r["UploadedAt"] != DBNull.Value ? Convert.ToDateTime(r["UploadedAt"]).ToString("dd.MM.yyyy") : "—",
+                            UploadedAt   = r["UploadedAt"] != DBNull.Value
+                                           ? Convert.ToDateTime(r["UploadedAt"]).ToString("dd.MM.yyyy") : "—",
                             UploadedBy   = NullOrDash(r["UploadedBy"]),
-                            Description  = r["Description"]?.ToString() ?? ""
+                            Description  = r["Description"]?.ToString() ?? "",
+                            FilePath     = r["FilePath"]?.ToString()     ?? ""
                         });
                 DocumentsGrid.ItemsSource = list;
-                TxtNoDocuments.Visibility = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                TxtNoDocuments.Visibility  = list.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+                BtnOpenDocument.IsEnabled   = false;
+                BtnDeleteDocument.IsEnabled = false;
             }
             catch { }
         }
@@ -384,6 +402,140 @@ namespace CollegeJournalApp.Views
             catch { }
         }
 
+        // ── Редактирование личных данных ───────────────────────
+        private void BtnEditPersonal_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new PersonalEditDialog(_studentId) { Owner = this };
+            if (dlg.ShowDialog() == true)
+                LoadPersonalData();
+        }
+
+        // ── Редактирование соц. карточки ───────────────────────
+        private void BtnEditSocial_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new SocialEditDialog(_studentId) { Owner = this };
+            if (dlg.ShowDialog() == true)
+                LoadSocialData();
+        }
+
+        // ── Добавить родителя ──────────────────────────────────
+        private void BtnAddParent_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new ParentEditDialog(_studentId) { Owner = this };
+            if (dlg.ShowDialog() == true)
+                LoadParents();
+        }
+
+        // ── Редактировать родителя ─────────────────────────────
+        private void BtnEditParent_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int parentId)
+            {
+                var dlg = new ParentEditDialog(_studentId, parentId) { Owner = this };
+                if (dlg.ShowDialog() == true)
+                    LoadParents();
+            }
+        }
+
+        // ── Удалить родителя ───────────────────────────────────
+        private void BtnDeleteParent_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is Button btn && btn.Tag is int parentId)) return;
+
+            var result = MessageBox.Show(
+                "Удалить запись об этом родителе?", "Подтверждение",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                DatabaseHelper.ExecuteNonQuery("sp_DeleteParent", new[]
+                {
+                    new SqlParameter("@ParentId",    parentId),
+                    new SqlParameter("@DeletedById", SessionHelper.UserId)
+                });
+                LoadParents();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ── Документы ──────────────────────────────────────────
+        private void BtnAddDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new DocumentAddDialog(_studentId) { Owner = this };
+            if (dlg.ShowDialog() == true)
+                LoadDocuments();
+        }
+
+        private void DocumentsGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var row = DocumentsGrid.SelectedItem as DocumentRow;
+            bool hasSelection = row != null;
+
+            // Открыть — если есть файл
+            BtnOpenDocument.IsEnabled = hasSelection && !string.IsNullOrEmpty(row?.FilePath)
+                                        && System.IO.File.Exists(row.FilePath);
+
+            // Удалить — только куратор/админ
+            bool canEdit = SessionHelper.IsCurator || SessionHelper.IsAdmin;
+            BtnDeleteDocument.IsEnabled = hasSelection && canEdit;
+        }
+
+        private void BtnOpenDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var row = DocumentsGrid.SelectedItem as DocumentRow;
+            if (row == null || string.IsNullOrEmpty(row.FilePath)) return;
+
+            if (!System.IO.File.Exists(row.FilePath))
+            {
+                MessageBox.Show("Файл не найден на диске.\nВозможно, он был перемещён или удалён.",
+                    "Файл не найден", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName        = row.FilePath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не удалось открыть файл:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnDeleteDocument_Click(object sender, RoutedEventArgs e)
+        {
+            var row = DocumentsGrid.SelectedItem as DocumentRow;
+            if (row == null) return;
+
+            var result = MessageBox.Show(
+                $"Удалить документ «{row.Title}»?",
+                "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                DatabaseHelper.ExecuteNonQuery("sp_DeleteDocument", new[]
+                {
+                    new SqlParameter("@DocumentId",  row.DocumentId),
+                    new SqlParameter("@DeletedById", SessionHelper.UserId)
+                });
+                LoadDocuments();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
 
         private static string NullOrDash(object val)
@@ -392,9 +544,30 @@ namespace CollegeJournalApp.Views
             => val != DBNull.Value && val != null && Convert.ToBoolean(val);
     }
 
-    public class ParentRow   { public string Relation, FullName, Phone, WorkPhone, Workplace, Position, Education; }
+    public class ParentRow
+    {
+        public int        ParentId       { get; set; }
+        public string     Relation       { get; set; }
+        public string     FullName       { get; set; }
+        public string     Phone          { get; set; }
+        public string     WorkPhone      { get; set; }
+        public string     Workplace      { get; set; }
+        public string     Position       { get; set; }
+        public string     Education      { get; set; }
+        public Visibility EditVisibility { get; set; }
+    }
     public class GradeRow    { public string SubjectName, GradeType, GradeValue, GradeDate; }
     public class AttRow      { public string LessonDate, Subject, Status, Reason; }
     public class AchRow      { public string Title, Category, Level, Description, AchieveDate; }
-    public class DocumentRow { public string Title, DocumentType, FileSize, UploadedAt, UploadedBy, Description; }
+    public class DocumentRow
+    {
+        public int    DocumentId   { get; set; }
+        public string Title        { get; set; }
+        public string DocumentType { get; set; }
+        public string FileSize     { get; set; }
+        public string UploadedAt   { get; set; }
+        public string UploadedBy   { get; set; }
+        public string Description  { get; set; }
+        public string FilePath     { get; set; }
+    }
 }

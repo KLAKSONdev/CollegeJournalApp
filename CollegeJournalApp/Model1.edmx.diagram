@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="889ec2d7a2974fd9a13608ac51285a9f" Name="Diagram1" ZoomLevel="29">
+        <EntityTypeShape EntityType="CollegeJournalModel.AcademicYears" Width="1.5" PointX="5.25" PointY="35.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Achievements" Width="1.5" PointX="21" PointY="44.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.AnnouncementAttachments" Width="1.5" PointX="18" PointY="44.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.AnnouncementPins" Width="1.5" PointX="18" PointY="41.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.AnnouncementReads" Width="1.5" PointX="18" PointY="49.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Announcements" Width="1.5" PointX="9.75" PointY="43.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Assignments" Width="1.5" PointX="12.75" PointY="44" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Attendance" Width="1.5" PointX="24" PointY="45.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.AuditLog" Width="1.5" PointX="5.25" PointY="39.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.CuratorProfiles" Width="1.5" PointX="5.25" PointY="43" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Documents" Width="1.5" PointX="12.75" PointY="39.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Dormitories" Width="1.5" PointX="5.25" PointY="48.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.EventProtocols" Width="1.5" PointX="15" PointY="37.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Events" Width="1.5" PointX="9.75" PointY="38" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.GradeHistory" Width="1.5" PointX="26.25" PointY="45.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Grades" Width="1.5" PointX="21" PointY="49.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Groups" Width="1.5" PointX="7.5" PointY="40.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.LessonNotes" Width="1.5" PointX="12.75" PointY="49.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.MonthlyGrades" Width="1.5" PointX="18" PointY="52" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Parents" Width="1.5" PointX="21" PointY="37.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Roles" Width="1.5" PointX="0.75" PointY="45.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Schedule" Width="1.5" PointX="9.75" PointY="50.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Students" Width="1.5" PointX="15.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.StudentSocialInfo" Width="1.5" PointX="18" PointY="63.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Subjects" Width="1.5" PointX="15.75" PointY="51.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.sysdiagrams" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Teachers" Width="1.5" PointX="5.25" PointY="52.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.Users" Width="1.5" PointX="3" PointY="40.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_AttendanceSummary" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_AuditLog" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_DeletedRecords" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_GradeAverage" Width="1.5" PointX="2.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_SocialStudents" Width="1.5" PointX="4.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CollegeJournalModel.vw_StudentCard" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="CollegeJournalModel.FK_AcademicYears_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Groups_Year" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Achiev_AddedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Achiev_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Achiev_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__Annou__6D6238AF" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__Uploa__703EA55A" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__Annou__75035A77" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__UserI__75F77EB0" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_AnnReads_Ann" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_AnnReads_User" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__Targe__5D2BD0E6" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Announcem__Targe__5E1FF51F" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Ann_Author" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Ann_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Ann_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Announcements_TargetUser" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Assign_Creator" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Assign_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Assign_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Assign_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Attendance_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Attendance_MarkedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Attendance_Schedule" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Attendance_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_AuditLog_User" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_CuratorProfiles_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_CuratorProfiles_User" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Docs_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Docs_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Docs_UploadedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Dormitories_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Students_Dorm" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Protocols_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Protocols_Event" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Events_Creator" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Events_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Events_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_GradeHistory_ChangedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_GradeHistory_Grade" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Grades_AddedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Grades_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Grades_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Grades_Subject" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__LessonNot__Group__297722B6" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Groups_Curator" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Groups_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Schedule_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Students_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Subjects_Group" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__LessonNot__Creat__2C538F61" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__LessonNot__Subje__2A6B46EF" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__MonthlyGr__Stude__7E8CC4B1" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__MonthlyGr__Subje__7F80E8EA" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__MonthlyGr__Updat__0169315C" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Parents_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Parents_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Users__RoleId__73852659" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Schedule_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Schedule_Subject" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_SocialInfo_Student" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Students_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Students_User" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Subjects_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Subjects_Teacher" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK__Teachers__UserId__2022C2A6" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Teachers_DeletedBy" ManuallyRouted="false" />
+        <AssociationConnector Association="CollegeJournalModel.FK_Users_DeletedBy" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -189,8 +189,7 @@
                                             <TextBlock Text="ОСНОВНЫЕ"
                                                        FontSize="10" FontWeight="Bold"
                                                        Foreground="#BEBCBA"
-                                                       Margin="20,8,0,4"
-                                                       CharacterSpacing="100"/>
+                                                       Margin="20,8,0,4"/>
                                             <TabPanel x:Name="HeaderPanel"
                                                       IsItemsHost="True"
                                                       Background="Transparent"

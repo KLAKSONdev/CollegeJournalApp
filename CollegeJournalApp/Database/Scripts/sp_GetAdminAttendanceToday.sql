@@ -9,10 +9,10 @@ BEGIN
     SELECT
         g.GroupId,
         g.GroupName,
-        COUNT(DISTINCT st.StudentId)                                                  AS TotalStudents,
-        ISNULL(SUM(CASE WHEN a.Status = N'Присутствовал' THEN 1 ELSE 0 END), 0)     AS PresentCount,
-        ISNULL(SUM(CASE WHEN a.Status = N'Отсутствовал'  THEN 1 ELSE 0 END), 0)     AS AbsentCount,
-        ISNULL(SUM(CASE WHEN a.Status = N'Опоздал'       THEN 1 ELSE 0 END), 0)     AS LateCount
+        COUNT(DISTINCT st.StudentId)                                                                        AS TotalStudents,
+        COUNT(DISTINCT CASE WHEN a.Status = N'Присутствовал' THEN st.StudentId END)                       AS PresentCount,
+        COUNT(DISTINCT CASE WHEN a.Status = N'Отсутствовал'  THEN st.StudentId END)                       AS AbsentCount,
+        COUNT(DISTINCT CASE WHEN a.Status = N'Опоздал'       THEN st.StudentId END)                       AS LateCount
     FROM dbo.Groups g
     INNER JOIN dbo.Students  st ON st.GroupId   = g.GroupId AND st.IsDeleted = 0
     LEFT  JOIN dbo.Attendance a  ON a.StudentId  = st.StudentId

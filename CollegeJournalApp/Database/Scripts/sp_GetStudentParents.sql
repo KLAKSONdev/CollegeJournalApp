@@ -12,15 +12,23 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
+        p.ParentId,
         p.Relation,
         p.LastName,
         p.FirstName,
         p.MiddleName,
+        p.BirthDate,
         p.Phone,
         p.WorkPhone,
+        p.Email,
+        p.Address,
         p.Workplace,
         p.Position,
-        p.Education
+        p.Department,
+        p.Education,
+        p.IsMainContact,
+        p.IsDeceased,
+        p.HasParentalRights
     FROM Parents p
     WHERE p.StudentId = @StudentId
       AND p.IsDeleted = 0

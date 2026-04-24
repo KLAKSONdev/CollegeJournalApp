@@ -49,15 +49,15 @@ BEGIN
         FROM dbo.Groups
         WHERE CuratorId = @UserId AND IsDeleted = 0;
 
+        -- Общее число студентов группы (знаменатель)
         DECLARE @CurTotal INT =
-            (SELECT COUNT(*) FROM dbo.Attendance a
-             INNER JOIN dbo.Students st ON st.StudentId = a.StudentId
-             WHERE st.GroupId   = @CurGroupId AND st.IsDeleted = 0
-               AND a.IsDeleted  = 0
-               AND CAST(a.LessonDate AS DATE) = CAST(GETDATE() AS DATE));
+            (SELECT COUNT(*) FROM dbo.Students
+             WHERE GroupId = @CurGroupId AND IsDeleted = 0);
 
+        -- Уникальных студентов, у которых ХОТЯ БЫ ОДНА пара сегодня = "Присутствовал"
         DECLARE @CurPresent INT =
-            (SELECT COUNT(*) FROM dbo.Attendance a
+            (SELECT COUNT(DISTINCT a.StudentId)
+             FROM dbo.Attendance a
              INNER JOIN dbo.Students st ON st.StudentId = a.StudentId
              WHERE st.GroupId   = @CurGroupId AND st.IsDeleted = 0
                AND a.IsDeleted  = 0 AND a.Status = N'Присутствовал'
@@ -82,11 +82,13 @@ BEGIN
             CASE WHEN @CurTotal > 0
                  THEN CAST(CAST(100.0 * @CurPresent / @CurTotal AS DECIMAL(5,1)) AS NVARCHAR(20))
                  ELSE NULL END                                                                      AS AttendancePercent,
-            (SELECT COUNT(*) FROM dbo.Attendance a
+            -- Уникальных отсутствовавших сегодня
+            (SELECT COUNT(DISTINCT a.StudentId)
+             FROM dbo.Attendance a
              INNER JOIN dbo.Students st ON st.StudentId = a.StudentId
              WHERE st.GroupId  = @CurGroupId AND st.IsDeleted = 0
                AND a.IsDeleted = 0 AND a.Status = N'Отсутствовал'
-               AND a.LessonDate >= DATEADD(DAY, -30, GETDATE()))                                   AS AbsentCount,
+               AND CAST(a.LessonDate AS DATE) = CAST(GETDATE() AS DATE))                           AS AbsentCount,
             NULL                                                                                    AS LessonsToday,
             NULL                                                                                    AS AchievCount;
         RETURN;
@@ -121,15 +123,18 @@ BEGIN
             ISNULL((SELECT TOP 1 GroupName FROM dbo.Groups
                     WHERE GroupId = @HmGroupId), N'—')                                            AS GroupName,
             @HmGroupId                                                                             AS GroupId,
-            -- AttendancePercent: кол-во присутствующих сегодня (переиспользуем колонку)
+            -- AttendancePercent: уникальных присутствующих сегодня
             CAST(
-                (SELECT COUNT(*) FROM dbo.Attendance a
+                (SELECT COUNT(DISTINCT a.StudentId)
+                 FROM dbo.Attendance a
                  INNER JOIN dbo.Students st ON st.StudentId = a.StudentId
                  WHERE st.GroupId   = @HmGroupId AND st.IsDeleted = 0
                    AND a.IsDeleted  = 0 AND a.Status = N'Присутствовал'
                    AND CAST(a.LessonDate AS DATE) = CAST(GETDATE() AS DATE))
             AS NVARCHAR(20))                                                                       AS AttendancePercent,
-            (SELECT COUNT(*) FROM dbo.Attendance a
+            -- Уникальных отсутствовавших сегодня
+            (SELECT COUNT(DISTINCT a.StudentId)
+             FROM dbo.Attendance a
              INNER JOIN dbo.Students st ON st.StudentId = a.StudentId
              WHERE st.GroupId   = @HmGroupId AND st.IsDeleted = 0
                AND a.IsDeleted  = 0 AND a.Status = N'Отсутствовал'

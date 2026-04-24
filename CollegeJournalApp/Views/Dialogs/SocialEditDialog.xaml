@@ -1,0 +1,196 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.SocialEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Социальная карточка"
+        Height="620" Width="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI"
+        Background="#FAF9F8"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="InpMulti" TargetType="TextBox">
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+        </Style>
+        <Style x:Key="Cmb" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="Chk" TargetType="CheckBox">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1" Padding="20,14">
+            <TextBlock Text="Редактировать социальную карточку"
+                       FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+        </Border>
+
+        <!-- Форма -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,0">
+            <StackPanel>
+
+                <!-- ЗДОРОВЬЕ -->
+                <TextBlock Text="ЗДОРОВЬЕ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Группа здоровья" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbHealthGroup" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="— не указана —" Tag=""/>
+                            <ComboBoxItem Content="I"   Tag="I"/>
+                            <ComboBoxItem Content="II"  Tag="II"/>
+                            <ComboBoxItem Content="III" Tag="III"/>
+                            <ComboBoxItem Content="IV"  Tag="IV"/>
+                            <ComboBoxItem Content="V"   Tag="V"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Группа инвалидности" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbDisabilityGroup" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="— нет —" Tag=""/>
+                            <ComboBoxItem Content="I"   Tag="I"/>
+                            <ComboBoxItem Content="II"  Tag="II"/>
+                            <ComboBoxItem Content="III" Tag="III"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Инвалидность (описание)" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtDisability" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Справка об инвалидности №" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtDisabilityCert" Style="{StaticResource Inp}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,14">
+                    <TextBlock Text="Хронические заболевания" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtChronic" Style="{StaticResource InpMulti}"/>
+                </StackPanel>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                <TextBlock Text="СЕМЬЯ И БЫТ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Состав семьи" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbFamilyStructure" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="— не указано —"       Tag=""/>
+                            <ComboBoxItem Content="Полная"               Tag="Полная"/>
+                            <ComboBoxItem Content="Неполная (мать)"      Tag="Неполная (мать)"/>
+                            <ComboBoxItem Content="Неполная (отец)"      Tag="Неполная (отец)"/>
+                            <ComboBoxItem Content="Опекунство"           Tag="Опекунство"/>
+                            <ComboBoxItem Content="Детский дом"          Tag="Детский дом"/>
+                            <ComboBoxItem Content="Другое"               Tag="Другое"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Жилищные условия" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbHousing" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="— не указано —"        Tag=""/>
+                            <ComboBoxItem Content="Собственное жильё"     Tag="Собственное жильё"/>
+                            <ComboBoxItem Content="Аренда"                Tag="Аренда"/>
+                            <ComboBoxItem Content="Общежитие"             Tag="Общежитие"/>
+                            <ComboBoxItem Content="С родственниками"      Tag="С родственниками"/>
+                            <ComboBoxItem Content="Другое"                Tag="Другое"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                <TextBlock Text="СОЦИАЛЬНЫЕ СТАТУСЫ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <CheckBox x:Name="ChkOrphan"           Content="Сирота"                    Style="{StaticResource Chk}"/>
+                <CheckBox x:Name="ChkHalfOrphan"       Content="Полусирота"                Style="{StaticResource Chk}"/>
+                <CheckBox x:Name="ChkLargeFamily"      Content="Из многодетной семьи"      Style="{StaticResource Chk}"/>
+                <CheckBox x:Name="ChkLowIncome"        Content="Малоимущий"                Style="{StaticResource Chk}"/>
+                <CheckBox x:Name="ChkSocialVulnerable" Content="Социально незащищённый"    Style="{StaticResource Chk}"/>
+                <CheckBox x:Name="ChkGuardianship"     Content="Под опекой / попечительством" Style="{StaticResource Chk}"/>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,4,0,14"/>
+                <TextBlock Text="ДОПОЛНИТЕЛЬНО" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Социальные льготы" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtSocialBenefits" Style="{StaticResource InpMulti}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Психологические особенности" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtPsych" Style="{StaticResource InpMulti}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Доп. сведения" Style="{StaticResource Lbl}"/>
+                    <TextBox x:Name="TxtNotes" Style="{StaticResource InpMulti}"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопки -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Click="BtnCancel_Click"
+                        Width="90" Height="32" Margin="0,0,8,0"
+                        Background="White" Foreground="#323130"
+                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+                <Button Content="Сохранить" Click="BtnSave_Click"
+                        Width="100" Height="32"
+                        Background="#0078D4" Foreground="White"
+                        BorderThickness="0"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

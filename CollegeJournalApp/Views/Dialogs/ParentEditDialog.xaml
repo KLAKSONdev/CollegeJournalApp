@@ -1,0 +1,206 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.ParentEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Родитель / законный представитель"
+        Height="600" Width="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI"
+        Background="#FAF9F8"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <Style x:Key="Lbl" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#605E5C"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+        <Style x:Key="Inp" TargetType="TextBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Cmb" TargetType="ComboBox">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1" Padding="20,14">
+            <TextBlock x:Name="TxtTitle" Text="Добавить родителя"
+                       FontSize="15" FontWeight="SemiBold" Foreground="#1F1F1F"/>
+        </Border>
+
+        <!-- Форма -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20,16,20,0">
+            <StackPanel>
+
+                <TextBlock Text="ОСНОВНЫЕ ДАННЫЕ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="Кем приходится *" Style="{StaticResource Lbl}"/>
+                    <ComboBox x:Name="CmbRelation" Style="{StaticResource Cmb}">
+                        <ComboBoxItem Content="Мать"                Tag="Мать"/>
+                        <ComboBoxItem Content="Отец"                Tag="Отец"/>
+                        <ComboBoxItem Content="Опекун"              Tag="Опекун"/>
+                        <ComboBoxItem Content="Попечитель"          Tag="Попечитель"/>
+                        <ComboBoxItem Content="Бабушка"             Tag="Бабушка"/>
+                        <ComboBoxItem Content="Дедушка"             Tag="Дедушка"/>
+                        <ComboBoxItem Content="Другой родственник"  Tag="Другой родственник"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Фамилия *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtLastName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Имя *" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtFirstName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Отчество" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtMiddleName" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Дата рождения" Style="{StaticResource Lbl}"/>
+                        <DatePicker x:Name="DpBirthDate" Height="30" FontSize="12"/>
+                    </StackPanel>
+                </Grid>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                <TextBlock Text="КОНТАКТЫ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Телефон" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtPhone" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Рабочий телефон" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtWorkPhone" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Email" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtEmail" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Адрес" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtAddress" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                <TextBlock Text="РАБОТА И ОБРАЗОВАНИЕ" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Место работы" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtWorkplace" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Должность" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtPosition" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Отдел / подразделение" Style="{StaticResource Lbl}"/>
+                        <TextBox x:Name="TxtDepartment" Style="{StaticResource Inp}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Образование" Style="{StaticResource Lbl}"/>
+                        <ComboBox x:Name="CmbEducation" Style="{StaticResource Cmb}">
+                            <ComboBoxItem Content="— не указано —"                Tag=""/>
+                            <ComboBoxItem Content="Высшее"                        Tag="Высшее"/>
+                            <ComboBoxItem Content="Неоконченное высшее"           Tag="Неоконченное высшее"/>
+                            <ComboBoxItem Content="Среднее профессиональное"      Tag="Среднее профессиональное"/>
+                            <ComboBoxItem Content="Среднее общее"                 Tag="Среднее общее"/>
+                            <ComboBoxItem Content="Основное общее"                Tag="Основное общее"/>
+                            <ComboBoxItem Content="Другое"                        Tag="Другое"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+
+                <Rectangle Height="1" Fill="#E0E0E0" Margin="0,0,0,14"/>
+                <TextBlock Text="ДОПОЛНИТЕЛЬНО" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#0078D4" Margin="0,0,0,10"/>
+
+                <CheckBox x:Name="ChkMainContact"    Content="Основной контакт"       FontSize="12" Margin="0,0,0,8"/>
+                <CheckBox x:Name="ChkDeceased"       Content="Умер(ла)"               FontSize="12" Margin="0,0,0,8"/>
+                <CheckBox x:Name="ChkParentalRights" Content="Имеет родительские права" FontSize="12" Margin="0,0,0,16" IsChecked="True"/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Кнопки -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" Click="BtnCancel_Click"
+                        Width="90" Height="32" Margin="0,0,8,0"
+                        Background="White" Foreground="#323130"
+                        BorderBrush="#D0D0D0" BorderThickness="1"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+                <Button Content="Сохранить" Click="BtnSave_Click"
+                        Width="100" Height="32"
+                        Background="#0078D4" Foreground="White"
+                        BorderThickness="0"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -440,6 +440,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <!-- Счётчик -->
@@ -503,8 +504,19 @@
                                 Style="{StaticResource RoundBtn}"
                                 Click="BtnApplyBulk_Click"/>
 
+                        <!-- Удалить выбранные (только Admin) -->
+                        <Button x:Name="BtnDeleteBulk" Grid.Column="5"
+                                Content="🗑  Удалить выбранные"
+                                Height="28" Padding="12,0" Margin="0,0,8,0"
+                                Background="#D13438" Foreground="White"
+                                FontSize="12" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand"
+                                Visibility="Collapsed"
+                                Style="{StaticResource RoundBtn}"
+                                Click="BtnDeleteBulk_Click"/>
+
                         <!-- Снять выделение -->
-                        <Button Grid.Column="5"
+                        <Button Grid.Column="6"
                                 Content="✕  Снять"
                                 Height="28" Padding="10,0"
                                 Background="Transparent" Foreground="#495057"
