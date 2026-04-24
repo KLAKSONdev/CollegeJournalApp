@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="CollegeJournalApp/CollegeJournalApp.csproj" Id="76e88274-0528-49cb-a572-7159c560f8a2" />
+  <Project Path="CollegeJournalApp.Tests/CollegeJournalApp.Tests.csproj" Id="c75ffdb0-c068-4041-b32b-d46647657dc1" />
 </Solution>

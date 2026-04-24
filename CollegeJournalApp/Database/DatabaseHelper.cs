@@ -99,11 +99,17 @@ namespace CollegeJournalApp.Database
         /// Переводит SQL-ошибки в понятные русские сообщения
         /// </summary>
         public static string TranslateSqlError(SqlException ex)
+            => TranslateSqlErrorCore(ex.Number, ex.Message ?? "", ex.Class);
+
+        /// <summary>
+        /// Внутренний метод трансляции: принимает число и строку — доступен для юнит-тестов
+        /// </summary>
+        internal static string TranslateSqlErrorCore(int number, string message, byte errorClass = 16)
         {
-            var msg = ex.Message ?? "";
+            var msg = message;
 
             // Нарушение уникальности
-            if (ex.Number == 2627 || ex.Number == 2601)
+            if (number == 2627 || number == 2601)
             {
                 if (msg.Contains("UQ_Users_Login") || msg.Contains("Login"))
                     return "Пользователь с таким логином уже существует. Выберите другой логин.";
@@ -119,7 +125,7 @@ namespace CollegeJournalApp.Database
             }
 
             // Нарушение CHECK-ограничения
-            if (ex.Number == 547 && msg.Contains("CHECK"))
+            if (number == 547 && msg.Contains("CHECK"))
             {
                 if (msg.Contains("CK_Groups_SemesterCourse"))
                     return "Номер семестра не соответствует курсу.\nКурс 1 → семестры 1-2, Курс 2 → семестры 3-4, Курс 3 → семестры 5-6 и т.д.";
@@ -147,7 +153,7 @@ namespace CollegeJournalApp.Database
             }
 
             // Нарушение внешнего ключа
-            if (ex.Number == 547)
+            if (number == 547)
             {
                 if (msg.Contains("FK_Students_Group") || msg.Contains("Groups"))
                     return "Указанная группа не найдена. Выберите группу из списка.";
@@ -159,7 +165,7 @@ namespace CollegeJournalApp.Database
             }
 
             // NULL в обязательном поле
-            if (ex.Number == 515)
+            if (number == 515)
             {
                 if (msg.Contains("LastName"))  return "Фамилия обязательна для заполнения.";
                 if (msg.Contains("FirstName")) return "Имя обязательно для заполнения.";
@@ -170,19 +176,19 @@ namespace CollegeJournalApp.Database
             }
 
             // Дедлок
-            if (ex.Number == 1205)
+            if (number == 1205)
                 return "Конфликт операций в базе данных. Попробуйте ещё раз.";
 
             // Таймаут
-            if (ex.Number == -2 || ex.Number == 11)
+            if (number == -2 || number == 11)
                 return "Превышено время ожидания ответа от базы данных. Проверьте подключение.";
 
             // Нет подключения
-            if (ex.Number == 53 || ex.Number == 17)
+            if (number == 53 || number == 17)
                 return "Не удалось подключиться к базе данных. Проверьте, запущен ли SQL Server.";
 
             // Ошибка из триггера (RAISERROR)
-            if (ex.Number == 50000 || ex.Class == 16)
+            if (number == 50000 || errorClass == 16)
             {
                 if (msg.Contains("выпустившейся группы"))
                     return "Нельзя изменять состав выпустившейся группы.";
@@ -199,7 +205,7 @@ namespace CollegeJournalApp.Database
             }
 
             // По умолчанию — общее сообщение
-            return $"Ошибка базы данных (код {ex.Number}).\nОбратитесь к администратору.";
+            return $"Ошибка базы данных (код {number}).\nОбратитесь к администратору.";
         }
         public static string TableRu(string tableName)
         {

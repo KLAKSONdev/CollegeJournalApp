@@ -7,6 +7,9 @@ using System.Windows;
 // Общие сведения об этой сборке предоставляются следующим набором
 // набор атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
+// Разрешаем тестовому проекту доступ к internal-членам
+[assembly: InternalsVisibleTo("CollegeJournalApp.Tests")]
+
 [assembly: AssemblyTitle("CollegeJournalApp")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]

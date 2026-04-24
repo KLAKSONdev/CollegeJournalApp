@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>CollegeJournalApp.Tests</RootNamespace>
+    <AssemblyName>CollegeJournalApp.Tests</AssemblyName>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Тест-платформа -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <!-- xUnit -->
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <!-- SqlClient нужен для SqlParameter в интеграционных тестах -->
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ссылка на основной проект — даёт доступ к internal через InternalsVisibleTo -->
+    <ProjectReference Include="..\CollegeJournalApp\CollegeJournalApp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Тестовые файлы как linked files из основного проекта -->
+    <Compile Include="..\CollegeJournalApp\Tests\SessionHelperTests.cs" Link="SessionHelperTests.cs" />
+    <Compile Include="..\CollegeJournalApp\Tests\DatabaseHelperUnitTests.cs" Link="DatabaseHelperUnitTests.cs" />
+  </ItemGroup>
+
+</Project>
