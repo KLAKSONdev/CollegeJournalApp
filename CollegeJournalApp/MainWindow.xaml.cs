@@ -80,15 +80,11 @@ namespace CollegeJournalApp
                 case "Attendance":    MainFrame.Navigate(new AttendancePage());    break;
                 case "Grades":        MainFrame.Navigate(new GradesPage());        break;
                 case "Schedule":      MainFrame.Navigate(new SchedulePage());      break;
-                case "Events":        MainFrame.Navigate(new EventsPage());        break;
                 case "Announcements": MainFrame.Navigate(new AnnouncementsPage()); break;
-                case "Assignments":   MainFrame.Navigate(new AssignmentsPage());   break;
                 case "Documents":     MainFrame.Navigate(new DocumentsPage());     break;
-                case "Portfolio":      MainFrame.Navigate(new PortfolioPage());      break;
-                case "Achievements":  MainFrame.Navigate(new AchievementsPage());  break;
+                case "Portfolio":     MainFrame.Navigate(new PortfolioPage());     break;
                 case "Audit":         MainFrame.Navigate(new AuditPage());         break;
                 case "Restore":       MainFrame.Navigate(new RestorePage());       break;
-                case "Users":         MainFrame.Navigate(new UsersPage());         break;
                 case "Admin":         MainFrame.Navigate(new AdminPage());         break;
             }
         }

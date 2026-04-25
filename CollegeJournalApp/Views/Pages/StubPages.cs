@@ -20,11 +20,7 @@ namespace CollegeJournalApp.Views.Pages
     }
 
     // AttendancePage, GradesPage, SchedulePage — перенесены в отдельные XAML файлы
-    public class EventsPage        : Page { public EventsPage()        { Content = PageHelper.MakePage("События");       KeepAlive = false; } }
     // AnnouncementsPage — перенесена в отдельный XAML файл
-    public class AssignmentsPage   : Page { public AssignmentsPage()   { Content = PageHelper.MakePage("Поручения");     KeepAlive = false; } }
     // DocumentsPage — перенесена в отдельный XAML файл
-    public class SocialPage        : Page { public SocialPage()        { Content = PageHelper.MakePage("Соц. карточки"); KeepAlive = false; } }
-    public class AchievementsPage  : Page { public AchievementsPage()  { Content = PageHelper.MakePage("Достижения");    KeepAlive = false; } }
-    public class UsersPage         : Page { public UsersPage()         { Content = PageHelper.MakePage("Пользователи");  KeepAlive = false; } }
+    // PortfolioPage — перенесена в отдельный XAML файл
 }
