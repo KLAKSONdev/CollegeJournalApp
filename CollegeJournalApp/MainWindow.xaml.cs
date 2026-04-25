@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Threading;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
 using CollegeJournalApp.Views.Dialogs;
@@ -37,7 +38,6 @@ namespace CollegeJournalApp
             {
                 TabAudit.Visibility    = Visibility.Visible;
                 TabRestore.Visibility  = Visibility.Visible;
-                TabUsers.Visibility    = Visibility.Visible;
                 TabAdmin.Visibility    = Visibility.Visible;
             }
 
@@ -57,6 +57,10 @@ namespace CollegeJournalApp
             _lastSeenId = LoadLastSeenId();
             LoadNotifications();
             LoadDocumentNotifications();
+
+            var refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
+            refreshTimer.Tick += (s, args) => { LoadNotifications(); LoadDocumentNotifications(); };
+            refreshTimer.Start();
         }
 
         private void NavButton_Click(object sender, RoutedEventArgs e)

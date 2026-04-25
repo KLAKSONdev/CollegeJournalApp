@@ -132,6 +132,9 @@ namespace CollegeJournalApp.Views.Pages
 
         // ── Поиск (Admin) ────────────────────────────────────────────────────
 
+        private void CmbFilter_Changed(object sender, SelectionChangedEventArgs e)
+            => BtnSearch_Click(null, null);
+
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
             int groupId   = (int)((CmbGroup.SelectedItem   as ComboBoxItem)?.Tag ?? 0);

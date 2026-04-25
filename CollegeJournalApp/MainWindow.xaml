@@ -57,13 +57,19 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="Transparent"
+                        <Border x:Name="Bd"
+                                Background="Transparent"
                                 BorderThickness="0,0,0,3"
                                 BorderBrush="#0078D4"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#EBF3FB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -141,12 +147,12 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="35" Height="35" Margin="0,0,8,0">
-                        <Image Source="C:\Users\Клаксон\source\repos\CollegeJournalApp\CollegeJournalApp\Img\Icon3.png" Margin="-12,-8,-16,-12"/>
+                    <Border Width="32" Height="32" Margin="0,0,8,0">
+                        <Image Source="/Img/Icon3.png" Stretch="Uniform"/>
                     </Border>
                     <TextBlock Text="EduTrack Pro"
-                               Foreground="White" FontSize="50" FontFamily="Arial Black"
-                               VerticalAlignment="Center" FontWeight="Bold" Width="371" Height="48" TextAlignment="Center"/>
+                               Foreground="White" FontSize="20" FontFamily="Arial Black"
+                               VerticalAlignment="Center" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -158,8 +164,8 @@
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,-12,0">
                     <Border Background="#005A9E" Padding="8,2" Margin="0,0,8,0"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Width="91" Height="39">
-                        <TextBlock x:Name="TxtRole" Foreground="White" FontSize="10" Margin="-5,8,-5,8" TextAlignment="Center"/>
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True" MinWidth="91" Height="39">
+                        <TextBlock x:Name="TxtRole" Foreground="White" FontSize="10" Margin="0" TextAlignment="Center"/>
                     </Border>
                     <TextBlock x:Name="TxtUserName" Foreground="White" FontSize="12"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -287,7 +293,7 @@
                     <Border Grid.Row="2" BorderBrush="#EBEBEB" BorderThickness="0,1,0,0"
                             Padding="16,10">
                         <Button x:Name="BtnShowAllAnn"
-                                Content="Открыть все объявления →"
+                                Content="Перейти к объявлениям →"
                                 Background="Transparent" BorderThickness="0"
                                 FontSize="11" FontWeight="SemiBold"
                                 Foreground="#0078D4" Cursor="Hand"

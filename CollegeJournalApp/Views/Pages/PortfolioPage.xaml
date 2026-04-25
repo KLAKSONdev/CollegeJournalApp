@@ -197,10 +197,11 @@
             </Border>
 
             <!-- Разделитель -->
-            <GridSplitter Grid.Column="1" Width="1"
-                          Background="#E3E6EE"
+            <GridSplitter Grid.Column="1" Width="5"
+                          Background="Transparent"
                           VerticalAlignment="Stretch"
                           HorizontalAlignment="Center"
+                          Cursor="SizeWE"
                           ResizeDirection="Columns"/>
 
             <!-- ── Правая панель: портфолио студента ── -->
@@ -342,6 +343,9 @@
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="Bdr" Property="BorderBrush" Value="#0078D4"/>
+                                                    <Setter TargetName="Bdr" Property="Background" Value="#EBF3FB"/>
+                                                    <Setter Property="Foreground" Value="#0078D4"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
                                                 </Trigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="Bdr" Property="Background" Value="#F5F8FF"/>

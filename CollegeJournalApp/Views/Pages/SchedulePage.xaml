@@ -26,7 +26,8 @@
                             Orientation="Horizontal" Visibility="Collapsed" Margin="0,0,8,0">
                     <TextBlock Text="Группа:" FontSize="12" Foreground="#605E5C"
                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="CmbGroup" Width="160" Height="30" FontSize="12"/>
+                    <ComboBox x:Name="CmbGroup" Width="160" Height="30" FontSize="12"
+                              SelectionChanged="CmbFilter_Changed"/>
                 </StackPanel>
 
                 <!-- Фильтр по преподавателю — только Admin -->
@@ -34,7 +35,8 @@
                             Orientation="Horizontal" Visibility="Collapsed" Margin="0,0,8,0">
                     <TextBlock Text="Преподаватель:" FontSize="12" Foreground="#605E5C"
                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="CmbTeacher" Width="180" Height="30" FontSize="12"/>
+                    <ComboBox x:Name="CmbTeacher" Width="180" Height="30" FontSize="12"
+                              SelectionChanged="CmbFilter_Changed"/>
                 </StackPanel>
 
                 <!-- Найти — только Admin -->

@@ -139,8 +139,8 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" Text="EduTrack Pro"
-                           Foreground="White" FontSize="36" FontFamily="Arial Black"
-                           VerticalAlignment="Center" Margin="12,0,0,0" Height="41"/>
+                           Foreground="White" FontSize="20" FontFamily="Arial Black"
+                           VerticalAlignment="Center" Margin="12,0,0,0"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="─" Style="{StaticResource WinBtnStyle}"
@@ -167,7 +167,7 @@
                     <Border Width="205" Height="205"
                 HorizontalAlignment="Center"
                 Margin="0,0,0,0">
-                        <Image Source="C:\Users\Клаксон\source\repos\CollegeJournalApp\CollegeJournalApp\Img\Icon.png"
+                        <Image Source="/Img/Icon.png"
                    Width="200"
                    Height="200"
                    HorizontalAlignment="Center"

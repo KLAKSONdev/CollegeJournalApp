@@ -109,6 +109,11 @@ namespace CollegeJournalApp.Views.Pages
                 default:        return role ?? "—";
             }
         }
+
+        private void Filter_Changed(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 
     public class AuditRow
