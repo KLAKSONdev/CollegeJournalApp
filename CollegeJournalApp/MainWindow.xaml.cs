@@ -34,20 +34,21 @@ namespace CollegeJournalApp
 
             if (SessionHelper.IsAdmin)
             {
-                TabAudit.Visibility  = Visibility.Visible;
-                TabUsers.Visibility  = Visibility.Visible;
-                TabAdmin.Visibility  = Visibility.Visible;
+                TabAudit.Visibility    = Visibility.Visible;
+                TabRestore.Visibility  = Visibility.Visible;
+                TabUsers.Visibility    = Visibility.Visible;
+                TabAdmin.Visibility    = Visibility.Visible;
             }
 
             if (SessionHelper.IsTeacher)
             {
-                TabStudents.Visibility     = Visibility.Collapsed;
-                TabSocial.Visibility       = Visibility.Collapsed;
+                TabStudents.Visibility   = Visibility.Collapsed;
+                TabPortfolio.Visibility  = Visibility.Collapsed;
                 // TabGrades доступен преподавателям — видят свои группы и предметы
             }
 
-            if (SessionHelper.IsStudent)
-                TabSocial.Visibility = Visibility.Collapsed;
+            if (SessionHelper.IsStudent || SessionHelper.IsHeadman)
+                TabPortfolio.Visibility = Visibility.Collapsed;
 
             _activeTab = TabDashboard;
             NavigateTo("Dashboard");
@@ -81,9 +82,10 @@ namespace CollegeJournalApp
                 case "Announcements": MainFrame.Navigate(new AnnouncementsPage()); break;
                 case "Assignments":   MainFrame.Navigate(new AssignmentsPage());   break;
                 case "Documents":     MainFrame.Navigate(new DocumentsPage());     break;
-                case "Social":        MainFrame.Navigate(new SocialPage());        break;
+                case "Portfolio":      MainFrame.Navigate(new PortfolioPage());      break;
                 case "Achievements":  MainFrame.Navigate(new AchievementsPage());  break;
                 case "Audit":         MainFrame.Navigate(new AuditPage());         break;
+                case "Restore":       MainFrame.Navigate(new RestorePage());       break;
                 case "Users":         MainFrame.Navigate(new UsersPage());         break;
                 case "Admin":         MainFrame.Navigate(new AdminPage());         break;
             }

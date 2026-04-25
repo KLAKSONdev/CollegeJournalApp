@@ -223,8 +223,9 @@
                 <Button x:Name="TabSchedule"     Content="Расписание"     Style="{StaticResource TabStyle}"       Tag="Schedule"      Click="NavButton_Click"/>
                 <Button x:Name="TabAnnouncements" Content="Объявления"     Style="{StaticResource TabStyle}"       Tag="Announcements" Click="NavButton_Click"/>
                 <Button x:Name="TabDocuments"    Content="Документы"      Style="{StaticResource TabStyle}"       Tag="Documents"     Click="NavButton_Click"/>
-                <Button x:Name="TabSocial"       Content="Соц. карточки"  Style="{StaticResource TabStyle}"       Tag="Social"        Click="NavButton_Click"/>
+                <Button x:Name="TabPortfolio"    Content="Портфолио"      Style="{StaticResource TabStyle}"       Tag="Portfolio"     Click="NavButton_Click"/>
                 <Button x:Name="TabAudit"        Content="Журнал аудита"  Style="{StaticResource TabStyle}"       Tag="Audit"         Visibility="Collapsed" Click="NavButton_Click"/>
+                <Button x:Name="TabRestore"      Content="🗑️ Корзина"     Style="{StaticResource TabStyle}"       Tag="Restore"       Visibility="Collapsed" Click="NavButton_Click"/>
                 <Button x:Name="TabUsers"        Content="Пользователи"   Style="{StaticResource TabStyle}"       Tag="Users"         Visibility="Collapsed" Click="NavButton_Click"/>
                 <Button x:Name="TabAdmin"        Content="&#9881; Управление"  Style="{StaticResource TabStyle}"       Tag="Admin"         Visibility="Collapsed" Click="NavButton_Click"/>
             </DockPanel>

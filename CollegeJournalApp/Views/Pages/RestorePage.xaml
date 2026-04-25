@@ -1,0 +1,475 @@
+<Page x:Class="CollegeJournalApp.Views.Pages.RestorePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="#F4F6FA"
+      FontFamily="Segoe UI"
+      Title="Корзина">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ Заголовок ══ -->
+        <Border Grid.Row="0" Background="White"
+                BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
+                Padding="24,16,24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="10"
+                            Background="#FDE7E9" Margin="0,0,14,0">
+                        <TextBlock Text="🗑️" FontSize="18"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Корзина — удалённые записи"
+                                   FontSize="17" FontWeight="SemiBold"
+                                   Foreground="#1B2A4A"/>
+                        <TextBlock x:Name="TxtTotal"
+                                   FontSize="11" Foreground="#8A94A6"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+               
+            </Grid>
+        </Border>
+
+        <!-- ══ Фильтры ══ -->
+        <Border Grid.Row="1" Background="White"
+                BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
+                Padding="24,10,24,10">
+            <StackPanel Orientation="Horizontal">
+
+                <!-- Поиск -->
+                <Border BorderBrush="#D0D8E8" BorderThickness="1"
+                        CornerRadius="6" Background="White"
+                        Width="240" Height="32" Margin="0,0,10,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="🔍"
+                                   FontSize="12" Foreground="#8A94A6"
+                                   VerticalAlignment="Center" Margin="10,0,6,0"/>
+                        <TextBox x:Name="TxtSearch" Grid.Column="1"
+                                 BorderThickness="0" Padding="0,6,8,6"
+                                 FontSize="12" Background="Transparent"
+                                 VerticalAlignment="Center"
+                                 TextChanged="Filter_Changed">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <VisualBrush Stretch="None" AlignmentX="Left">
+                                                        <VisualBrush.Visual>
+                                                            <TextBlock Text="Поиск по названию…"
+                                                                       Foreground="#B0B8C8"
+                                                                       FontSize="12"
+                                                                       FontFamily="Segoe UI"
+                                                                       Margin="0,6,0,0"/>
+                                                        </VisualBrush.Visual>
+                                                    </VisualBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </Grid>
+                </Border>
+
+                <!-- Фильтр по типу — кнопки-чипы -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                    <Button x:Name="BtnAll" Content="Все"
+                            Tag="All" Click="ChipFilter_Click"
+                            Height="32" Padding="14,0"
+                            FontSize="12" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bdr" CornerRadius="6"
+                                        Background="#0078D4"
+                                        Padding="{TemplateBinding Padding}">
+                                    <TextBlock Text="{TemplateBinding Content}"
+                                               FontSize="12" Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bdr" Property="Background" Value="#106EBE"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="BtnStudents" Content="👤 Студенты"
+                            Tag="Students" Click="ChipFilter_Click"
+                            Height="32" Padding="12,0" Margin="6,0,0,0"
+                            FontSize="12" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bdr" CornerRadius="6"
+                                        Background="#F0F4FB"
+                                        Padding="{TemplateBinding Padding}">
+                                    <TextBlock Text="{TemplateBinding Content}"
+                                               FontSize="12" Foreground="#3D4A60"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bdr" Property="Background" Value="#E0EAF8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="BtnDocuments" Content="📄 Документы"
+                            Tag="Documents" Click="ChipFilter_Click"
+                            Height="32" Padding="12,0" Margin="6,0,0,0"
+                            FontSize="12" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bdr" CornerRadius="6"
+                                        Background="#F0F4FB"
+                                        Padding="{TemplateBinding Padding}">
+                                    <TextBlock Text="{TemplateBinding Content}"
+                                               FontSize="12" Foreground="#3D4A60"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bdr" Property="Background" Value="#E0EAF8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button x:Name="BtnParents" Content="👨‍👩‍👧 Родители"
+                            Tag="Parents" Click="ChipFilter_Click"
+                            Height="32" Padding="12,0" Margin="6,0,0,0"
+                            FontSize="12" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bdr" CornerRadius="6"
+                                        Background="#F0F4FB"
+                                        Padding="{TemplateBinding Padding}">
+                                    <TextBlock Text="{TemplateBinding Content}"
+                                               FontSize="12" Foreground="#3D4A60"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bdr" Property="Background" Value="#E0EAF8"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+
+                <!-- Обновить -->
+                <Button Content="⟳  Обновить" Click="BtnRefresh_Click"
+                        Height="32" Padding="14,0"
+                        Background="#F0F4FB" Foreground="#3D4A60"
+                        BorderThickness="0"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bdr" Background="#F0F4FB"
+                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bdr" Property="Background" Value="#E0EAF8"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ Контент ══ -->
+        <Grid Grid.Row="2">
+
+            <!-- Таблица -->
+            <Border Margin="20,16,20,16"
+                    Background="White" CornerRadius="10"
+                    BorderBrush="#E3E6EE" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="#C0CADE" BlurRadius="12"
+                                      ShadowDepth="2" Opacity="0.15" Direction="270"/>
+                </Border.Effect>
+                <DataGrid x:Name="RestoreGrid"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#EEF1F7"
+                          BorderThickness="0"
+                          Background="White"
+                          RowBackground="White"
+                          AlternatingRowBackground="#F8FAFF"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          CanUserResizeRows="False"
+                          FontFamily="Segoe UI" FontSize="12"
+                          RowHeight="48">
+
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#F0F4FB"/>
+                            <Setter Property="Foreground" Value="#5A667A"/>
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Padding" Value="14,9"/>
+                            <Setter Property="BorderBrush" Value="#E3E6EE"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="14,0"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#EAF3FB"/>
+                                    <Setter Property="Foreground" Value="#1B2A4A"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Cursor" Value="Arrow"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F8FF"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                    <DataGrid.Columns>
+
+                        <!-- Тип записи — цветной бейдж -->
+                        <DataGridTemplateColumn Header="Тип" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Margin="14,0" HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            CornerRadius="5" Padding="10,4">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#F0F4FB"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TableName}" Value="Students">
+                                                        <Setter Property="Background" Value="#EFF6FC"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding TableName}" Value="Documents">
+                                                        <Setter Property="Background" Value="#F0E9F8"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding TableName}" Value="Parents">
+                                                        <Setter Property="Background" Value="#E8F5F0"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontSize="12" Margin="0,0,5,0"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="●"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Students">
+                                                                <Setter Property="Text" Value="👤"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Documents">
+                                                                <Setter Property="Text" Value="📄"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Parents">
+                                                                <Setter Property="Text" Value="👨‍👩‍👧"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding TableNameRu}"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#5A667A"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Students">
+                                                                <Setter Property="Foreground" Value="#0063B1"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Documents">
+                                                                <Setter Property="Foreground" Value="#6B2FA0"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding TableName}" Value="Parents">
+                                                                <Setter Property="Foreground" Value="#107C10"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Название -->
+                        <DataGridTemplateColumn Header="Запись" Width="250">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Margin="14,0">
+                                        <TextBlock Text="{Binding RecordName}"
+                                                   FontSize="12.5" FontWeight="SemiBold"
+                                                   Foreground="#1B2A4A"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ExtraInfo}"
+                                                   FontSize="10.5" Foreground="#8A94A6"
+                                                   Margin="0,2,0,0"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Дополнительно (группа/роль) -->
+                        <DataGridTextColumn Header="Группа / Связь"
+                                            Binding="{Binding GroupInfo}" Width="140">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#3D4A60"/>
+                                    <Setter Property="Margin" Value="14,0"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Удалил -->
+                        <DataGridTemplateColumn Header="Удалил" Width="180">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Margin="14,0">
+                                        <TextBlock Text="{Binding DeletedByName}"
+                                                   FontSize="12" Foreground="#3D4A60"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding DeletedAtStr}"
+                                                   FontSize="10.5" Foreground="#8A94A6"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Кнопка Восстановить -->
+                        <DataGridTemplateColumn Header="" Width="140">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="↺  Восстановить"
+                                            Tag="{Binding}"
+                                            Click="BtnRestore_Click"
+                                            Height="30" Padding="10,0"
+                                            Margin="10,0"
+                                            FontSize="11.5" Cursor="Hand"
+                                            VerticalAlignment="Center">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="Bdr"
+                                                        Background="#DFF6DD"
+                                                        CornerRadius="6"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <TextBlock Text="{TemplateBinding Content}"
+                                                               FontSize="11.5"
+                                                               Foreground="#0B5A0B"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bdr" Property="Background" Value="#C8EDCA"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter TargetName="Bdr" Property="Background" Value="#A8D8A8"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- Пустое состояние -->
+            <StackPanel x:Name="EmptyState"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock Text="✅" FontSize="48"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,12"/>
+                <TextBlock Text="Корзина пуста"
+                           FontSize="18" FontWeight="SemiBold"
+                           Foreground="#3D4A60"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Удалённые записи появятся здесь"
+                           FontSize="13" Foreground="#8A94A6"
+                           HorizontalAlignment="Center"
+                           Margin="0,6,0,0"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!-- ══ Статус-бар ══ -->
+        <Border Grid.Row="3" Background="White"
+                BorderBrush="#E3E6EE" BorderThickness="0,1,0,0"
+                Padding="24,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TxtStatus"
+                           Grid.Column="0"
+                           FontSize="11" Foreground="#8A94A6"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           Text="Восстановление · Действие фиксируется в журнале аудита"
+                           FontSize="10.5" Foreground="#B0B8C8"
+                           FontStyle="Italic"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+    </Grid>
+</Page>

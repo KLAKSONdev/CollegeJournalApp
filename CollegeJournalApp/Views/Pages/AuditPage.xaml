@@ -236,7 +236,7 @@
                     </DataGridTemplateColumn>
 
                     <!-- Роль -->
-                    <DataGridTextColumn Header="Роль" Binding="{Binding RoleRu}" Width="110">
+                    <DataGridTextColumn Header="Роль" Binding="{Binding RoleRu}" Width="130">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground" Value="#3D4A60"/>
