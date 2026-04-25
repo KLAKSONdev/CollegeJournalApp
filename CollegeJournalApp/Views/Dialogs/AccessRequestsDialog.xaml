@@ -1,0 +1,73 @@
+<Window x:Class="CollegeJournalApp.Views.Dialogs.AccessRequestsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Запросы на доступ к документам"
+        Height="520" Width="680"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip"
+        FontFamily="Segoe UI"
+        Background="#F4F6FA">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="White"
+                BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
+                Padding="22,16">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="36" Height="36" CornerRadius="8"
+                        Background="#FFF4CE" Margin="0,0,12,0">
+                    <TextBlock Text="⏳" FontSize="16"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Запросы на доступ к документам"
+                               FontSize="15" FontWeight="SemiBold"
+                               Foreground="#1B2A4A"/>
+                    <TextBlock x:Name="TxtRequestCount"
+                               FontSize="11" Foreground="#8A94A6"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Список запросов -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Padding="16,12,16,4">
+            <StackPanel x:Name="PanelRequests"/>
+        </ScrollViewer>
+
+        <!-- Кнопка закрыть -->
+        <Border Grid.Row="2" Background="White"
+                BorderBrush="#E3E6EE" BorderThickness="0,1,0,0"
+                Padding="22,12">
+            <Button Content="Закрыть" Click="BtnClose_Click"
+                    Width="100" Height="34"
+                    HorizontalAlignment="Right"
+                    FontSize="12" Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bdr" Background="#F0F4FB"
+                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="#3D4A60" FontSize="12"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bdr" Property="Background" Value="#E0EAF8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Border>
+    </Grid>
+</Window>

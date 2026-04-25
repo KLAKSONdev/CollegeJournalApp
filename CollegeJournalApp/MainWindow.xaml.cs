@@ -18,9 +18,10 @@ namespace CollegeJournalApp
 {
     public partial class MainWindow : Window
     {
-        private Button          _activeTab;
-        private List<NotifItem> _notifs    = new List<NotifItem>();
-        private int             _lastSeenId = 0;
+        private Button              _activeTab;
+        private List<NotifItem>    _notifs      = new List<NotifItem>();
+        private List<DocNotifItem> _docNotifs   = new List<DocNotifItem>();
+        private int                _lastSeenId  = 0;
 
         public MainWindow()
         {
@@ -47,7 +48,7 @@ namespace CollegeJournalApp
                 // TabGrades доступен преподавателям — видят свои группы и предметы
             }
 
-            if (SessionHelper.IsStudent || SessionHelper.IsHeadman)
+            if (SessionHelper.IsStudent)
                 TabPortfolio.Visibility = Visibility.Collapsed;
 
             _activeTab = TabDashboard;
@@ -55,6 +56,7 @@ namespace CollegeJournalApp
 
             _lastSeenId = LoadLastSeenId();
             LoadNotifications();
+            LoadDocumentNotifications();
         }
 
         private void NavButton_Click(object sender, RoutedEventArgs e)
@@ -194,15 +196,16 @@ namespace CollegeJournalApp
 
         private void UpdateBadge()
         {
-            int newCount = _notifs.Count(n => n.AnnouncementId > _lastSeenId);
+            int newAnn   = _notifs.Count(n => n.AnnouncementId > _lastSeenId);
+            int newCount = newAnn + _docNotifs.Count;
             if (newCount > 0)
             {
-                NotifBadgeText.Text      = newCount > 99 ? "99+" : newCount.ToString();
-                NotifBadge.Visibility    = Visibility.Visible;
+                NotifBadgeText.Text   = newCount > 99 ? "99+" : newCount.ToString();
+                NotifBadge.Visibility = Visibility.Visible;
             }
             else
             {
-                NotifBadge.Visibility    = Visibility.Collapsed;
+                NotifBadge.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -219,11 +222,11 @@ namespace CollegeJournalApp
         {
             NotifList.Children.Clear();
 
-            if (_notifs.Count == 0)
+            if (_notifs.Count == 0 && _docNotifs.Count == 0)
             {
                 NotifList.Children.Add(new TextBlock
                 {
-                    Text                = "Нет объявлений",
+                    Text                = "Нет уведомлений",
                     FontSize            = 12,
                     Foreground          = new SolidColorBrush(Color.FromRgb(108, 117, 125)),
                     HorizontalAlignment = HorizontalAlignment.Center,
@@ -232,12 +235,111 @@ namespace CollegeJournalApp
                 return;
             }
 
-            // Показываем последние 15
-            foreach (var n in _notifs.Take(15))
+            // Документные уведомления — первыми (оранжевый стиль, высокий приоритет)
+            foreach (var dn in _docNotifs)
+                NotifList.Children.Add(BuildDocNotifRow(dn));
+
+            // Затем объявления (последние 15 минус уже показанные документные)
+            int annLimit = Math.Max(0, 15 - _docNotifs.Count);
+            foreach (var n in _notifs.Take(annLimit))
             {
                 bool isNew = n.AnnouncementId > _lastSeenId;
                 NotifList.Children.Add(BuildNotifRow(n, isNew));
             }
+        }
+
+        private UIElement BuildDocNotifRow(DocNotifItem dn)
+        {
+            var border = new Border
+            {
+                Background      = new SolidColorBrush(Color.FromArgb(22, 255, 150, 0)),
+                BorderBrush     = new SolidColorBrush(Color.FromRgb(235, 235, 235)),
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding         = new Thickness(16, 10, 16, 10),
+                Cursor          = System.Windows.Input.Cursors.Hand
+            };
+
+            var row = new Grid();
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(6) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            // Оранжевая точка
+            var dot = new Border
+            {
+                Width             = 6,
+                Height            = 6,
+                Background        = new SolidColorBrush(Color.FromRgb(202, 80, 16)),
+                CornerRadius      = new CornerRadius(3),
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin            = new Thickness(0, 5, 0, 0)
+            };
+            Grid.SetColumn(dot, 0);
+            row.Children.Add(dot);
+
+            var content = new StackPanel { Margin = new Thickness(8, 0, 0, 0) };
+            Grid.SetColumn(content, 1);
+
+            // Заголовок + дата
+            var titleRow = new Grid();
+            titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            titleRow.Children.Add(new TextBlock
+            {
+                Text         = "📄 " + dn.Title,
+                FontSize     = 12,
+                FontWeight   = FontWeights.SemiBold,
+                Foreground   = new SolidColorBrush(Color.FromRgb(26, 26, 46)),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+
+            var dateTb = new TextBlock
+            {
+                Text              = dn.CreatedAt.ToString("dd MMM", new System.Globalization.CultureInfo("ru-RU")),
+                FontSize          = 10,
+                Foreground        = new SolidColorBrush(Color.FromRgb(134, 142, 150)),
+                Margin            = new Thickness(8, 2, 0, 0),
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            Grid.SetColumn(dateTb, 1);
+            titleRow.Children.Add(dateTb);
+            content.Children.Add(titleRow);
+
+            var snippet = (dn.Message ?? "").Length > 80
+                ? dn.Message.Substring(0, 80) + "…" : (dn.Message ?? "");
+            content.Children.Add(new TextBlock
+            {
+                Text         = snippet,
+                FontSize     = 11,
+                Foreground   = new SolidColorBrush(Color.FromRgb(108, 117, 125)),
+                TextWrapping = TextWrapping.Wrap,
+                Margin       = new Thickness(0, 3, 0, 0)
+            });
+
+            row.Children.Add(content);
+            border.Child = row;
+
+            // Клик → страница Документы + помечаем прочитанным
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                NotifPopup.IsOpen = false;
+                _docNotifs.Remove(dn);
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery("sp_MarkDocumentNotifsRead",
+                        new[] { new SqlParameter("@UserId", SessionHelper.UserId) });
+                }
+                catch { }
+                UpdateBadge();
+                NavigateToDocuments();
+            };
+
+            border.MouseEnter += (s, e) =>
+                border.Background = new SolidColorBrush(Color.FromArgb(40, 255, 150, 0));
+            border.MouseLeave += (s, e) =>
+                border.Background = new SolidColorBrush(Color.FromArgb(22, 255, 150, 0));
+
+            return border;
         }
 
         private UIElement BuildNotifRow(NotifItem n, bool isNew)
@@ -344,13 +446,62 @@ namespace CollegeJournalApp
         private void BtnMarkAllRead_Click(object sender, RoutedEventArgs e)
         {
             MarkAllSeen();
-            BuildNotifList(); // перерисовать без синих точек
+            // Помечаем документные уведомления прочитанными
+            if (_docNotifs.Count > 0)
+            {
+                _docNotifs.Clear();
+                try
+                {
+                    DatabaseHelper.ExecuteNonQuery("sp_MarkDocumentNotifsRead",
+                        new[] { new SqlParameter("@UserId", SessionHelper.UserId) });
+                }
+                catch { }
+                UpdateBadge();
+            }
+            BuildNotifList();
         }
 
         private void BtnShowAllAnn_Click(object sender, RoutedEventArgs e)
         {
             NotifPopup.IsOpen = false;
             NavigateToAnnouncements();
+        }
+
+        // ── Документные уведомления ────────────────────────────────────────
+
+        private void LoadDocumentNotifications()
+        {
+            _docNotifs.Clear();
+            try
+            {
+                var dt = DatabaseHelper.ExecuteProcedure("sp_GetDocumentNotifications",
+                    new[] { new SqlParameter("@UserId", SessionHelper.UserId) });
+
+                foreach (DataRow r in dt.Rows)
+                {
+                    _docNotifs.Add(new DocNotifItem
+                    {
+                        NotifId   = Convert.ToInt32(r["NotifId"]),
+                        Title     = r["Title"]?.ToString()   ?? "",
+                        Message   = r["Message"]?.ToString() ?? "",
+                        CreatedAt = r["CreatedAt"] != DBNull.Value
+                            ? Convert.ToDateTime(r["CreatedAt"])
+                            : DateTime.Now
+                    });
+                }
+            }
+            catch { }
+
+            UpdateBadge();
+        }
+
+        private void NavigateToDocuments()
+        {
+            if (_activeTab != null)
+                _activeTab.Style = (Style)FindResource("TabStyle");
+            TabDocuments.Style = (Style)FindResource("TabActiveStyle");
+            _activeTab = TabDocuments;
+            NavigateTo("Documents");
         }
 
         private void NavigateToAnnouncements()
@@ -412,6 +563,14 @@ namespace CollegeJournalApp
             public string   Title          { get; set; }
             public string   Body           { get; set; }
             public DateTime CreatedAt      { get; set; }
+        }
+
+        private class DocNotifItem
+        {
+            public int      NotifId   { get; set; }
+            public string   Title     { get; set; }
+            public string   Message   { get; set; }
+            public DateTime CreatedAt { get; set; }
         }
     }
 }
