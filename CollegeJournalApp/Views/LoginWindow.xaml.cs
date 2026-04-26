@@ -93,6 +93,7 @@ namespace CollegeJournalApp.Views
             SessionHelper.RoleName  = row["RoleName"]?.ToString();
 
             var mainWindow = new MainWindow();
+            Application.Current.MainWindow = mainWindow; // явно закрепляем MainWindow до Show
             mainWindow.Show();
             this.Close();
         }

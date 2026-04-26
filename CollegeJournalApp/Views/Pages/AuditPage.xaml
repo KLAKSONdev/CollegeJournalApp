@@ -139,6 +139,31 @@
                     </Button.Template>
                 </Button>
 
+                <!-- Кнопка Экспорт -->
+                <Button Content="📥  Экспорт" Click="BtnExport_Click"
+                        Height="32" Padding="14,0" Margin="8,0,0,0"
+                        Background="#107C10" Foreground="White"
+                        BorderThickness="0"
+                        FontFamily="Segoe UI" FontSize="12" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BdrEx" Background="{TemplateBinding Background}"
+                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BdrEx" Property="Background" Value="#0B5E0B"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BdrEx" Property="Background" Value="#094509"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
             </StackPanel>
         </Border>
 

@@ -186,7 +186,7 @@ namespace CollegeJournalApp.Views.Pages
             if (StudentsGrid.SelectedItem is StudentRow row)
             {
                 var card = new StudentCardWindow(row.StudentId, row.FullName);
-                card.Owner = Application.Current.MainWindow;
+                card.Owner = Window.GetWindow(this); // безопаснее чем Application.Current.MainWindow
                 card.ShowDialog();
                 LoadStudents(); // обновляем фото если изменилось
             }

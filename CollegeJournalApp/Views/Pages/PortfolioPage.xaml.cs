@@ -6,10 +6,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using ClosedXML.Excel;
 using CollegeJournalApp.Database;
 using CollegeJournalApp.Helpers;
 using CollegeJournalApp.Views.Dialogs;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 
 namespace CollegeJournalApp.Views.Pages
 {
@@ -180,6 +182,7 @@ namespace CollegeJournalApp.Views.Pages
             var s = StudentList.SelectedItem as StudentListItem;
             if (s == null) return;
             _selectedStudent = s;
+            BtnExportAchievements.IsEnabled = true;
             ShowPortfolioContent(s);
         }
 
@@ -596,6 +599,116 @@ namespace CollegeJournalApp.Views.Pages
             {
                 MessageBox.Show("Ошибка при удалении: " + ex.Message, "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnExportAchievements_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedStudent == null) return;
+
+            if (_achievements.Count == 0)
+            {
+                MessageBox.Show("У студента нет достижений для экспорта.", "Экспорт",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var safeName = _selectedStudent.FullName.Replace(" ", "_");
+            var dlg = new SaveFileDialog
+            {
+                Title    = "Сохранить достижения студента",
+                Filter   = "Excel (*.xlsx)|*.xlsx",
+                FileName = $"Достижения_{safeName}_{DateTime.Now:yyyy-MM-dd}"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                using (var wb = new XLWorkbook())
+                {
+                    var ws = wb.Worksheets.Add("Достижения");
+
+                    // ── Заголовок документа ────────────────────────────────
+                    ws.Cell(1, 1).Value = $"Достижения студента: {_selectedStudent.FullName}";
+                    ws.Cell(1, 1).Style.Font.Bold     = true;
+                    ws.Cell(1, 1).Style.Font.FontSize = 14;
+                    ws.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#1B2A4A");
+                    ws.Range(1, 1, 1, 6).Merge();
+
+                    ws.Cell(2, 1).Value = $"Группа: {_selectedStudent.GroupName}   •   Экспорт: {DateTime.Now:dd.MM.yyyy}";
+                    ws.Cell(2, 1).Style.Font.FontSize  = 10;
+                    ws.Cell(2, 1).Style.Font.FontColor = XLColor.FromHtml("#8A94A6");
+                    ws.Range(2, 1, 2, 6).Merge();
+
+                    // ── Шапка таблицы ──────────────────────────────────────
+                    string[] headers = { "№", "Название", "Категория", "Уровень", "Дата", "Описание" };
+                    for (int c = 0; c < headers.Length; c++)
+                    {
+                        var cell = ws.Cell(4, c + 1);
+                        cell.Value = headers[c];
+                        cell.Style.Font.Bold            = true;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0078D4");
+                        cell.Style.Font.FontColor       = XLColor.White;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.OutsideBorderColor = XLColor.White;
+                    }
+
+                    // ── Строки данных ──────────────────────────────────────
+                    for (int i = 0; i < _achievements.Count; i++)
+                    {
+                        var ach = _achievements[i];
+                        int row = i + 5;
+                        bool alt = i % 2 == 1;
+                        var bg  = alt ? XLColor.FromHtml("#F0F4FB") : XLColor.White;
+
+                        var values = new object[]
+                        {
+                            i + 1,
+                            ach.Title       ?? "—",
+                            ach.Category    ?? "—",
+                            ach.Level       ?? "—",
+                            ach.AchieveDate.HasValue ? ach.AchieveDate.Value.ToString("dd.MM.yyyy") : "—",
+                            ach.Description ?? "—"
+                        };
+
+                        for (int c = 0; c < values.Length; c++)
+                        {
+                            var cell = ws.Cell(row, c + 1);
+                            cell.Value = values[c]?.ToString() ?? "";
+                            cell.Style.Fill.BackgroundColor     = bg;
+                            cell.Style.Border.OutsideBorder     = XLBorderStyleValues.Thin;
+                            cell.Style.Border.OutsideBorderColor = XLColor.FromHtml("#E3E6EE");
+                            if (c == 0) cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        }
+                    }
+
+                    // ── Итог ──────────────────────────────────────────────
+                    int sumRow = _achievements.Count + 5;
+                    ws.Cell(sumRow, 1).Value = $"Итого достижений: {_achievements.Count}";
+                    ws.Cell(sumRow, 1).Style.Font.Bold      = true;
+                    ws.Cell(sumRow, 1).Style.Font.FontColor = XLColor.FromHtml("#0078D4");
+                    ws.Range(sumRow, 1, sumRow, 6).Merge();
+
+                    // ── Размеры столбцов ───────────────────────────────────
+                    ws.Column(1).Width = 4;
+                    ws.Column(2).AdjustToContents(); ws.Column(2).Width = Math.Min(ws.Column(2).Width, 40);
+                    ws.Column(3).AdjustToContents();
+                    ws.Column(4).AdjustToContents();
+                    ws.Column(5).Width = 14;
+                    ws.Column(6).AdjustToContents(); ws.Column(6).Width = Math.Min(ws.Column(6).Width, 50);
+                    ws.SheetView.FreezeRows(4);
+
+                    wb.SaveAs(dlg.FileName);
+                }
+
+                MessageBox.Show($"Экспортировано {_achievements.Count} достижений.", "Готово",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка экспорта:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

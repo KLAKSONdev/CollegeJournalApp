@@ -5,8 +5,10 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using ClosedXML.Excel;
 using CollegeJournalApp.Database;
 using Microsoft.Data.SqlClient;
+using Microsoft.Win32;
 
 namespace CollegeJournalApp.Views.Pages
 {
@@ -82,6 +84,99 @@ namespace CollegeJournalApp.Views.Pages
 
         private void Filter_Changed(object sender, RoutedEventArgs e) => ApplyFilter();
         private void BtnRefresh_Click(object sender, RoutedEventArgs e) => FetchAndDisplay();
+
+        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        {
+            var rows = (AuditGrid.ItemsSource as List<AuditRow>) ?? new List<AuditRow>();
+            if (rows.Count == 0)
+            {
+                MessageBox.Show("Нет данных для экспорта.", "Экспорт",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dlg = new SaveFileDialog
+            {
+                Title    = "Сохранить журнал аудита",
+                Filter   = "Excel (*.xlsx)|*.xlsx",
+                FileName = $"Журнал_аудита_{DateTime.Now:yyyy-MM-dd}"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                using (var wb = new XLWorkbook())
+                {
+                    var ws = wb.Worksheets.Add("Аудит");
+
+                    // ── Шапка ──────────────────────────────────────────────
+                    string[] headers = { "Дата и время", "Пользователь", "Логин",
+                                         "Роль", "Действие", "Описание", "IP-адрес" };
+                    for (int c = 0; c < headers.Length; c++)
+                    {
+                        var cell = ws.Cell(1, c + 1);
+                        cell.Value          = headers[c];
+                        cell.Style.Font.Bold = true;
+                        cell.Style.Fill.BackgroundColor = XLColor.FromHtml("#0078D4");
+                        cell.Style.Font.FontColor       = XLColor.White;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        cell.Style.Border.OutsideBorderColor = XLColor.White;
+                    }
+
+                    // ── Данные ─────────────────────────────────────────────
+                    for (int i = 0; i < rows.Count; i++)
+                    {
+                        var r   = rows[i];
+                        int row = i + 2;
+                        bool alt = i % 2 == 1;
+
+                        var values = new object[]
+                        {
+                            r.ActionAt, r.UserFullName, r.UserLogin,
+                            r.RoleRu,   r.ActionRu,    r.Description, r.IPAddress
+                        };
+
+                        for (int c = 0; c < values.Length; c++)
+                        {
+                            var cell = ws.Cell(row, c + 1);
+                            cell.Value = values[c]?.ToString() ?? "";
+                            cell.Style.Fill.BackgroundColor =
+                                alt ? XLColor.FromHtml("#F0F4FB") : XLColor.White;
+                            cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            cell.Style.Border.OutsideBorderColor = XLColor.FromHtml("#E3E6EE");
+                        }
+
+                        // Цвет ячейки «Действие» по типу
+                        var actionCell = ws.Cell(row, 5);
+                        switch (r.ActionCode)
+                        {
+                            case "LOGIN":        actionCell.Style.Font.FontColor = XLColor.FromHtml("#107C10"); break;
+                            case "CREATE":       actionCell.Style.Font.FontColor = XLColor.FromHtml("#0063B1"); break;
+                            case "UPDATE":       actionCell.Style.Font.FontColor = XLColor.FromHtml("#7A4F00"); break;
+                            case "SOFT_DELETE":  actionCell.Style.Font.FontColor = XLColor.FromHtml("#A4262C"); break;
+                            case "ACCESS_DENIED":actionCell.Style.Font.FontColor = XLColor.FromHtml("#A4262C"); break;
+                        }
+                        actionCell.Style.Font.Bold = true;
+                    }
+
+                    // ── Оформление ─────────────────────────────────────────
+                    ws.Columns().AdjustToContents();
+                    ws.Column(6).Width = Math.Min(ws.Column(6).Width, 60); // Описание — не шире 60
+                    ws.SheetView.FreezeRows(1);
+
+                    wb.SaveAs(dlg.FileName);
+                }
+
+                MessageBox.Show($"Экспортировано {rows.Count} записей.", "Готово",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка экспорта:\n" + ex.Message,
+                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         private void AuditGrid_DoubleClick(object sender, MouseButtonEventArgs e)
         {

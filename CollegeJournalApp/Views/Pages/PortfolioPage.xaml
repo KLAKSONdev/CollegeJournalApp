@@ -398,6 +398,36 @@
                                                 </ControlTemplate>
                                             </Button.Template>
                                         </Button>
+                                        <Button x:Name="BtnExportAchievements"
+                                                Content="📥  Экспорт"
+                                                Click="BtnExportAchievements_Click"
+                                                Height="32" Padding="14,0"
+                                                Margin="8,0,0,0"
+                                                FontSize="12" Cursor="Hand"
+                                                IsEnabled="False">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="BdrEx" Background="#CCCCCC"
+                                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                        <TextBlock Text="{TemplateBinding Content}"
+                                                                   Foreground="White" FontSize="12"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsEnabled" Value="True">
+                                                            <Setter TargetName="BdrEx" Property="Background" Value="#107C10"/>
+                                                        </Trigger>
+                                                        <MultiTrigger>
+                                                            <MultiTrigger.Conditions>
+                                                                <Condition Property="IsEnabled" Value="True"/>
+                                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter TargetName="BdrEx" Property="Background" Value="#0B5E0B"/>
+                                                        </MultiTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
                                         <TextBlock x:Name="TxtAchievementCount"
                                                    FontSize="11" Foreground="#8A94A6"
                                                    VerticalAlignment="Center"
