@@ -45,7 +45,10 @@ namespace CollegeJournalApp.Views.Dialogs
                         Tag     = Convert.ToInt32(row["UserId"])
                     });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("LoadCurators: " + ex.Message);
+            }
             CmbCurator.SelectedIndex = 0;
         }
 

@@ -205,10 +205,7 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        private void Filter_Changed(object sender, TextChangedEventArgs e)
-        {
-
-        }
+        private void Filter_Changed(object sender, TextChangedEventArgs e) => ApplyFilter();
     }
 
     public class AuditRow

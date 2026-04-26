@@ -104,12 +104,6 @@ namespace CollegeJournalApp.Views
         private void BtnLoginClose_Click(object sender, RoutedEventArgs e)
             => Close();
 
-        private void BtnQuickAdmin_Click(object sender, RoutedEventArgs e)
-        {
-            TxtLogin.Text        = "admin";
-            PwdPassword.Password = "123456";
-            BtnLogin_Click(sender, e);
-        }
 
         private void ShowError(string message)
         {

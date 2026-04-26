@@ -53,7 +53,10 @@ namespace CollegeJournalApp.Views.Dialogs
                         Tag     = Convert.ToInt32(row["GroupId"])
                     });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("LoadGroups: " + ex.Message);
+            }
             CmbGroup.SelectedIndex = 0;
         }
 
