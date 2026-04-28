@@ -135,7 +135,7 @@ namespace CollegeJournalApp.Views.Pages
 
                 var groupName = row["GroupName"]?.ToString() ?? "—";
                 var mw = Application.Current.MainWindow as MainWindow;
-                if (mw != null) mw.TxtGroupName.Text = groupName;
+              
 
                 if (SessionHelper.IsAdmin)
                 {

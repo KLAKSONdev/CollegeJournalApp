@@ -84,7 +84,6 @@ namespace CollegeJournalApp.Views
                 return;
             }
 
-            // Сохраняем сессию
             SessionHelper.UserId    = Convert.ToInt32(row["UserId"]);
             SessionHelper.Login     = row["Login"]?.ToString();
             SessionHelper.LastName  = row["LastName"]?.ToString();
@@ -93,7 +92,7 @@ namespace CollegeJournalApp.Views
             SessionHelper.RoleName  = row["RoleName"]?.ToString();
 
             var mainWindow = new MainWindow();
-            Application.Current.MainWindow = mainWindow; // явно закрепляем MainWindow до Show
+            Application.Current.MainWindow = mainWindow;
             mainWindow.Show();
             this.Close();
         }

@@ -812,6 +812,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Img\Icon.png" />
+    <Resource Include="Img\Icon2.png" />
+    <Resource Include="Img\Icon3.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>

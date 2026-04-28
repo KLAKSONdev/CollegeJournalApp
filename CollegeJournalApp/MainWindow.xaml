@@ -148,7 +148,7 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Width="32" Height="32" Margin="0,0,8,0">
-                        <Image Source="/Img/Icon3.png" Stretch="Uniform"/>
+                        <Image Source="pack://application:,,,/Img/Icon3.png" Stretch="Uniform"/>
                     </Border>
                     <TextBlock Text="EduTrack Pro"
                                Foreground="White" FontSize="20" FontFamily="Arial Black"
@@ -156,11 +156,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="Группа: " Foreground="#C8E6FF" FontSize="12"/>
-                    <TextBlock x:Name="TxtGroupName" Text="—"
-                               Foreground="White" FontSize="12" FontWeight="SemiBold"/>
-                </StackPanel>
+                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,-12,0">
                     <Border Background="#005A9E" Padding="8,2" Margin="0,0,8,0"

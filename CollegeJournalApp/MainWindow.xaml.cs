@@ -45,7 +45,6 @@ namespace CollegeJournalApp
             {
                 TabStudents.Visibility   = Visibility.Collapsed;
                 TabPortfolio.Visibility  = Visibility.Collapsed;
-                // TabGrades доступен преподавателям — видят свои группы и предметы
             }
 
             if (SessionHelper.IsStudent)
@@ -95,7 +94,6 @@ namespace CollegeJournalApp
 
         private void MainFrame_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
-            // Скрываем журнал навигации чтобы не появлялась системная полоса
             if (sender is System.Windows.Controls.Frame frame)
                 while (frame.CanGoBack) frame.RemoveBackEntry();
         }
@@ -105,12 +103,11 @@ namespace CollegeJournalApp
             if (e.Key != Key.F1) return;
             e.Handled = true;
 
-            // Определяем текущую страницу для открытия нужного раздела справки
             var pageName = (MainFrame.Content?.GetType().Name) ?? "";
             new HelpWindow(pageName, this).ShowDialog();
         }
 
-        // ── Управление окном ───────────────────────────────────────────────
+        //Управление окном 
 
         private void BtnMinimize_Click(object sender, RoutedEventArgs e)
             => WindowState = WindowState.Minimized;
@@ -134,7 +131,7 @@ namespace CollegeJournalApp
         private void BtnClose_Click(object sender, RoutedEventArgs e)
             => Close();
 
-        // ── Выход из аккаунта ──────────────────────────────────────────────
+        //Выход из аккаунта
 
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
         {
@@ -163,7 +160,7 @@ namespace CollegeJournalApp
             }
         }
 
-        // ── Уведомления ────────────────────────────────────────────────────
+        //Уведомления
 
         private void LoadNotifications()
         {
@@ -214,7 +211,6 @@ namespace CollegeJournalApp
             BuildNotifList();
             NotifPopup.IsOpen = true;
 
-            // Отмечаем всё как прочитанное при открытии
             MarkAllSeen();
         }
 
@@ -235,11 +231,9 @@ namespace CollegeJournalApp
                 return;
             }
 
-            // Документные уведомления — первыми (оранжевый стиль, высокий приоритет)
             foreach (var dn in _docNotifs)
                 NotifList.Children.Add(BuildDocNotifRow(dn));
 
-            // Затем объявления (последние 15 минус уже показанные документные)
             int annLimit = Math.Max(0, 15 - _docNotifs.Count);
             foreach (var n in _notifs.Take(annLimit))
             {
@@ -263,7 +257,6 @@ namespace CollegeJournalApp
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(6) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Оранжевая точка
             var dot = new Border
             {
                 Width             = 6,
@@ -279,7 +272,6 @@ namespace CollegeJournalApp
             var content = new StackPanel { Margin = new Thickness(8, 0, 0, 0) };
             Grid.SetColumn(content, 1);
 
-            // Заголовок + дата
             var titleRow = new Grid();
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -319,7 +311,6 @@ namespace CollegeJournalApp
             row.Children.Add(content);
             border.Child = row;
 
-            // Клик → страница Документы + помечаем прочитанным
             border.MouseLeftButtonUp += (s, e) =>
             {
                 NotifPopup.IsOpen = false;
@@ -359,7 +350,6 @@ namespace CollegeJournalApp
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(6) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Синяя точка — только для новых
             if (isNew)
             {
                 var dot = new Border
@@ -375,11 +365,9 @@ namespace CollegeJournalApp
                 row.Children.Add(dot);
             }
 
-            // Контент
             var content = new StackPanel { Margin = new Thickness(8, 0, 0, 0) };
             Grid.SetColumn(content, 1);
 
-            // Заголовок + дата
             var titleRow = new Grid();
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -411,7 +399,6 @@ namespace CollegeJournalApp
 
             content.Children.Add(titleRow);
 
-            // Тело — обрезанное
             var snippet = n.Body.Length > 80 ? n.Body.Substring(0, 80) + "…" : n.Body;
             content.Children.Add(new TextBlock
             {
@@ -425,14 +412,12 @@ namespace CollegeJournalApp
             row.Children.Add(content);
             border.Child = row;
 
-            // Клик — переходим на страницу объявлений
             border.MouseLeftButtonUp += (s, e) =>
             {
                 NotifPopup.IsOpen = false;
                 NavigateToAnnouncements();
             };
 
-            // Hover-подсветка
             border.MouseEnter += (s, e) =>
                 border.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
             border.MouseLeave += (s, e) =>
@@ -446,7 +431,6 @@ namespace CollegeJournalApp
         private void BtnMarkAllRead_Click(object sender, RoutedEventArgs e)
         {
             MarkAllSeen();
-            // Помечаем документные уведомления прочитанными
             if (_docNotifs.Count > 0)
             {
                 _docNotifs.Clear();
@@ -467,7 +451,7 @@ namespace CollegeJournalApp
             NavigateToAnnouncements();
         }
 
-        // ── Документные уведомления ────────────────────────────────────────
+        //Документные уведомления
 
         private void LoadDocumentNotifications()
         {
@@ -506,7 +490,6 @@ namespace CollegeJournalApp
 
         private void NavigateToAnnouncements()
         {
-            // Переключаем активную вкладку
             if (_activeTab != null)
                 _activeTab.Style = (Style)FindResource("TabStyle");
             TabAnnouncements.Style = (Style)FindResource("TabActiveStyle");
@@ -526,7 +509,7 @@ namespace CollegeJournalApp
             }
         }
 
-        // ── Хранение «последнего просмотренного» ID в файле ───────────────
+        //Хранение «последнего просмотренного» ID в файле
 
         private static string NotifFilePath(int userId)
         {
@@ -554,8 +537,6 @@ namespace CollegeJournalApp
             try { File.WriteAllText(NotifFilePath(SessionHelper.UserId), id.ToString()); }
             catch { }
         }
-
-        // ── Вспомогательный класс ──────────────────────────────────────────
 
         private class NotifItem
         {

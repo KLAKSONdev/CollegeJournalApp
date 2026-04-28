@@ -167,7 +167,7 @@
                     <Border Width="205" Height="205"
                 HorizontalAlignment="Center"
                 Margin="0,0,0,0">
-                        <Image Source="/Img/Icon.png"
+                        <Image Source="pack://application:,,,/Img/Icon.png"
                    Width="200"
                    Height="200"
                    HorizontalAlignment="Center"
