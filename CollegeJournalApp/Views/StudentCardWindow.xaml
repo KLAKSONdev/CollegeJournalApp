@@ -43,7 +43,7 @@
                         </Border>
                     </Grid>
                     <!-- Кнопки фото — только куратор/админ -->
-                    <Button x:Name="BtnUploadPhoto" Content="📷 Фото"
+                    <Button x:Name="BtnUploadPhoto" Content="Фото"
                             Height="22" Padding="6,0" Margin="0,0,0,4"
                             Background="#0078D4" Foreground="White"
                             BorderThickness="0" FontFamily="Segoe UI"
@@ -242,7 +242,7 @@
                         <ItemsControl x:Name="SocialStatusList">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#FFF4CE" Padding="8,4" Margin="0,0,6,6" HorizontalAlignment="Left">
+                                    <Border Background="#F3F2F1" Padding="8,4" Margin="0,0,6,6" HorizontalAlignment="Left">
                                         <TextBlock Text="{Binding}" FontSize="11" Foreground="#7A4F00"/>
                                     </Border>
                                 </DataTemplate>
@@ -284,7 +284,7 @@
                         <Button x:Name="BtnAddParent" Content="+ Добавить родителя"
                                 HorizontalAlignment="Left"
                                 Height="28" Padding="12,0"
-                                Background="#107C10" Foreground="White"
+                                Background="#005A9E" Foreground="White"
                                 BorderThickness="0" FontFamily="Segoe UI" FontSize="11"
                                 Cursor="Hand" Visibility="Collapsed"
                                 Click="BtnAddParent_Click"/>
@@ -404,7 +404,7 @@
                     <UniformGrid Columns="4" Margin="0,0,0,16">
                         <Border Background="#F3F2F1" Padding="12,10" Margin="0,0,8,0">
                             <StackPanel>
-                                <TextBlock x:Name="TxtPresent" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#107C10"/>
+                                <TextBlock x:Name="TxtPresent" Text="—" FontSize="20" FontWeight="SemiBold" Foreground="#0078D4"/>
                                 <TextBlock Text="Присутствовал" FontSize="10" Foreground="#605E5C" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
@@ -477,7 +477,7 @@
                                             <TextBlock Text="{Binding Title}" FontSize="12"
                                                        FontWeight="SemiBold" Foreground="#1F1F1F" TextWrapping="Wrap"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                <Border Background="#EFF6FC" Padding="6,2" Margin="0,0,6,0">
+                                                <Border Background="#F3F2F1" Padding="6,2" Margin="0,0,6,0">
                                                     <TextBlock Text="{Binding Category}" FontSize="10" Foreground="#0078D4"/>
                                                 </Border>
                                                 <Border Background="#F3F2F1" Padding="6,2">
@@ -506,11 +506,11 @@
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
                         <Button x:Name="BtnAddDocument" Content="+ Добавить документ"
                                 Height="28" Padding="12,0" Margin="0,0,8,0"
-                                Background="#107C10" Foreground="White"
+                                Background="#005A9E" Foreground="White"
                                 BorderThickness="0" FontFamily="Segoe UI" FontSize="11"
                                 Cursor="Hand" Visibility="Collapsed"
                                 Click="BtnAddDocument_Click"/>
-                        <Button x:Name="BtnOpenDocument" Content="📂 Открыть файл"
+                        <Button x:Name="BtnOpenDocument" Content="Открыть файл"
                                 Height="28" Padding="12,0" Margin="0,0,8,0"
                                 Background="#0078D4" Foreground="White"
                                 BorderThickness="0" FontFamily="Segoe UI" FontSize="11"

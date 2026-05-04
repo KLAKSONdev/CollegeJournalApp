@@ -110,7 +110,7 @@
                     <ControlTemplate TargetType="TabItem">
                         <Border x:Name="Bd"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
+                                CornerRadius="0"
                                 BorderThickness="0"
                                 Padding="12,8">
                             <ContentPresenter ContentSource="Header"
@@ -164,12 +164,6 @@
                                             BorderBrush="#F0F0F0" BorderThickness="0,0,0,1"
                                             Padding="16,14">
                                         <StackPanel Orientation="Horizontal">
-                                            <Border Width="28" Height="28" Background="#0078D4"
-                                                    CornerRadius="6" Margin="0,0,10,0">
-                                                <TextBlock Text="⚙" FontSize="14" Foreground="White"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBlock Text="Управление"
                                                            FontSize="13" FontWeight="SemiBold"
@@ -235,10 +229,9 @@
                                FontSize="18" FontWeight="SemiBold" Foreground="#1F1F1F"/>
                 </StackPanel>
                 <Border Grid.Column="1"
-                        Background="#FFF4CE" BorderBrush="#F0D080"
-                        BorderThickness="1" Padding="10,4" CornerRadius="4">
+                        Background="#F3F2F1" BorderBrush="#F0D080"
+                        BorderThickness="1" Padding="10,4" CornerRadius="0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⚠" Foreground="#8A6800" FontSize="11" Margin="0,0,6,0"/>
                         <TextBlock Text="Только для администратора"
                                    FontSize="11" Foreground="#8A6800" FontWeight="SemiBold"/>
                     </StackPanel>
@@ -256,7 +249,6 @@
             <TabItem Style="{StaticResource NavItem}" x:Name="TabStudents">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="👤" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Студенты" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -299,7 +291,7 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditStudent_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteStudent_Click"/>
                             <Rectangle Width="1" Fill="#E0E0E0" Margin="12,4"/>
@@ -317,7 +309,7 @@
                                                         <Setter.Value>
                                                             <VisualBrush Stretch="None" AlignmentX="Left">
                                                                 <VisualBrush.Visual>
-                                                                    <TextBlock Text="🔍  Поиск по ФИО..."
+                                                                    <TextBlock Text="Поиск по ФИО..."
                                                                                Foreground="#A19F9D"
                                                                                FontFamily="Segoe UI"
                                                                                FontSize="12"
@@ -372,7 +364,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📚" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Группы" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -411,10 +402,10 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditGroup_Click"/>
-                            <Button Content="👤  Назначить куратора"
+                            <Button Content="Назначить куратора"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnAssignCurator_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteGroup_Click"/>
                         </StackPanel>
@@ -450,7 +441,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔑" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Пользователи" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -522,7 +512,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🎓" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Преподаватели" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -561,7 +550,7 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditTeacher_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteTeacher_Click"/>
                         </StackPanel>
@@ -591,7 +580,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📖" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Дисциплины" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -630,7 +618,7 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditSubject_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteSubject_Click"/>
                         </StackPanel>
@@ -663,7 +651,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="📅" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Учебные годы" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -702,7 +689,7 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditYear_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteYear_Click"/>
                         </StackPanel>
@@ -733,7 +720,6 @@
             <TabItem Style="{StaticResource NavItem}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🏠" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center"/>
                         <TextBlock Text="Общежития" VerticalAlignment="Center"/>
                     </StackPanel>
                 </TabItem.Header>
@@ -772,7 +758,7 @@
                             <Button Content="✎  Редактировать"
                                     Style="{StaticResource SecondaryBtn}"
                                     Margin="0,0,8,0" Click="BtnEditDorm_Click"/>
-                            <Button Content="✕  Удалить"
+                            <Button Content="Удалить"
                                     Style="{StaticResource DangerBtn}"
                                     Click="BtnDeleteDorm_Click"/>
                         </StackPanel>

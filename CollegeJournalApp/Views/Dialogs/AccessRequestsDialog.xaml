@@ -21,12 +21,6 @@
                 BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
                 Padding="22,16">
             <StackPanel Orientation="Horizontal">
-                <Border Width="36" Height="36" CornerRadius="8"
-                        Background="#FFF4CE" Margin="0,0,12,0">
-                    <TextBlock Text="⏳" FontSize="16"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Запросы на доступ к документам"
                                FontSize="15" FontWeight="SemiBold"
@@ -55,7 +49,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bdr" Background="#F0F4FB"
-                                CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                CornerRadius="0" Padding="{TemplateBinding Padding}">
                             <TextBlock Text="{TemplateBinding Content}"
                                        Foreground="#3D4A60" FontSize="12"
                                        HorizontalAlignment="Center"

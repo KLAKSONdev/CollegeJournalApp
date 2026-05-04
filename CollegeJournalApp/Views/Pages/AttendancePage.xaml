@@ -50,7 +50,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="7"
+                                CornerRadius="0"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -112,7 +112,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button x:Name="BtnToggleCharts"
-                                Content="📊  Графики"
+                                Content="Графики"
                                 Height="36" Padding="14,0" Margin="0,0,8,0"
                                 Background="White" BorderBrush="#CED4DA" Foreground="#495057"
                                 FontSize="12" FontWeight="SemiBold"
@@ -136,7 +136,7 @@
 
             <!-- Присутствовал -->
             <Border x:Name="CardPresent" Margin="0,0,8,0"
-                    Background="White" BorderThickness="0" CornerRadius="10"
+                    Background="White" BorderThickness="0" CornerRadius="0"
                     Cursor="Hand" MouseLeftButtonUp="CardPresent_Click">
                 <Border.Effect>
                     <DropShadowEffect Color="#1A2B4A" Opacity="0.1" BlurRadius="10" ShadowDepth="3" Direction="270"/>
@@ -146,7 +146,7 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="#107C10" CornerRadius="10 0 0 10"/>
+                    <Border Grid.Column="0" Background="#005A9E" CornerRadius="10 0 0 10"/>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -154,13 +154,13 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="14,12,14,10">
                             <TextBlock x:Name="StatPresent" Text="—" FontSize="28"
-                                       FontWeight="Bold" Foreground="#107C10"/>
+                                       FontWeight="Bold" Foreground="#0078D4"/>
                             <TextBlock Text="Присутствовал" FontSize="10"
                                        Foreground="#6C757D" Margin="0,3,0,0"/>
                         </StackPanel>
                         <Grid Grid.Row="1" x:Name="BarPresent" Background="#DEE2E6">
                             <Border x:Name="BarPresentFill" HorizontalAlignment="Left"
-                                    Background="#107C10" Width="0"/>
+                                    Background="#005A9E" Width="0"/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -168,7 +168,7 @@
 
             <!-- Отсутствовал -->
             <Border x:Name="CardAbsent" Margin="0,0,8,0"
-                    Background="White" BorderThickness="0" CornerRadius="10"
+                    Background="White" BorderThickness="0" CornerRadius="0"
                     Cursor="Hand" MouseLeftButtonUp="CardAbsent_Click">
                 <Border.Effect>
                     <DropShadowEffect Color="#1A2B4A" Opacity="0.1" BlurRadius="10" ShadowDepth="3" Direction="270"/>
@@ -178,7 +178,7 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="#D13438" CornerRadius="10 0 0 10"/>
+                    <Border Grid.Column="0" Background="#005A9E" CornerRadius="10 0 0 10"/>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -192,7 +192,7 @@
                         </StackPanel>
                         <Grid Grid.Row="1" x:Name="BarAbsent" Background="#DEE2E6">
                             <Border x:Name="BarAbsentFill" HorizontalAlignment="Left"
-                                    Background="#D13438" Width="0"/>
+                                    Background="#005A9E" Width="0"/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -200,7 +200,7 @@
 
             <!-- Опоздал -->
             <Border x:Name="CardLate" Margin="0,0,8,0"
-                    Background="White" BorderThickness="0" CornerRadius="10"
+                    Background="White" BorderThickness="0" CornerRadius="0"
                     Cursor="Hand" MouseLeftButtonUp="CardLate_Click">
                 <Border.Effect>
                     <DropShadowEffect Color="#1A2B4A" Opacity="0.1" BlurRadius="10" ShadowDepth="3" Direction="270"/>
@@ -210,7 +210,7 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="#CA5010" CornerRadius="10 0 0 10"/>
+                    <Border Grid.Column="0" Background="#005A9E" CornerRadius="10 0 0 10"/>
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
@@ -224,7 +224,7 @@
                         </StackPanel>
                         <Grid Grid.Row="1" x:Name="BarLate" Background="#DEE2E6">
                             <Border x:Name="BarLateFill" HorizontalAlignment="Left"
-                                    Background="#CA5010" Width="0"/>
+                                    Background="#005A9E" Width="0"/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -232,7 +232,7 @@
 
             <!-- Уважительная причина -->
             <Border x:Name="CardExcused" Margin="0,0,8,0"
-                    Background="White" BorderThickness="0" CornerRadius="10"
+                    Background="White" BorderThickness="0" CornerRadius="0"
                     Cursor="Hand" MouseLeftButtonUp="CardExcused_Click">
                 <Border.Effect>
                     <DropShadowEffect Color="#1A2B4A" Opacity="0.1" BlurRadius="10" ShadowDepth="3" Direction="270"/>
@@ -263,7 +263,7 @@
             </Border>
 
             <!-- % Посещаемости (не кликабельна) -->
-            <Border Background="White" BorderThickness="0" CornerRadius="10">
+            <Border Background="White" BorderThickness="0" CornerRadius="0">
                 <Border.Effect>
                     <DropShadowEffect Color="#1A2B4A" Opacity="0.1" BlurRadius="10" ShadowDepth="3" Direction="270"/>
                 </Border.Effect>
@@ -296,7 +296,7 @@
 
         <!-- ══════════════════ ГРАФИКИ ══════════════════ -->
         <Border x:Name="PanelCharts" Grid.Row="2" Margin="16,10,16,0"
-                Background="White" BorderThickness="0" CornerRadius="10"
+                Background="White" BorderThickness="0" CornerRadius="0"
                 Visibility="Collapsed">
             <Border.Effect>
                 <DropShadowEffect Color="#1A2B4A" Opacity="0.08"
@@ -348,7 +348,7 @@
 
         <!-- ══════════════════ ФИЛЬТРЫ ══════════════════ -->
         <Border x:Name="PanelFilters" Grid.Row="3"
-                Background="White" BorderThickness="0" CornerRadius="10"
+                Background="White" BorderThickness="0" CornerRadius="0"
                 Margin="16,12,16,0" Padding="16,10">
             <Border.Effect>
                 <DropShadowEffect Color="#1A2B4A" Opacity="0.08"
@@ -356,7 +356,7 @@
             </Border.Effect>
             <WrapPanel>
                 <!-- Поиск -->
-                <Border BorderBrush="#CED4DA" BorderThickness="1" CornerRadius="6"
+                <Border BorderBrush="#CED4DA" BorderThickness="1" CornerRadius="0"
                         Width="190" Height="30" Margin="0,0,6,4">
                     <TextBox x:Name="TxtSearch" BorderThickness="0" Padding="10,6"
                              FontSize="12" Background="Transparent"
@@ -369,7 +369,7 @@
                                             <Setter.Value>
                                                 <VisualBrush Stretch="None" AlignmentX="Left">
                                                     <VisualBrush.Visual>
-                                                        <TextBlock Text="🔍  Поиск по студенту..."
+                                                        <TextBlock Text="Поиск по студенту..."
                                                                    Foreground="#ADB5BD"
                                                                    FontFamily="Segoe UI"
                                                                    FontSize="11" Margin="10,6,0,0"/>
@@ -405,7 +405,7 @@
                         FontSize="12"
                         Style="{StaticResource RoundOutlineBtn}"
                         Click="BtnReset_Click"/>
-                <Button Content="📥  Экспорт" Height="30" Padding="14,0" Margin="0,0,0,4"
+                <Button Content="Экспорт" Height="30" Padding="14,0" Margin="0,0,0,4"
                         Background="#198754" Foreground="White"
                         FontSize="12"
                         Style="{StaticResource RoundBtn}"
@@ -415,7 +415,7 @@
 
         <!-- ══════════════════ ТАБЛИЦА ══════════════════ -->
         <Border x:Name="PanelGrid" Grid.Row="4" Margin="16,10,16,16"
-                Background="White" BorderThickness="0" CornerRadius="10">
+                Background="White" BorderThickness="0" CornerRadius="0">
             <Border.Effect>
                 <DropShadowEffect Color="#1A2B4A" Opacity="0.1"
                                   BlurRadius="14" ShadowDepth="3" Direction="270"/>
@@ -446,7 +446,7 @@
                         <!-- Счётчик -->
                         <StackPanel Grid.Column="0" Orientation="Horizontal"
                                     VerticalAlignment="Center" Margin="0,0,16,0">
-                            <Border Background="#0078D4" CornerRadius="10"
+                            <Border Background="#0078D4" CornerRadius="0"
                                     Padding="8,2" Margin="0,0,8,0">
                                 <TextBlock x:Name="TxtSelectedCount" FontSize="11"
                                            FontWeight="Bold" Foreground="White"/>
@@ -456,7 +456,7 @@
                         </StackPanel>
 
                         <!-- Метка -->
-                        <TextBlock Grid.Column="1" Text="→  новый статус:"
+                        <TextBlock Grid.Column="1" Text="Новый статус:"
                                    FontSize="12" Foreground="#495057"
                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
 
@@ -472,7 +472,7 @@
                         <!-- Причина с плейсхолдером -->
                         <Grid Grid.Column="3" Margin="8,0" Width="210" Height="28">
                             <Border BorderBrush="#BDD9EF" BorderThickness="1"
-                                    CornerRadius="5" Background="White">
+                                    CornerRadius="0" Background="White">
                                 <TextBox x:Name="TxtBulkReason" BorderThickness="0"
                                          Padding="8,4" FontSize="12" Background="Transparent"
                                          VerticalContentAlignment="Center"/>
@@ -495,7 +495,7 @@
 
                         <!-- Применить -->
                         <Button x:Name="BtnApplyBulk" Grid.Column="4"
-                                Content="✓  Применить"
+                                Content="Применить"
                                 Height="28" Padding="14,0" Margin="0,0,8,0"
                                 HorizontalAlignment="Left"
                                 Background="#0078D4" Foreground="White"
@@ -506,9 +506,9 @@
 
                         <!-- Удалить выбранные (только Admin) -->
                         <Button x:Name="BtnDeleteBulk" Grid.Column="5"
-                                Content="🗑  Удалить выбранные"
+                                Content="Удалить выбранные"
                                 Height="28" Padding="12,0" Margin="0,0,8,0"
-                                Background="#D13438" Foreground="White"
+                                Background="#005A9E" Foreground="White"
                                 FontSize="12" FontWeight="SemiBold"
                                 BorderThickness="0" Cursor="Hand"
                                 Visibility="Collapsed"
@@ -517,7 +517,7 @@
 
                         <!-- Снять выделение -->
                         <Button Grid.Column="6"
-                                Content="✕  Снять"
+                                Content="Снять"
                                 Height="28" Padding="10,0"
                                 Background="Transparent" Foreground="#495057"
                                 FontSize="12" BorderBrush="#BDD9EF" BorderThickness="1"
@@ -570,11 +570,11 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Tag="{Binding AttendanceId}" Content="✏️"
+                                        <Button Tag="{Binding AttendanceId}" Content="✎"
                                                 ToolTip="Редактировать"
                                                 Style="{StaticResource ActBtn}"
                                                 Click="BtnEdit_Click"/>
-                                        <Button Tag="{Binding AttendanceId}" Content="🗑️"
+                                        <Button Tag="{Binding AttendanceId}" Content="Удалить"
                                                 ToolTip="Удалить"
                                                 Style="{StaticResource ActBtn}" Margin="2,0,0,0"
                                                 Click="BtnDelete_Click"/>
@@ -621,7 +621,7 @@
             <StackPanel>
 
                 <!-- Карточка приветствия -->
-                <Border Background="White" BorderThickness="0" CornerRadius="10"
+                <Border Background="White" BorderThickness="0" CornerRadius="0"
                         Margin="0,0,0,10">
                     <Border.Effect>
                         <DropShadowEffect Color="#1A2B4A" Opacity="0.08" BlurRadius="10" ShadowDepth="2" Direction="270"/>
@@ -642,7 +642,7 @@
                 </Border>
 
                 <!-- Карточка по дисциплинам -->
-                <Border Background="White" BorderThickness="0" CornerRadius="10"
+                <Border Background="White" BorderThickness="0" CornerRadius="0"
                         Padding="20,16" Margin="0,0,0,10">
                     <Border.Effect>
                         <DropShadowEffect Color="#1A2B4A" Opacity="0.08" BlurRadius="10" ShadowDepth="2" Direction="270"/>
@@ -655,7 +655,7 @@
                 </Border>
 
                 <!-- История посещений -->
-                <Border Background="White" BorderThickness="0" CornerRadius="10" Margin="0,0,0,4">
+                <Border Background="White" BorderThickness="0" CornerRadius="0" Margin="0,0,0,4">
                     <Border.Effect>
                         <DropShadowEffect Color="#1A2B4A" Opacity="0.08" BlurRadius="10" ShadowDepth="2" Direction="270"/>
                     </Border.Effect>

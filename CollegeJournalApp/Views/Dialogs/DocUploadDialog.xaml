@@ -20,12 +20,6 @@
                 BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
                 Padding="22,14">
             <StackPanel Orientation="Horizontal">
-                <Border Width="34" Height="34" CornerRadius="8"
-                        Background="#EFF6FC" Margin="0,0,12,0">
-                    <TextBlock Text="📄" FontSize="15"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Сведения о документе"
                                FontSize="14" FontWeight="SemiBold"
@@ -41,7 +35,7 @@
 
             <TextBlock Text="Название *" FontSize="11" FontWeight="SemiBold"
                        Foreground="#5A667A" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                     Background="White" Margin="0,0,0,14">
                 <TextBox x:Name="TxtTitle" BorderThickness="0"
                          Padding="10,8" FontSize="13" Background="Transparent"/>
@@ -49,7 +43,7 @@
 
             <TextBlock Text="Тип документа" FontSize="11" FontWeight="SemiBold"
                        Foreground="#5A667A" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                     Background="White" Margin="0,0,0,14">
                 <ComboBox x:Name="CmbDocType" BorderThickness="0"
                           Background="Transparent" Padding="8,6" FontSize="12">
@@ -66,7 +60,7 @@
 
             <TextBlock Text="Описание" FontSize="11" FontWeight="SemiBold"
                        Foreground="#5A667A" Margin="0,0,0,5"/>
-            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+            <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                     Background="White">
                 <TextBox x:Name="TxtDescription" BorderThickness="0"
                          Padding="10,8" FontSize="12" Background="Transparent"
@@ -86,7 +80,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="#F0F4FB"
-                                    CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -103,7 +97,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="#0078D4"
-                                    CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <TextBlock Text="{TemplateBinding Content}"
                                            Foreground="White" FontSize="12"
                                            HorizontalAlignment="Center"

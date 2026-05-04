@@ -178,7 +178,7 @@
                             <TextBlock Text="🔔" FontSize="13"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
-                        <Border x:Name="NotifBadge" Background="#E81123" CornerRadius="6"
+                        <Border x:Name="NotifBadge" Background="#E81123" CornerRadius="0"
                                 MinWidth="14" Height="14"
                                 HorizontalAlignment="Right" VerticalAlignment="Top"
                                 Margin="0,0,-4,0" Padding="3,0"
@@ -228,9 +228,9 @@
                 <Button x:Name="TabDocuments"    Content="Документы"      Style="{StaticResource TabStyle}"       Tag="Documents"     Click="NavButton_Click"/>
                 <Button x:Name="TabPortfolio"    Content="Портфолио"      Style="{StaticResource TabStyle}"       Tag="Portfolio"     Click="NavButton_Click"/>
                 <Button x:Name="TabAudit"        Content="Журнал аудита"  Style="{StaticResource TabStyle}"       Tag="Audit"         Visibility="Collapsed" Click="NavButton_Click"/>
-                <Button x:Name="TabRestore"      Content="🗑️ Корзина"     Style="{StaticResource TabStyle}"       Tag="Restore"       Visibility="Collapsed" Click="NavButton_Click"/>
+                <Button x:Name="TabRestore"      Content="Корзина"     Style="{StaticResource TabStyle}"       Tag="Restore"       Visibility="Collapsed" Click="NavButton_Click"/>
                 <Button x:Name="TabUsers"        Content="Пользователи"   Style="{StaticResource TabStyle}"       Tag="Users"         Visibility="Collapsed" Click="NavButton_Click"/>
-                <Button x:Name="TabAdmin"        Content="&#9881; Управление"  Style="{StaticResource TabStyle}"       Tag="Admin"         Visibility="Collapsed" Click="NavButton_Click"/>
+                <Button x:Name="TabAdmin"        Content="Управление"  Style="{StaticResource TabStyle}"       Tag="Admin"         Visibility="Collapsed" Click="NavButton_Click"/>
             </DockPanel>
         </Border>
 
@@ -249,7 +249,7 @@
                StaysOpen="False"
                AllowsTransparency="True"
                PopupAnimation="Fade">
-            <Border Background="White" CornerRadius="10" Width="370"
+            <Border Background="White" CornerRadius="0" Width="370"
                     BorderBrush="#D8DCE0" BorderThickness="1"
                     Margin="0,6,0,0">
                 <Border.Effect>

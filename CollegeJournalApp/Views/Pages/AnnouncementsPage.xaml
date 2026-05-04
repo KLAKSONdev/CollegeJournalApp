@@ -14,7 +14,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="7"
+                                CornerRadius="0"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -77,13 +77,13 @@
         </Border>
 
         <!-- ══════════ ПОИСК ══════════ -->
-        <Border Grid.Row="1" Background="White" CornerRadius="10"
+        <Border Grid.Row="1" Background="White" CornerRadius="0"
                 Margin="16,12,16,0" Padding="14,10">
             <Border.Effect>
                 <DropShadowEffect Color="#1A2B4A" Opacity="0.07"
                                   BlurRadius="8" ShadowDepth="2" Direction="270"/>
             </Border.Effect>
-            <Border BorderBrush="#CED4DA" BorderThickness="1" CornerRadius="6"
+            <Border BorderBrush="#CED4DA" BorderThickness="1" CornerRadius="0"
                     Width="260" HorizontalAlignment="Left" Height="30">
                 <TextBox x:Name="TxtSearch" BorderThickness="0" Padding="10,6"
                          FontSize="12" Background="Transparent"
@@ -96,7 +96,7 @@
                                         <Setter.Value>
                                             <VisualBrush Stretch="None" AlignmentX="Left">
                                                 <VisualBrush.Visual>
-                                                    <TextBlock Text="🔍  Поиск по объявлениям..."
+                                                    <TextBlock Text="Поиск по объявлениям..."
                                                                Foreground="#ADB5BD"
                                                                FontFamily="Segoe UI"
                                                                FontSize="11" Margin="10,6,0,0"/>

@@ -25,12 +25,6 @@
 
                 <!-- Иконка + заголовок -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="36" Height="36" CornerRadius="8"
-                            Background="#EFF6FC" Margin="0,0,12,0">
-                        <TextBlock Text="📋" FontSize="16"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Журнал действий в системе"
                                    FontSize="17" FontWeight="SemiBold"
@@ -57,48 +51,39 @@
 
                 <!-- Поиск с иконкой -->
                 <Border BorderBrush="#D0D8E8" BorderThickness="1"
-                        CornerRadius="6" Background="White"
+                        CornerRadius="0" Background="White"
                         Width="240" Height="32" Margin="0,0,10,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🔍"
-                                   FontSize="12" Foreground="#8A94A6"
-                                   VerticalAlignment="Center" Margin="10,0,6,0"/>
-                        <TextBox x:Name="TxtSearch" Grid.Column="1"
-                                 BorderThickness="0" Padding="0,6,8,6"
-                                 FontSize="12" Background="Transparent"
-                                 VerticalAlignment="Center"
-                                 TextChanged="Filter_Changed">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <Trigger Property="Text" Value="">
-                                            <Setter Property="Background">
-                                                <Setter.Value>
-                                                    <VisualBrush Stretch="None" AlignmentX="Left">
-                                                        <VisualBrush.Visual>
-                                                            <TextBlock Text="Поиск по пользователю…"
-                                                                       Foreground="#B0B8C8" FontSize="12"
-                                                                       FontFamily="Segoe UI"
-                                                                       Margin="0,6,0,0"/>
-                                                        </VisualBrush.Visual>
-                                                    </VisualBrush>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                    </Grid>
+                    <TextBox x:Name="TxtSearch"
+                             BorderThickness="0" Padding="8,6,8,6"
+                             FontSize="12" Background="Transparent"
+                             VerticalAlignment="Center"
+                             TextChanged="Filter_Changed">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <VisualBrush Stretch="None" AlignmentX="Left">
+                                                    <VisualBrush.Visual>
+                                                        <TextBlock Text="Поиск по пользователю…"
+                                                                   Foreground="#B0B8C8" FontSize="12"
+                                                                   FontFamily="Segoe UI"
+                                                                   Margin="0,6,0,0"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
                 </Border>
 
                 <!-- Фильтр действий -->
                 <Border BorderBrush="#D0D8E8" BorderThickness="1"
-                        CornerRadius="6" Height="32" Margin="0,0,10,0">
+                        CornerRadius="0" Height="32" Margin="0,0,10,0">
                     <ComboBox x:Name="CmbAction" Width="170"
                               BorderThickness="0" Background="Transparent"
                               FontSize="12" Padding="8,0"
@@ -115,7 +100,7 @@
                 </Border>
 
                 <!-- Кнопка Обновить -->
-                <Button Content="⟳  Обновить" Click="BtnRefresh_Click"
+                <Button Content="Обновить" Click="BtnRefresh_Click"
                         Height="32" Padding="14,0"
                         Background="#0078D4" Foreground="White"
                         BorderThickness="0"
@@ -123,7 +108,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="{TemplateBinding Background}"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -140,15 +125,15 @@
                 </Button>
 
                 <!-- Кнопка Экспорт -->
-                <Button Content="📥  Экспорт" Click="BtnExport_Click"
+                <Button Content="Экспорт" Click="BtnExport_Click"
                         Height="32" Padding="14,0" Margin="8,0,0,0"
-                        Background="#107C10" Foreground="White"
+                        Background="#005A9E" Foreground="White"
                         BorderThickness="0"
                         FontFamily="Segoe UI" FontSize="12" Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="BdrEx" Background="{TemplateBinding Background}"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -169,7 +154,7 @@
 
         <!-- ══ Таблица ══ -->
         <Border Grid.Row="2" Margin="20,16,20,16"
-                Background="White" CornerRadius="10"
+                Background="White" CornerRadius="0"
                 BorderBrush="#E3E6EE" BorderThickness="1">
             <Border.Effect>
                 <DropShadowEffect Color="#C0CADE" BlurRadius="12"
@@ -277,7 +262,7 @@
                             <DataTemplate>
                                 <Border Margin="14,0" HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
-                                        CornerRadius="4" Padding="9,3">
+                                        CornerRadius="0" Padding="9,3">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="#F0F4FB"/>

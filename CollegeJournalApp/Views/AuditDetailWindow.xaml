@@ -28,7 +28,7 @@
 
                 <!-- Иконка действия -->
                 <Border Grid.Column="0" x:Name="BdrIcon"
-                        Width="44" Height="44" CornerRadius="10"
+                        Width="44" Height="44" CornerRadius="0"
                         Background="#0078D4" Margin="0,0,16,0">
                     <Border.Effect>
                         <DropShadowEffect Color="#0078D4" BlurRadius="10"
@@ -58,7 +58,7 @@
             <StackPanel>
 
                 <!-- ─ Карточка пользователя ─ -->
-                <Border Background="White" CornerRadius="10"
+                <Border Background="White" CornerRadius="0"
                         BorderBrush="#E3E6EE" BorderThickness="1"
                         Padding="18,16" Margin="0,0,0,12">
                     <Border.Effect>
@@ -73,7 +73,7 @@
 
                         <!-- Аватар -->
                         <Border Grid.Column="0" Width="42" Height="42"
-                                CornerRadius="21" Background="#EFF6FC"
+                                CornerRadius="0" Background="#F3F2F1"
                                 Margin="0,0,16,0">
                             <TextBlock x:Name="TxtAvatar" FontSize="16"
                                        FontWeight="Bold" Foreground="#0078D4"
@@ -86,8 +86,8 @@
                                        FontSize="14" FontWeight="SemiBold"
                                        Foreground="#1B2A4A"/>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <Border x:Name="BdrRole" Background="#EFF6FC"
-                                        CornerRadius="4" Padding="8,2" Margin="0,0,10,0">
+                                <Border x:Name="BdrRole" Background="#F3F2F1"
+                                        CornerRadius="0" Padding="8,2" Margin="0,0,10,0">
                                     <TextBlock x:Name="TxtRole" FontSize="10.5"
                                                FontWeight="SemiBold" Foreground="#0063B1"/>
                                 </Border>
@@ -100,7 +100,7 @@
                 </Border>
 
                 <!-- ─ Детали действия ─ -->
-                <Border Background="White" CornerRadius="10"
+                <Border Background="White" CornerRadius="0"
                         BorderBrush="#E3E6EE" BorderThickness="1"
                         Padding="18,16" Margin="0,0,0,12">
                     <Border.Effect>
@@ -177,7 +177,7 @@
 
                 <!-- ─ Блок изменений ─ -->
                 <Border x:Name="BdrChanges" Visibility="Collapsed"
-                        Background="White" CornerRadius="10"
+                        Background="White" CornerRadius="0"
                         BorderBrush="#E3E6EE" BorderThickness="1"
                         Padding="18,16" Margin="0,0,0,12">
                     <Border.Effect>
@@ -199,13 +199,13 @@
                             <!-- Было -->
                             <StackPanel Grid.Column="0">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Border Width="6" Height="6" CornerRadius="3"
-                                            Background="#CA5010" Margin="0,0,6,0"
+                                    <Border Width="6" Height="6" CornerRadius="0"
+                                            Background="#005A9E" Margin="0,0,6,0"
                                             VerticalAlignment="Center"/>
                                     <TextBlock Text="Было" FontSize="11"
                                                FontWeight="SemiBold" Foreground="#7A4F00"/>
                                 </StackPanel>
-                                <Border Background="#FFF8EC" CornerRadius="7"
+                                <Border Background="#F3F2F1" CornerRadius="0"
                                         BorderBrush="#F3D492" BorderThickness="1"
                                         Padding="12,10" MinHeight="48">
                                     <TextBlock x:Name="TxtOld" FontSize="11.5"
@@ -224,13 +224,13 @@
                             <!-- Стало -->
                             <StackPanel Grid.Column="2">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Border Width="6" Height="6" CornerRadius="3"
-                                            Background="#107C10" Margin="0,0,6,0"
+                                    <Border Width="6" Height="6" CornerRadius="0"
+                                            Background="#005A9E" Margin="0,0,6,0"
                                             VerticalAlignment="Center"/>
                                     <TextBlock Text="Стало" FontSize="11"
                                                FontWeight="SemiBold" Foreground="#0B5A0B"/>
                                 </StackPanel>
-                                <Border Background="#F0FBF0" CornerRadius="7"
+                                <Border Background="#F3F2F1" CornerRadius="0"
                                         BorderBrush="#9FCEA9" BorderThickness="1"
                                         Padding="12,10" MinHeight="48">
                                     <TextBlock x:Name="TxtNew" FontSize="11.5"
@@ -260,7 +260,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bdr" Background="#0078D4"
-                                CornerRadius="7"
+                                CornerRadius="0"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>

@@ -101,7 +101,7 @@
 
                 <Button x:Name="BtnExport" Content="&#x1F4E5; Экспорт в Excel"
                         Height="30" Padding="14,0"
-                        Background="#107C10" Foreground="White"
+                        Background="#005A9E" Foreground="White"
                         BorderThickness="0"
                         FontFamily="Segoe UI" FontSize="12"
                         Cursor="Hand" Click="BtnExport_Click"/>
@@ -132,7 +132,7 @@
                             <Setter.Value>
                                 <ToolTip Placement="Right" HorizontalOffset="8">
                                     <Border Background="White" BorderBrush="#E0E0E0"
-                                            BorderThickness="1" CornerRadius="4"
+                                            BorderThickness="1" CornerRadius="0"
                                             Padding="12" MinWidth="160">
                                         <StackPanel>
                                             <!-- Фото или инициалы -->

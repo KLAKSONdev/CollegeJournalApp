@@ -16,12 +16,6 @@
                 BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
                 Padding="24,14,24,14">
             <StackPanel Orientation="Horizontal">
-                <Border Width="36" Height="36" CornerRadius="8"
-                        Background="#EFF6FC" Margin="0,0,12,0">
-                    <TextBlock Text="🎓" FontSize="16"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Портфолио студентов"
                                FontSize="17" FontWeight="SemiBold"
@@ -55,7 +49,7 @@
                     <Border Grid.Row="0" Padding="12,10,12,6"
                             BorderBrush="#EEF1F7" BorderThickness="0,0,0,1">
                         <Border BorderBrush="#D0D8E8" BorderThickness="1"
-                                CornerRadius="6" Background="White">
+                                CornerRadius="0" Background="White">
                             <ComboBox x:Name="CmbGroup"
                                       BorderThickness="0" Background="Transparent"
                                       FontSize="12" Padding="8,6"
@@ -66,18 +60,10 @@
                     <!-- Поиск по студентам -->
                     <Border Grid.Row="1" Padding="12,6,12,8">
                         <Border BorderBrush="#D0D8E8" BorderThickness="1"
-                                CornerRadius="6" Background="White">
+                                CornerRadius="0" Background="White">
                             <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="🔍"
-                                           FontSize="11" Foreground="#8A94A6"
-                                           VerticalAlignment="Center" Margin="8,0,5,0"/>
                                 <TextBox x:Name="TxtStudentSearch"
-                                         Grid.Column="1"
-                                         BorderThickness="0" Padding="0,7,8,7"
+                                         BorderThickness="0" Padding="8,7,8,7"
                                          FontSize="12" Background="Transparent"
                                          VerticalAlignment="Center"
                                          TextChanged="TxtStudentSearch_Changed">
@@ -151,7 +137,7 @@
 
                                     <!-- Аватар -->
                                     <Border Grid.Column="0" Width="32" Height="32"
-                                            CornerRadius="16" Background="#EFF6FC">
+                                            CornerRadius="16" Background="#F3F2F1">
                                         <TextBlock Text="{Binding Initial}"
                                                    FontSize="13" FontWeight="Bold"
                                                    Foreground="#0078D4"
@@ -173,7 +159,7 @@
 
                                     <!-- Бейдж достижений -->
                                     <Border Grid.Column="2"
-                                            Background="#FFF4CE" CornerRadius="10"
+                                            Background="#F3F2F1" CornerRadius="0"
                                             Padding="6,2" VerticalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -211,8 +197,6 @@
                 <StackPanel x:Name="EmptyState"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center">
-                    <TextBlock Text="🎓" FontSize="52"
-                               HorizontalAlignment="Center" Margin="0,0,0,14"/>
                     <TextBlock Text="Выберите студента"
                                FontSize="18" FontWeight="SemiBold"
                                Foreground="#3D4A60"
@@ -242,7 +226,7 @@
 
                             <!-- Большой аватар -->
                             <Border Grid.Column="0" Width="52" Height="52"
-                                    CornerRadius="26" Background="#EFF6FC"
+                                    CornerRadius="26" Background="#F3F2F1"
                                     Margin="0,0,16,0">
                                 <TextBlock x:Name="TxtAvatarBig"
                                            FontSize="22" FontWeight="Bold"
@@ -258,7 +242,7 @@
                                                Foreground="#1B2A4A"
                                                VerticalAlignment="Center"/>
                                     <Border x:Name="BdrHeadman"
-                                            Background="#FFF4CE" CornerRadius="4"
+                                            Background="#F3F2F1" CornerRadius="0"
                                             Padding="7,2" Margin="10,0,0,0"
                                             Visibility="Collapsed"
                                             VerticalAlignment="Center">
@@ -278,7 +262,7 @@
                             <!-- Счётчики сводки -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                <Border Background="#EFF6FC" CornerRadius="8"
+                                <Border Background="#F3F2F1" CornerRadius="0"
                                         Padding="12,6" Margin="0,0,8,0">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock x:Name="TxtSummaryGrade"
@@ -290,19 +274,19 @@
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Background="#DFF6DD" CornerRadius="8"
+                                <Border Background="#DFF6DD" CornerRadius="0"
                                         Padding="12,6" Margin="0,0,8,0">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock x:Name="TxtSummaryAttendance"
                                                    Text="—" FontSize="18"
-                                                   FontWeight="Bold" Foreground="#107C10"
+                                                   FontWeight="Bold" Foreground="#0078D4"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="посещаемость"
                                                    FontSize="10" Foreground="#8A94A6"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Background="#FFF4CE" CornerRadius="8"
+                                <Border Background="#F3F2F1" CornerRadius="0"
                                         Padding="12,6">
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock x:Name="TxtSummaryAchievements"
@@ -358,7 +342,7 @@
                         </TabControl.Resources>
 
                         <!-- Вкладка 1: О студенте -->
-                        <TabItem Header="👤  О студенте">
+                        <TabItem Header="О студенте">
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           Background="#F4F6FA">
                                 <StackPanel x:Name="PanelAbout" Margin="20,16,20,16"/>
@@ -366,7 +350,7 @@
                         </TabItem>
 
                         <!-- Вкладка 2: Достижения -->
-                        <TabItem Header="🏆  Достижения">
+                        <TabItem Header="Достижения">
                             <Grid Background="#F4F6FA">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -385,7 +369,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="Bdr" Background="#0078D4"
-                                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                            CornerRadius="0" Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="{TemplateBinding Content}"
                                                                    Foreground="White" FontSize="12"
                                                                    VerticalAlignment="Center"/>
@@ -399,7 +383,7 @@
                                             </Button.Template>
                                         </Button>
                                         <Button x:Name="BtnExportAchievements"
-                                                Content="📥  Экспорт"
+                                                Content="Экспорт"
                                                 Click="BtnExportAchievements_Click"
                                                 Height="32" Padding="14,0"
                                                 Margin="8,0,0,0"
@@ -408,7 +392,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="BdrEx" Background="#CCCCCC"
-                                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                            CornerRadius="0" Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="{TemplateBinding Content}"
                                                                    Foreground="White" FontSize="12"
                                                                    VerticalAlignment="Center"/>
@@ -444,7 +428,7 @@
                         </TabItem>
 
                         <!-- Вкладка 3: Успеваемость -->
-                        <TabItem Header="📊  Успеваемость">
+                        <TabItem Header="Успеваемость">
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           Background="#F4F6FA">
                                 <StackPanel x:Name="PanelGrades" Margin="20,16,20,16"/>
@@ -452,7 +436,7 @@
                         </TabItem>
 
                         <!-- Вкладка 4: Посещаемость -->
-                        <TabItem Header="📅  Посещаемость">
+                        <TabItem Header="Посещаемость">
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           Background="#F4F6FA">
                                 <StackPanel x:Name="PanelAttendance" Margin="20,16,20,16"/>
@@ -460,7 +444,7 @@
                         </TabItem>
 
                         <!-- Вкладка 5: Характеристика -->
-                        <TabItem Header="📝  Характеристика">
+                        <TabItem Header="Характеристика">
                             <Grid Background="#F4F6FA">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -468,7 +452,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Border Grid.Row="0" Margin="20,16,20,8"
-                                        Background="White" CornerRadius="10"
+                                        Background="White" CornerRadius="0"
                                         BorderBrush="#E3E6EE" BorderThickness="1">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#C0CADE" BlurRadius="8"
@@ -483,9 +467,6 @@
                                         <Border Grid.Row="0" Padding="16,12"
                                                 BorderBrush="#EEF1F7" BorderThickness="0,0,0,1">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="📝" FontSize="14"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,8,0"/>
                                                 <TextBlock Text="Педагогическая характеристика"
                                                            FontSize="13" FontWeight="SemiBold"
                                                            Foreground="#1B2A4A"
@@ -508,7 +489,7 @@
 
                                 <!-- Нижняя панель: статус + кнопка сохранить -->
                                 <Border Grid.Row="1" Margin="20,0,20,16"
-                                        Background="White" CornerRadius="8"
+                                        Background="White" CornerRadius="0"
                                         BorderBrush="#E3E6EE" BorderThickness="1"
                                         Padding="14,10">
                                     <Grid>
@@ -522,14 +503,14 @@
                                                    VerticalAlignment="Center"/>
                                         <Button x:Name="BtnSaveCharacteristic"
                                                 Grid.Column="1"
-                                                Content="💾  Сохранить характеристику"
+                                                Content="Сохранить характеристику"
                                                 Click="BtnSaveCharacteristic_Click"
                                                 Height="32" Padding="14,0"
                                                 FontSize="12" Cursor="Hand">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Bdr" Background="#107C10"
-                                                            CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                                    <Border x:Name="Bdr" Background="#005A9E"
+                                                            CornerRadius="0" Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="{TemplateBinding Content}"
                                                                    Foreground="White" FontSize="12"
                                                                    VerticalAlignment="Center"/>

@@ -20,12 +20,6 @@
                 BorderBrush="#E3E6EE" BorderThickness="0,0,0,1"
                 Padding="22,16">
             <StackPanel Orientation="Horizontal">
-                <Border Width="36" Height="36" CornerRadius="8"
-                        Background="#FFF4CE" Margin="0,0,12,0">
-                    <TextBlock Text="🏆" FontSize="16"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock x:Name="TxtWindowTitle"
                                Text="Новое достижение"
@@ -46,7 +40,7 @@
                 <!-- Название -->
                 <TextBlock Text="Название *" FontSize="11" FontWeight="SemiBold"
                            Foreground="#5A667A" Margin="0,0,0,5"/>
-                <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                         Background="White" Margin="0,0,0,14">
                     <TextBox x:Name="TxtTitle" BorderThickness="0"
                              Padding="10,8" FontSize="13"
@@ -64,7 +58,7 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Категория" FontSize="11" FontWeight="SemiBold"
                                    Foreground="#5A667A" Margin="0,0,0,5"/>
-                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                                 Background="White">
                             <ComboBox x:Name="CmbCategory" BorderThickness="0"
                                       Background="Transparent" Padding="8,6"
@@ -82,7 +76,7 @@
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Уровень" FontSize="11" FontWeight="SemiBold"
                                    Foreground="#5A667A" Margin="0,0,0,5"/>
-                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                                 Background="White">
                             <ComboBox x:Name="CmbLevel" BorderThickness="0"
                                       Background="Transparent" Padding="8,6"
@@ -108,7 +102,7 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Дата" FontSize="11" FontWeight="SemiBold"
                                    Foreground="#5A667A" Margin="0,0,0,5"/>
-                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                                 Background="White">
                             <DatePicker x:Name="DtAchieve" BorderThickness="0"
                                         Background="Transparent" Padding="6,4"
@@ -120,7 +114,7 @@
                         <TextBlock Text="№ документа / диплома"
                                    FontSize="11" FontWeight="SemiBold"
                                    Foreground="#5A667A" Margin="0,0,0,5"/>
-                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                        <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                                 Background="White">
                             <TextBox x:Name="TxtDocNumber" BorderThickness="0"
                                      Padding="10,8" FontSize="12"
@@ -132,7 +126,7 @@
                 <!-- Описание -->
                 <TextBlock Text="Описание" FontSize="11" FontWeight="SemiBold"
                            Foreground="#5A667A" Margin="0,0,0,5"/>
-                <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="6"
+                <Border BorderBrush="#D0D8E8" BorderThickness="1" CornerRadius="0"
                         Background="White" Margin="0,0,0,4">
                     <TextBox x:Name="TxtDescription" BorderThickness="0"
                              Padding="10,8" FontSize="12"
@@ -156,7 +150,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="#F0F4FB"
-                                    CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -169,13 +163,13 @@
                     </Button.Template>
                 </Button>
 
-                <Button Content="💾  Сохранить" Click="BtnSave_Click"
+                <Button Content="Сохранить" Click="BtnSave_Click"
                         Width="120" Height="34"
                         FontSize="12" Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="#0078D4"
-                                    CornerRadius="7" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <TextBlock Text="{TemplateBinding Content}"
                                            Foreground="White" FontSize="12"
                                            HorizontalAlignment="Center"

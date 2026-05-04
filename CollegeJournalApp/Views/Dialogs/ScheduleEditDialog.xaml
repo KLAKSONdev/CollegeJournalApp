@@ -80,7 +80,7 @@
             <TextBlock Grid.Row="4" Grid.Column="0" Text="Преподаватель" Style="{StaticResource FieldLabel}"/>
             <Border Grid.Row="4" Grid.Column="1" Margin="0,0,0,10"
                     Background="#F3F2F1" BorderBrush="#E0E0E0" BorderThickness="1"
-                    CornerRadius="4" Padding="8,6">
+                    CornerRadius="0" Padding="8,6">
                 <TextBlock x:Name="TxtTeacher" FontSize="12" Foreground="#605E5C"
                            VerticalAlignment="Center" Text="— выберите предмет —"/>
             </Border>

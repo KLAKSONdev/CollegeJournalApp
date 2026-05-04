@@ -40,19 +40,19 @@
                 </StackPanel>
 
                 <!-- Найти — только Admin -->
-                <Button x:Name="BtnSearch" Content="🔍 Найти"
+                <Button x:Name="BtnSearch" Content="Найти"
                         Visibility="Collapsed" Width="90" Height="30" Margin="0,0,8,0"
                         FontSize="12" Background="#0078D4" Foreground="White"
                         BorderThickness="0" Cursor="Hand" Click="BtnSearch_Click"/>
 
                 <!-- Шаблон Excel — только Admin -->
-                <Button x:Name="BtnTemplate" Content="📋 Шаблон"
+                <Button x:Name="BtnTemplate" Content="Шаблон"
                         Visibility="Collapsed" Width="100" Height="30" Margin="0,0,8,0"
-                        FontSize="12" Background="#107C10" Foreground="White"
+                        FontSize="12" Background="#005A9E" Foreground="White"
                         BorderThickness="0" Cursor="Hand" Click="BtnTemplate_Click"/>
 
                 <!-- Импорт — Admin и Headman -->
-                <Button x:Name="BtnImport" Content="📥 Загрузить из Excel"
+                <Button x:Name="BtnImport" Content="Загрузить из Excel"
                         Visibility="Collapsed" Width="160" Height="30" Margin="0,0,12,0"
                         FontSize="12" Background="#605E5C" Foreground="White"
                         BorderThickness="0" Cursor="Hand" Click="BtnImport_Click"/>

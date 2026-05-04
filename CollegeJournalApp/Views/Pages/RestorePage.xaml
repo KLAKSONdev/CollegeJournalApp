@@ -25,12 +25,6 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="40" Height="40" CornerRadius="10"
-                            Background="#FDE7E9" Margin="0,0,14,0">
-                        <TextBlock Text="🗑️" FontSize="18"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Корзина — удалённые записи"
                                    FontSize="17" FontWeight="SemiBold"
@@ -53,44 +47,35 @@
 
                 <!-- Поиск -->
                 <Border BorderBrush="#D0D8E8" BorderThickness="1"
-                        CornerRadius="6" Background="White"
+                        CornerRadius="0" Background="White"
                         Width="240" Height="32" Margin="0,0,10,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="🔍"
-                                   FontSize="12" Foreground="#8A94A6"
-                                   VerticalAlignment="Center" Margin="10,0,6,0"/>
-                        <TextBox x:Name="TxtSearch" Grid.Column="1"
-                                 BorderThickness="0" Padding="0,6,8,6"
-                                 FontSize="12" Background="Transparent"
-                                 VerticalAlignment="Center"
-                                 TextChanged="Filter_Changed">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <Trigger Property="Text" Value="">
-                                            <Setter Property="Background">
-                                                <Setter.Value>
-                                                    <VisualBrush Stretch="None" AlignmentX="Left">
-                                                        <VisualBrush.Visual>
-                                                            <TextBlock Text="Поиск по названию…"
-                                                                       Foreground="#B0B8C8"
-                                                                       FontSize="12"
-                                                                       FontFamily="Segoe UI"
-                                                                       Margin="0,6,0,0"/>
-                                                        </VisualBrush.Visual>
-                                                    </VisualBrush>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                    </Grid>
+                    <TextBox x:Name="TxtSearch"
+                             BorderThickness="0" Padding="8,6,8,6"
+                             FontSize="12" Background="Transparent"
+                             VerticalAlignment="Center"
+                             TextChanged="Filter_Changed">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <VisualBrush Stretch="None" AlignmentX="Left">
+                                                    <VisualBrush.Visual>
+                                                        <TextBlock Text="Поиск по названию…"
+                                                                   Foreground="#B0B8C8"
+                                                                   FontSize="12"
+                                                                   FontFamily="Segoe UI"
+                                                                   Margin="0,6,0,0"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
                 </Border>
 
                 <!-- Фильтр по типу — кнопки-чипы -->
@@ -101,7 +86,7 @@
                             FontSize="12" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="Bdr" CornerRadius="6"
+                                <Border x:Name="Bdr" CornerRadius="0"
                                         Background="#0078D4"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="{TemplateBinding Content}"
@@ -117,13 +102,13 @@
                         </Button.Template>
                     </Button>
 
-                    <Button x:Name="BtnStudents" Content="👤 Студенты"
+                    <Button x:Name="BtnStudents" Content="Студенты"
                             Tag="Students" Click="ChipFilter_Click"
                             Height="32" Padding="12,0" Margin="6,0,0,0"
                             FontSize="12" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="Bdr" CornerRadius="6"
+                                <Border x:Name="Bdr" CornerRadius="0"
                                         Background="#F0F4FB"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="{TemplateBinding Content}"
@@ -139,13 +124,13 @@
                         </Button.Template>
                     </Button>
 
-                    <Button x:Name="BtnDocuments" Content="📄 Документы"
+                    <Button x:Name="BtnDocuments" Content="Документы"
                             Tag="Documents" Click="ChipFilter_Click"
                             Height="32" Padding="12,0" Margin="6,0,0,0"
                             FontSize="12" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="Bdr" CornerRadius="6"
+                                <Border x:Name="Bdr" CornerRadius="0"
                                         Background="#F0F4FB"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="{TemplateBinding Content}"
@@ -161,13 +146,13 @@
                         </Button.Template>
                     </Button>
 
-                    <Button x:Name="BtnParents" Content="👨‍👩‍👧 Родители"
+                    <Button x:Name="BtnParents" Content="Родители"
                             Tag="Parents" Click="ChipFilter_Click"
                             Height="32" Padding="12,0" Margin="6,0,0,0"
                             FontSize="12" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="Bdr" CornerRadius="6"
+                                <Border x:Name="Bdr" CornerRadius="0"
                                         Background="#F0F4FB"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="{TemplateBinding Content}"
@@ -185,7 +170,7 @@
                 </StackPanel>
 
                 <!-- Обновить -->
-                <Button Content="⟳  Обновить" Click="BtnRefresh_Click"
+                <Button Content="Обновить" Click="BtnRefresh_Click"
                         Height="32" Padding="14,0"
                         Background="#F0F4FB" Foreground="#3D4A60"
                         BorderThickness="0"
@@ -193,7 +178,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Bdr" Background="#F0F4FB"
-                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                    CornerRadius="0" Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Border>
@@ -213,7 +198,7 @@
 
             <!-- Таблица -->
             <Border Margin="20,16,20,16"
-                    Background="White" CornerRadius="10"
+                    Background="White" CornerRadius="0"
                     BorderBrush="#E3E6EE" BorderThickness="1">
                 <Border.Effect>
                     <DropShadowEffect Color="#C0CADE" BlurRadius="12"
@@ -279,7 +264,7 @@
                                 <DataTemplate>
                                     <Border Margin="14,0" HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
-                                            CornerRadius="5" Padding="10,4">
+                                            CornerRadius="0" Padding="10,4">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="#F0F4FB"/>
@@ -302,17 +287,6 @@
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Text" Value="●"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding TableName}" Value="Students">
-                                                                <Setter Property="Text" Value="👤"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding TableName}" Value="Documents">
-                                                                <Setter Property="Text" Value="📄"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding TableName}" Value="Parents">
-                                                                <Setter Property="Text" Value="👨‍👩‍👧"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
                                                     </Style>
                                                 </TextBlock.Style>
                                             </TextBlock>
@@ -403,7 +377,7 @@
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="Bdr"
                                                         Background="#DFF6DD"
-                                                        CornerRadius="6"
+                                                        CornerRadius="0"
                                                         Padding="{TemplateBinding Padding}">
                                                     <TextBlock Text="{TemplateBinding Content}"
                                                                FontSize="11.5"
@@ -435,9 +409,6 @@
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Visibility="Collapsed">
-                <TextBlock Text="✅" FontSize="48"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,12"/>
                 <TextBlock Text="Корзина пуста"
                            FontSize="18" FontWeight="SemiBold"
                            Foreground="#3D4A60"
