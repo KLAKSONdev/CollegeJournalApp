@@ -49,11 +49,9 @@ namespace CollegeJournalApp.Views
             TabAttendance.Visibility   = isHeadmanOrAbove ? Visibility.Visible : Visibility.Collapsed;
             TabAchievements.Visibility = isHeadmanOrAbove ? Visibility.Visible : Visibility.Collapsed;
 
-            // Кнопки фото — только куратор и админ
             BtnUploadPhoto.Visibility  = _canEditPhoto ? Visibility.Visible : Visibility.Collapsed;
             BtnDeletePhoto.Visibility  = _canEditPhoto ? Visibility.Visible : Visibility.Collapsed;
 
-            // Кнопки редактирования данных — только куратор и админ
             BtnEditPersonal.Visibility  = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
             BtnEditSocial.Visibility    = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
             BtnAddParent.Visibility     = isCuratorOrAdmin ? Visibility.Visible : Visibility.Collapsed;
@@ -81,10 +79,8 @@ namespace CollegeJournalApp.Views
                 if (dt == null || dt.Rows.Count == 0) return;
                 var r = dt.Rows[0];
 
-                // Фото
                 LoadPhoto(r);
 
-                // Шапка
                 bool isHead = r["IsHeadman"] != DBNull.Value && Convert.ToBoolean(r["IsHeadman"]);
                 TxtName.Text   = _studentName;
                 TxtStatus.Text = isHead ? "Староста" : "Студент";
@@ -93,7 +89,6 @@ namespace CollegeJournalApp.Views
                 if (!isHead)
                     BdrStatus.Background = new SolidColorBrush(Color.FromRgb(96, 94, 92));
 
-                // Личные данные
                 TxtBirthDate.Text   = r["BirthDate"] != DBNull.Value ? Convert.ToDateTime(r["BirthDate"]).ToString("dd.MM.yyyy") : "—";
                 TxtGender.Text      = r["Gender"]?.ToString()      ?? "—";
                 TxtBirthPlace.Text  = r["BirthPlace"]?.ToString()  ?? "—";
@@ -107,7 +102,6 @@ namespace CollegeJournalApp.Views
                 var roomNum  = r["RoomNumber"]    != DBNull.Value ? ", к." + r["RoomNumber"]      : "";
                 TxtDorm.Text = string.IsNullOrEmpty(dormName) ? "Не проживает" : dormName + roomNum;
 
-                // Паспорт
                 var series = r["PassportSeries"]?.ToString() ?? "";
                 var number = r["PassportNumber"]?.ToString() ?? "";
                 TxtPassport.Text     = series.Length > 0 ? $"{series} {number}" : "—";
@@ -125,7 +119,7 @@ namespace CollegeJournalApp.Views
             }
         }
 
-        // ── Фото ──────────────────────────────────────────────
+        //Фото
         private void LoadPhoto(DataRow r)
         {
             try
@@ -138,7 +132,6 @@ namespace CollegeJournalApp.Views
                 }
                 else
                 {
-                    // Аватар-заглушка с инициалами
                     ImgPhoto.Source = null;
                     TxtAvatar.Visibility = Visibility.Visible;
                     TxtAvatar.Text = _studentName?.Length > 0 ? _studentName.Substring(0, 1).ToUpper() : "?";
@@ -236,7 +229,6 @@ namespace CollegeJournalApp.Views
             }
         }
 
-        // ── Остальные вкладки ──────────────────────────────────
         private void LoadSocialData()
         {
             try
@@ -402,7 +394,6 @@ namespace CollegeJournalApp.Views
             catch { }
         }
 
-        // ── Редактирование личных данных ───────────────────────
         private void BtnEditPersonal_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new PersonalEditDialog(_studentId) { Owner = this };
@@ -410,7 +401,6 @@ namespace CollegeJournalApp.Views
                 LoadPersonalData();
         }
 
-        // ── Редактирование соц. карточки ───────────────────────
         private void BtnEditSocial_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new SocialEditDialog(_studentId) { Owner = this };
@@ -418,7 +408,6 @@ namespace CollegeJournalApp.Views
                 LoadSocialData();
         }
 
-        // ── Добавить родителя ──────────────────────────────────
         private void BtnAddParent_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new ParentEditDialog(_studentId) { Owner = this };
@@ -426,7 +415,6 @@ namespace CollegeJournalApp.Views
                 LoadParents();
         }
 
-        // ── Редактировать родителя ─────────────────────────────
         private void BtnEditParent_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int parentId)
@@ -437,7 +425,6 @@ namespace CollegeJournalApp.Views
             }
         }
 
-        // ── Удалить родителя ───────────────────────────────────
         private void BtnDeleteParent_Click(object sender, RoutedEventArgs e)
         {
             if (!(sender is Button btn && btn.Tag is int parentId)) return;
@@ -462,7 +449,6 @@ namespace CollegeJournalApp.Views
             }
         }
 
-        // ── Документы ──────────────────────────────────────────
         private void BtnAddDocument_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new DocumentAddDialog(_studentId) { Owner = this };
@@ -475,11 +461,9 @@ namespace CollegeJournalApp.Views
             var row = DocumentsGrid.SelectedItem as DocumentRow;
             bool hasSelection = row != null;
 
-            // Открыть — если есть файл
             BtnOpenDocument.IsEnabled = hasSelection && !string.IsNullOrEmpty(row?.FilePath)
                                         && System.IO.File.Exists(row.FilePath);
 
-            // Удалить — только куратор/админ
             bool canEdit = SessionHelper.IsCurator || SessionHelper.IsAdmin;
             BtnDeleteDocument.IsEnabled = hasSelection && canEdit;
         }

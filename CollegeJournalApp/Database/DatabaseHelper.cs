@@ -28,6 +28,14 @@ namespace CollegeJournalApp.Database
             catch { return false; }
         }
 
+        private static void AddParameters(SqlCommand cmd, SqlParameter[] parameters)
+        {
+            if (parameters == null) return;
+            foreach (var p in parameters)
+                if (p.Value == null) p.Value = DBNull.Value;
+            cmd.Parameters.AddRange(parameters);
+        }
+
         public static DataTable ExecuteProcedure(string procedure, SqlParameter[] parameters = null)
         {
             var dt = new DataTable();
@@ -38,7 +46,7 @@ namespace CollegeJournalApp.Database
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.CommandTimeout = 30;
-                    if (parameters != null) cmd.Parameters.AddRange(parameters);
+                    AddParameters(cmd, parameters);
                     new SqlDataAdapter(cmd).Fill(dt);
                 }
             }
@@ -64,7 +72,7 @@ namespace CollegeJournalApp.Database
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.CommandTimeout = 30;
-                    if (parameters != null) cmd.Parameters.AddRange(parameters);
+                    AddParameters(cmd, parameters);
                     return cmd.ExecuteNonQuery();
                 }
             }
@@ -84,7 +92,7 @@ namespace CollegeJournalApp.Database
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.CommandTimeout = 30;
-                    if (parameters != null) cmd.Parameters.AddRange(parameters);
+                    AddParameters(cmd, parameters);
                     new SqlDataAdapter(cmd).Fill(dt);
                 }
             }

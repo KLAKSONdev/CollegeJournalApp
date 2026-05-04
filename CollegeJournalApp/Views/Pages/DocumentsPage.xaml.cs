@@ -18,18 +18,16 @@ namespace CollegeJournalApp.Views.Pages
 {
     public partial class DocumentsPage : Page
     {
-        // ── Режим ─────────────────────────────────────────────────────────
+        //Режимы данных
         private enum Mode { Personal, General }
         private Mode _mode = Mode.Personal;
 
-        // ── Данные студентов ───────────────────────────────────────────────
         private List<DocStudentItem> _allStudents = new List<DocStudentItem>();
         private DocStudentItem       _selectedStudent;
 
-        // ── Доступ куратора ────────────────────────────────────────────────
         private bool     _hasAccess;
         private DateTime? _accessExpiry;
-        private string   _accessStatus;   // Pending | Approved | Denied | None
+        private string   _accessStatus; 
 
         public DocumentsPage()
         {
@@ -40,11 +38,10 @@ namespace CollegeJournalApp.Views.Pages
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // Кнопка запросов — только для Админа
+
             if (SessionHelper.IsAdmin)
                 BtnPendingRequests.Visibility = Visibility.Visible;
 
-            // Кнопка загрузки общих документов — только для Админа
             if (SessionHelper.IsAdmin)
                 BtnUploadGeneral.Visibility = Visibility.Visible;
 
@@ -53,8 +50,7 @@ namespace CollegeJournalApp.Views.Pages
             RefreshPendingCount();
         }
 
-        // ── Уведомления куратора ───────────────────────────────────────────
-
+            //Уведомления  для куратора
         private void LoadDocumentNotifications()
         {
             PanelNotifs.Children.Clear();
@@ -100,7 +96,7 @@ namespace CollegeJournalApp.Views.Pages
             catch { }
         }
 
-        // ── Загрузка групп и студентов ─────────────────────────────────────
+        //Загрузка данных о группах и студентах
 
         private void LoadGroups()
         {

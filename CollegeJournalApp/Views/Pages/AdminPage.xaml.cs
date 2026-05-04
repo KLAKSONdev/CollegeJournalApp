@@ -25,7 +25,6 @@ namespace CollegeJournalApp.Views.Pages
         public AdminPage()
         {
             InitializeComponent();
-            // Отключаем кэширование — страница всегда пересоздаётся свежей
             KeepAlive = false;
             Loaded += (s, e) => LoadAll();
         }
@@ -41,7 +40,6 @@ namespace CollegeJournalApp.Views.Pages
             LoadDormitories();
         }
 
-        // ═══ СТУДЕНТЫ ═══
         public void LoadStudents()
         {
             try
@@ -77,7 +75,6 @@ namespace CollegeJournalApp.Views.Pages
                     });
                 }
 
-                // Применяем текущий фильтр поиска
                 ApplyStudentFilter();
                 TxtStudentsTotal.Text = $"— {_students.Count} записей";
             }
@@ -108,7 +105,7 @@ namespace CollegeJournalApp.Views.Pages
             var dlg = new StudentEditDialog(null);
             dlg.Owner = Window.GetWindow(this);
             if (dlg.ShowDialog() == true)
-                LoadStudents(); // сразу обновляем
+                LoadStudents(); 
         }
 
         private void BtnEditStudent_Click(object sender, RoutedEventArgs e)
@@ -133,7 +130,7 @@ namespace CollegeJournalApp.Views.Pages
             var dlg = new StudentEditDialog(studentId);
             dlg.Owner = Window.GetWindow(this);
             if (dlg.ShowDialog() == true)
-                LoadStudents(); // сразу обновляем
+                LoadStudents();
         }
 
         private void BtnDeleteStudent_Click(object sender, RoutedEventArgs e)
@@ -159,7 +156,7 @@ namespace CollegeJournalApp.Views.Pages
                         new SqlParameter("@RecordId",    row.StudentId),
                         new SqlParameter("@DeletedById", SessionHelper.UserId)
                     });
-                    LoadStudents(); // сразу убираем из таблицы
+                    LoadStudents();
                 }
                 catch (Exception ex)
                 {
@@ -168,7 +165,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ ГРУППЫ ═══
         public void LoadGroups()
         {
             try
@@ -279,7 +275,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ ПОЛЬЗОВАТЕЛИ ═══
         public void LoadUsers()
         {
             try
@@ -385,7 +380,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ ПРЕПОДАВАТЕЛИ ═══
         public void LoadTeachers()
         {
             try
@@ -457,7 +451,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ ДИСЦИПЛИНЫ ═══
         public void LoadSubjects()
         {
             try
@@ -533,7 +526,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ УЧЕБНЫЕ ГОДЫ ═══
         public void LoadAcademicYears()
         {
             try
@@ -611,7 +603,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ═══ ОБЩЕЖИТИЯ ═══
         public void LoadDormitories()
         {
             try

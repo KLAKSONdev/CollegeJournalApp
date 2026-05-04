@@ -42,22 +42,18 @@ namespace CollegeJournalApp.Views
                         new System.Globalization.CultureInfo("ru-RU"))
                     : "—";
 
-                // Заголовок
                 Title = $"Действие #{_logId} — {actionRu}";
                 TxtActionRu.Text = actionRu;
                 TxtDateTime.Text = dateTime;
 
-                // Цвет и иконка по типу действия
                 SetActionStyle(actionCode);
 
-                // Пользователь
                 var fullName = r["UserFullName"]?.ToString() ?? "Система";
                 TxtUserFullName.Text = fullName;
                 TxtAvatar.Text = fullName.Length > 0 ? fullName.Substring(0, 1).ToUpper() : "?";
                 TxtLogin.Text  = "@" + (r["UserLogin"]?.ToString() ?? "—");
                 TxtRole.Text   = GetRoleRu(r["RoleName"]?.ToString());
 
-                // Детали
                 var tableName = r["TableName"]?.ToString() ?? "";
                 TxtTable.Text = string.IsNullOrEmpty(tableName) ? "—" : DatabaseHelper.TableRu(tableName);
 
@@ -71,7 +67,6 @@ namespace CollegeJournalApp.Views
 
                 TxtIP.Text = r["IPAddress"]?.ToString() ?? "—";
 
-                // Просмотренные данные
                 var viewTarget = r["ViewTarget"]?.ToString() ?? "";
                 if (!string.IsNullOrEmpty(viewTarget))
                 {
@@ -80,7 +75,6 @@ namespace CollegeJournalApp.Views
                     TxtView.Text = viewTarget;
                 }
 
-                // Блок изменений
                 var oldVal = r["OldValues"]?.ToString() ?? "";
                 var newVal = r["NewValues"]?.ToString() ?? "";
                 if (!string.IsNullOrEmpty(oldVal) || !string.IsNullOrEmpty(newVal))

@@ -30,8 +30,6 @@ namespace CollegeJournalApp.Views.Pages
             Unloaded += (s, e) => _timer?.Stop();
         }
 
-        // ── Инициализация ──────────────────────────────────────────────────
-
         private void Init()
         {
             if (SessionHelper.IsAdmin)
@@ -44,7 +42,7 @@ namespace CollegeJournalApp.Views.Pages
             _timer.Start();
         }
 
-        // ── Загрузка данных ────────────────────────────────────────────────
+        //Загрузка данных 
 
         private void LoadData()
         {
@@ -83,7 +81,6 @@ namespace CollegeJournalApp.Views.Pages
                     });
                 }
 
-                // Загружаем вложения (метаданные)
                 LoadAttachmentsMeta();
 
                 Render(TxtSearch.Text.Trim());
@@ -106,7 +103,6 @@ namespace CollegeJournalApp.Views.Pages
                     new SqlParameter("@RoleName", SessionHelper.RoleName)
                 });
 
-                // Группируем по AnnouncementId
                 var dict = new Dictionary<int, List<AnnAttachment>>();
                 foreach (DataRow r in dt.Rows)
                 {
@@ -133,7 +129,7 @@ namespace CollegeJournalApp.Views.Pages
             catch { /* вложения не критичны */ }
         }
 
-        // ── Отрисовка карточек ─────────────────────────────────────────────
+        //Отрисовка карточек 
 
         private void Render(string search)
         {
@@ -145,7 +141,6 @@ namespace CollegeJournalApp.Views.Pages
                     a.Title.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
                     a.Body.IndexOf(search,  StringComparison.OrdinalIgnoreCase) >= 0).ToList();
 
-            // Закреплённые — вверх
             list = list.OrderByDescending(a => a.IsPinnedByUser)
                        .ThenByDescending(a => a.CreatedAt)
                        .ToList();
@@ -191,7 +186,6 @@ namespace CollegeJournalApp.Views.Pages
 
         private UIElement BuildCard(AnnRow row)
         {
-            // Клиентская проверка срока (на случай устаревших данных)
             if (row.ExpiresAt.HasValue && row.ExpiresAt.Value <= DateTime.Now)
                 return null;
 
@@ -203,7 +197,6 @@ namespace CollegeJournalApp.Views.Pages
             };
             card.Effect = Shadow();
 
-            // Если закреплено — лёгкая обводка
             if (row.IsPinnedByUser)
             {
                 card.BorderBrush     = new SolidColorBrush(Color.FromRgb(0, 120, 212));
@@ -214,7 +207,6 @@ namespace CollegeJournalApp.Views.Pages
             outer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(5) });
             outer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Полоска слева
             var strip = new Border
             {
                 Background   = new SolidColorBrush(AudienceAccentColor(row.TargetAudience)),
@@ -223,17 +215,14 @@ namespace CollegeJournalApp.Views.Pages
             Grid.SetColumn(strip, 0);
             outer.Children.Add(strip);
 
-            // Контент
             var content = new StackPanel { Margin = new Thickness(18, 14, 18, 14) };
             Grid.SetColumn(content, 1);
 
-            // ── Строка заголовка: [закреп] [заголовок] [кнопки] ──────────
             var titleRow = new Grid();
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // иконка закрепа
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // заголовок
             titleRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });   // кнопки
 
-            // Иконка «закреплено»
             if (row.IsPinnedByUser)
             {
                 var pinIcon = new TextBlock
@@ -259,7 +248,6 @@ namespace CollegeJournalApp.Views.Pages
             Grid.SetColumn(titleTb, 1);
             titleRow.Children.Add(titleTb);
 
-            // Кнопки управления
             var btnPanel = new StackPanel
             {
                 Orientation       = Orientation.Horizontal,
@@ -267,7 +255,6 @@ namespace CollegeJournalApp.Views.Pages
             };
             Grid.SetColumn(btnPanel, 2);
 
-            // Кнопка закрепить/открепить
             int  capturedId    = row.AnnouncementId;
             bool capturedPin   = row.IsPinnedByUser;
             var btnPin = new Button
@@ -290,7 +277,6 @@ namespace CollegeJournalApp.Views.Pages
             btnPin.Click += (s, e) => TogglePin(capturedId, capturedPin);
             btnPanel.Children.Add(btnPin);
 
-            // Кнопка удаления (только Admin)
             if (SessionHelper.IsAdmin)
             {
                 var btnDel = new Button
@@ -311,7 +297,6 @@ namespace CollegeJournalApp.Views.Pages
             titleRow.Children.Add(btnPanel);
             content.Children.Add(titleRow);
 
-            // Бейдж аудитории
             var badgeText = AudienceBadgeText(row);
             if (!string.IsNullOrEmpty(badgeText))
             {
@@ -333,7 +318,6 @@ namespace CollegeJournalApp.Views.Pages
                 content.Children.Add(badge);
             }
 
-            // Тело объявления
             content.Children.Add(new TextBlock
             {
                 Text         = row.Body,
@@ -344,7 +328,7 @@ namespace CollegeJournalApp.Views.Pages
                 LineHeight   = 20
             });
 
-            // ── Вложения ───────────────────────────────────────────────────
+            //Вложения 
             if (row.Attachments != null && row.Attachments.Count > 0)
             {
                 var attHeader = new TextBlock
@@ -412,7 +396,6 @@ namespace CollegeJournalApp.Views.Pages
                 content.Children.Add(attPanel);
             }
 
-            // Подвал: автор + дата + срок
             var footer = new TextBlock
             {
                 FontSize   = 11,
@@ -462,7 +445,7 @@ namespace CollegeJournalApp.Views.Pages
             return card;
         }
 
-        // ── Закрепить / Открепить ──────────────────────────────────────────
+        //  Закрепить / Открепить 
 
         private void TogglePin(int announcementId, bool currentlyPinned)
         {
@@ -482,7 +465,7 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ── Скачать вложение ───────────────────────────────────────────────
+        //  Скачать вложение 
 
         private void DownloadAttachment(int attachmentId, string fileName)
         {
@@ -510,7 +493,6 @@ namespace CollegeJournalApp.Views.Pages
                 try { Process.Start(tempPath); }
                 catch
                 {
-                    // Если ОС не знает, чем открыть — показываем диалог «Открыть с помощью»
                     Process.Start(new ProcessStartInfo
                     {
                         FileName  = tempPath,
@@ -525,7 +507,7 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ── Вспомогательные методы для аудитории ──────────────────────────
+        //  Вспомогательные методы для аудитории 
 
         private static string AudienceBadgeText(AnnRow row)
         {
@@ -571,7 +553,7 @@ namespace CollegeJournalApp.Views.Pages
             Direction   = 270
         };
 
-        // ── Форматирование файлов ──────────────────────────────────────────
+        //  Форматирование файлов 
 
         private static string FormatFileSize(long bytes)
         {
@@ -627,7 +609,7 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ── Создать объявление ─────────────────────────────────────────────
+        //  Создать объявление 
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
@@ -676,7 +658,7 @@ namespace CollegeJournalApp.Views.Pages
 
             var root = new StackPanel { Margin = new Thickness(24) };
 
-            // ── Заголовок ─────────────────────────────────────────────────
+            //  Заголовок 
             root.Children.Add(MakeLabel("Заголовок"));
             var txtTitle = new TextBox
             {
@@ -688,7 +670,7 @@ namespace CollegeJournalApp.Views.Pages
             };
             root.Children.Add(txtTitle);
 
-            // ── Текст ─────────────────────────────────────────────────────
+            // Текст 
             root.Children.Add(MakeLabel("Текст объявления"));
             var txtBody = new TextBox
             {
@@ -703,7 +685,7 @@ namespace CollegeJournalApp.Views.Pages
             };
             root.Children.Add(txtBody);
 
-            // ── Получатели ────────────────────────────────────────────────
+            //Получатели
             root.Children.Add(MakeLabel("Получатели"));
             var cmbAudience = new ComboBox
             {
@@ -741,7 +723,7 @@ namespace CollegeJournalApp.Views.Pages
             };
             cmbAudience.SelectedIndex = 0;
 
-            // ── Срок действия ─────────────────────────────────────────────
+            //Срок действия
             var chkExpires = new CheckBox
             {
                 Content    = "Установить срок действия",
@@ -829,7 +811,7 @@ namespace CollegeJournalApp.Views.Pages
             chkExpires.Checked   += (s, e) => panelExpires.Visibility = Visibility.Visible;
             chkExpires.Unchecked += (s, e) => panelExpires.Visibility = Visibility.Collapsed;
 
-            // ── Вложения ──────────────────────────────────────────────────
+            //Вложения
             var sepLine = new Border
             {
                 Height          = 1,
@@ -860,18 +842,16 @@ namespace CollegeJournalApp.Views.Pages
             attHeaderRow.Children.Add(btnAddFile);
             root.Children.Add(attHeaderRow);
 
-            // Список прикреплённых файлов
             var fileListPanel = new StackPanel { Margin = new Thickness(0, 6, 0, 0) };
             root.Children.Add(fileListPanel);
 
-            // Лямбда для обновления списка файлов в UI
             Action refreshFileList = null;
             refreshFileList = () =>
             {
                 fileListPanel.Children.Clear();
                 foreach (var pf in pendingFiles.ToList())
                 {
-                    var pf2 = pf; // capture
+                    var pf2 = pf; 
                     var fileRow = new Grid { Margin = new Thickness(0, 0, 0, 4) };
                     fileRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                     fileRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -915,7 +895,6 @@ namespace CollegeJournalApp.Views.Pages
                     Grid.SetColumn(btnRemove, 2);
                     fileRow.Children.Add(btnRemove);
 
-                    // Capture для удаления
                     var capturedPf = pf2;
                     btnRemove.Click += (s, e) =>
                     {
@@ -960,13 +939,12 @@ namespace CollegeJournalApp.Views.Pages
                 {
                     if (pendingFiles.Count >= 5) break;
                     var fi = new FileInfo(path);
-                    if (fi.Length > 20 * 1024 * 1024) // 20 МБ лимит
+                    if (fi.Length > 20 * 1024 * 1024) 
                     {
                         MessageBox.Show($"Файл «{fi.Name}» превышает допустимый размер 20 МБ.",
                             "Слишком большой файл", MessageBoxButton.OK, MessageBoxImage.Warning);
                         continue;
                     }
-                    // Проверяем дубликат
                     if (pendingFiles.Any(f => f.FileName == fi.Name)) continue;
 
                     pendingFiles.Add(new PendingFile
@@ -980,7 +958,6 @@ namespace CollegeJournalApp.Views.Pages
                 refreshFileList();
             };
 
-            // ── Кнопки ────────────────────────────────────────────────────
             var btnRow = new StackPanel
             {
                 Orientation         = Orientation.Horizontal,
@@ -1086,7 +1063,6 @@ namespace CollegeJournalApp.Views.Pages
 
                 try
                 {
-                    // Создаём объявление и получаем новый ID
                     var newRow = DatabaseHelper.ExecuteSingleRow("sp_CreateAnnouncement", new[]
                     {
                         new SqlParameter("@Title",          title),
@@ -1098,7 +1074,6 @@ namespace CollegeJournalApp.Views.Pages
                         new SqlParameter("@ExpiresAt",      expiresVal)
                     });
 
-                    // Загружаем вложения
                     if (pendingFiles.Count > 0 && newRow != null && newRow["AnnouncementId"] != DBNull.Value)
                     {
                         int newAnnId = Convert.ToInt32(newRow["AnnouncementId"]);
@@ -1159,7 +1134,7 @@ namespace CollegeJournalApp.Views.Pages
             Margin     = new Thickness(0, 0, 0, 4)
         };
 
-        // ── Удалить объявление ─────────────────────────────────────────────
+        //Удалить объявление
 
         private void DeleteAnnouncement(int id)
         {
@@ -1183,7 +1158,6 @@ namespace CollegeJournalApp.Views.Pages
             }
         }
 
-        // ── Поиск ──────────────────────────────────────────────────────────
 
         private void TxtSearch_Changed(object sender, TextChangedEventArgs e)
         {
@@ -1191,7 +1165,6 @@ namespace CollegeJournalApp.Views.Pages
         }
     }
 
-    // ── Вспомогательные классы ─────────────────────────────────────────────
 
     public class AnnRow
     {
